@@ -1,0 +1,65 @@
+"use client";
+
+import React from "react";
+import { Building2, User, Settings, LogOut } from "lucide-react";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+
+function AppBar() {
+  return (
+    <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50 py-4 px-2">
+      <div className="max-w-6xl mx-auto flex items-center justify-between">
+        {/* Left: Brand */}
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
+            <Building2 className="w-5 h-5 text-white" />
+          </div>
+          <h1 className="text-xl font-semibold text-gray-900">LMS</h1>
+        </div>
+
+        {/* Right: Actions */}
+        <div className="flex items-center space-x-3">
+          <button className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+            <Settings className="w-5 h-5" />
+          </button>
+
+          {/* Profile menu */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center hover:opacity-90 transition">
+                <User className="w-4 h-4 text-white" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent
+              className="w-56 p-0 backdrop-blur-md bg-white/70 border-0 rounded-xl shadow-lg"
+              align="end"
+            >
+              {/* User info */}
+              <div className="px-4 py-3">
+                <p className="text-sm font-medium text-gray-900">John Doe</p>
+                <p className="text-xs text-gray-600">john.doe@email.com</p>
+              </div>
+
+              {/* Divider */}
+              <div className="h-px bg-gray-200/50 mx-2" />
+
+              {/* Actions */}
+              <button
+                className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-white/40 transition rounded-lg"
+                onClick={() => alert("Logging out...")}
+              >
+                <LogOut className="w-4 h-4 mr-2 text-gray-500" />
+                Logout
+              </button>
+            </PopoverContent>
+          </Popover>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+export default AppBar;

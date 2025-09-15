@@ -3,8 +3,8 @@ import React from "react";
 import AppBar from "@/components/app-bar";
 
 import { getOrganizationsById } from "@/features/organizations/organizations.service";
-import { OrganizationUpdateForm } from "@/components/admin/organizationDetails";
-import { MembersSection } from "@/components/admin/membersSection";
+import { OrganizationUpdateForm, OrgFormValues } from "@/components/organization/organizationDetails";
+import { MembersSection } from "@/components/organization/membersSection";
 
 async function Dashboard() {
 //   const organizationData = await getOrganizationsById("zwxxsx");
@@ -17,7 +17,9 @@ async function Dashboard() {
         <div className="text-center ">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Zenmonk</h2>
         </div>
-          <OrganizationUpdateForm />
+          <OrganizationUpdateForm onSubmit={function (values: OrgFormValues): void {
+          throw new Error("Function not implemented.");
+        } } />
         <MembersSection />
       </main>
     </div>

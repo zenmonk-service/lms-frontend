@@ -23,7 +23,7 @@ const mockOrganizations: Organization[] = [
     id: "1",
     name: "TechCorp Industries",
     domain: "techcorp.com",
-  },
+  }, 
   {
     id: "2",
     name: "Design Studio Pro",

@@ -8,9 +8,9 @@ import { Button } from "@/components/ui/button";
 import DataGridDemo from "@/components/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Shield, Users } from "lucide-react";
-import Settings from "@/components/admin/settings";
-import ExampleUsage from "@/components/admin/organizationGrid";
-import CreateOrganizationForm from "@/components/admin/createOrganization";
+import Settings from "@/components/organization/settings";
+import ExampleUsage from "@/components/organization/organizationGrid";
+import CreateOrganizationForm from "@/components/organization/createOrganization";
 import {
   Dialog,
   DialogTrigger,

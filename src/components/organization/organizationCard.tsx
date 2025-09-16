@@ -27,8 +27,12 @@ import {
   MoreVertical,
   Trash2,
   Pencil,
+  Router,
 } from "lucide-react";
 import { Organization } from "@/features/organizations/organizations.slice";
+import { useAppDispatch } from "@/store";
+import { addCurrentOrganization } from "@/features/user/user.slice";
+import { useRouter } from "next/navigation";
 
 interface Member {
   id: string;
@@ -60,8 +64,15 @@ export default function OrganizationCard({
   onEdit: (org: Organization) => void;
   onDelete: (org: Organization) => void;
 }) {
+const dispatch = useAppDispatch();
+const router = useRouter();
+
+  function handleClick() {
+    dispatch(addCurrentOrganization(org.uuid));
+    router.push("/dashboard")
+  }
   return (
-    <Card className="overflow-hidden bg-white border-0 hover:shadow-xl">
+    <Card className="overflow-hidden bg-white border-0 hover:shadow-xl" onClick={handleClick}>
       <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10">

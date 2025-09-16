@@ -10,15 +10,20 @@ export interface SignInInterface {
 const initialState: any = {
   isLoading: false,
   organizations: [],
+  currentOrganizationUuid: null
 };
 
 export const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    addOrganazation: (state, action) => {
+    addOrganizations: (state, action) => {
       state.organizations = action.payload.organizations || [];
     },
+
+    addCurrentOrganization: (state, action)=> {
+      state.currentOrganizationUuid = action
+    }
   },
   extraReducers: (builder) => {
     // Get user-specific organizations
@@ -28,3 +33,4 @@ export const userSlice = createSlice({
 
 
 export const userReducer = userSlice.reducer;
+export const {addCurrentOrganization, addOrganizations} = userSlice.actions 

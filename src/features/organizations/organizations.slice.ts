@@ -8,7 +8,7 @@ import {
 
 
 export interface Organization {
-  id?: string;
+  uuid?: string;
   name: string;
   domain: string;
   description: string

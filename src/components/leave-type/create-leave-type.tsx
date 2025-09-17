@@ -32,12 +32,15 @@ import {
   Settings,
 } from "lucide-react";
 import { useState } from "react";
+import { useAppSelector } from "@/store";
 
 export default function CreateLeaveType() {
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [period, setPeriod] = useState("");
   const [applicableOn, setApplicableOn] = useState("");
   const [leaveCount, setLeaveCount] = useState("");
+  const selector = useAppSelector(state=> state.organizationsSlice);
+  const organizationROles = selector.current_organization?.roles;
 
   const availableRoles = [
     { id: "role1", name: "Manager" },
@@ -163,7 +166,7 @@ export default function CreateLeaveType() {
                 </Label>
                 <div className="border-2 border-orange-200 rounded-xl bg-white/70 backdrop-blur-sm p-4 max-h-32 overflow-y-auto">
                   <div className="grid grid-cols-2 gap-2">
-                    {availableRoles.map((role) => (
+                    {organizationROles.map((role) => (
                       <div
                         key={role.id}
                         className="flex items-center space-x-2"
@@ -187,7 +190,7 @@ export default function CreateLeaveType() {
                     <div className="mt-3 pt-3 border-t border-orange-200">
                       <p className="text-xs text-orange-600 font-medium">
                         Selected:{" "}
-                        {availableRoles
+                        {organizationROles
                           .filter((role) => selectedRoles.includes(role.id))
                           .map((role) => role.name)
                           .join(", ")}

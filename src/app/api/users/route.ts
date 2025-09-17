@@ -8,7 +8,7 @@ export const POST = async (request: Request) => {
   try {
     const response = await axios.post(`${BASE_URL}/users`, data, {
         headers: {
-            org_uuid: 
+            org_uuid: data.org_uuid
         }
     });
 

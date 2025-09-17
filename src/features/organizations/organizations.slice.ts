@@ -6,17 +6,18 @@ import {
   deleteOrganizationAction,
 } from "./organizations.action";
 
-
 export interface Organization {
-  uuid?: string;
+  uuid: string;
   name: string;
   domain: string;
-  description: string
+  description: string;
+  roles: any[];
 }
 
 interface OrganizationState {
   isLoading: boolean;
   organizations: Organization[];
+  current_organization?: Organization;
   error: string | null;
   total: number;
   currentPage: number;
@@ -287,6 +288,7 @@ const mockOrgs = [
 const initialState: OrganizationState = {
   isLoading: false,
   organizations: mockOrgs as any,
+  current_organization: undefined,
   error: null,
   total: 100,
   currentPage: 1,
@@ -295,7 +297,17 @@ const initialState: OrganizationState = {
 export const organizationsSlice = createSlice({
   name: "organizations",
   initialState,
-  reducers: {},
+  reducers: {
+    addCurrentOrganization: (state, action) => {
+      state.current_organization = state.organizations.find(
+        (org) => org.uuid == action.payload
+      );
+    },
+    addOrganizationRoles: (state, action) => {
+      if (state.current_organization)
+        state.current_organization.roles = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     // Get all organizations
     builder
@@ -310,9 +322,9 @@ export const organizationsSlice = createSlice({
       })
       .addCase(getOrganizationsAction.rejected, (state, action: any) => {
         state.isLoading = false;
-        state.error = action.payload?.message || "Failed to fetch organizations";
+        state.error =
+          action.payload?.message || "Failed to fetch organizations";
       });
-
 
     // Create organization
     builder
@@ -328,7 +340,8 @@ export const organizationsSlice = createSlice({
       })
       .addCase(createOrganizationAction.rejected, (state, action: any) => {
         state.isLoading = false;
-        state.error = action.payload?.message || "Failed to create organization";
+        state.error =
+          action.payload?.message || "Failed to create organization";
       });
 
     // Update organization
@@ -346,7 +359,8 @@ export const organizationsSlice = createSlice({
       })
       .addCase(updateOrganizationAction.rejected, (state, action: any) => {
         state.isLoading = false;
-        state.error = action.payload?.message || "Failed to update organization";
+        state.error =
+          action.payload?.message || "Failed to update organization";
       });
 
     // Delete organization
@@ -364,11 +378,17 @@ export const organizationsSlice = createSlice({
       })
       .addCase(deleteOrganizationAction.rejected, (state, action: any) => {
         state.isLoading = false;
-        state.error = action.payload?.message || "Failed to delete organization";
+        state.error =
+          action.payload?.message || "Failed to delete organization";
       });
+
+    builder.addCase(deleteOrganizationAction.fulfilled, (state, action) => {
+      if (state.current_organization)
+        state.current_organization.roles = action.payload;
+    });
   },
 });
 
-
-
 export const organizationsReducer = organizationsSlice.reducer;
+export const { addCurrentOrganization, addOrganizationRoles } =
+  organizationsSlice.actions;

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Card,
   CardHeader,
@@ -29,10 +29,10 @@ import {
   Pencil,
   Router,
 } from "lucide-react";
-import { Organization } from "@/features/organizations/organizations.slice";
-import { useAppDispatch } from "@/store";
-import { addCurrentOrganization } from "@/features/user/user.slice";
+import { addCurrentOrganization, addOrganizationRoles, Organization } from "@/features/organizations/organizations.slice";
+import { useAppDispatch, useAppSelector } from "@/store";
 import { useRouter } from "next/navigation";
+import { getOrganizationRolesAction } from "@/features/organizations/organizations.action";
 
 interface Member {
   id: string;
@@ -65,10 +65,16 @@ export default function OrganizationCard({
   onDelete: (org: Organization) => void;
 }) {
 const dispatch = useAppDispatch();
+const {current_organization } = useAppSelector((state)=> state.organizationsSlice)
 const router = useRouter();
 
+useEffect(()=> {
+  dispatch(getOrganizationRolesAction(current_organization?.uuid));
+  
+},[])
+
   function handleClick() {
-    dispatch(addCurrentOrganization(org.uuid));
+    dispatch(addCurrentOrganization(org));
     router.push("/dashboard")
   }
   return (

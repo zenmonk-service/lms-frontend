@@ -9,6 +9,7 @@ import {
   createOrganizationUser,
   updateOrganizationUser,
   deleteOrganizationUser,
+  getOrganizationRoles,
 } from "./organizations.service";
 
 // ========== ORGANIZATION ACTIONS ==========
@@ -149,6 +150,20 @@ export const deleteUserAction = createAsyncThunk(
   ) => {
     try {
       const response = await deleteOrganizationUser(organizationId, userInfo);
+      return response.data;
+    } catch (err) {
+      const error = err as AxiosError;
+      return thunkAPI.rejectWithValue(error.response?.data);
+    }
+  }
+);
+
+
+export const getOrganizationRolesAction = createAsyncThunk(
+  "users/getAll",
+  async (organizationId: string, thunkAPI) => {
+    try {
+      const response = await getOrganizationRoles(organizationId);
       return response.data;
     } catch (err) {
       const error = err as AxiosError;

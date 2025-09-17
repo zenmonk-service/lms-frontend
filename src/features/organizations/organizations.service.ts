@@ -36,3 +36,10 @@ export const updateOrganizationUser = (organizationId: string,userInfo: any) => 
 export const deleteOrganizationUser = (organizationId: string,userInfo: any) => {
   return axiosInterceptorInstance.post(`/organizations/${organizationId}/users` , userInfo)
 };
+
+export const getOrganizationRoles = (org_uuid: string) => {
+  return axiosInterceptorInstance.get(`/organizations/roles` ,  {
+    headers: {
+      org_uuid: org_uuid,
+    } })
+};

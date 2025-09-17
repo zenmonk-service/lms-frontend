@@ -20,10 +20,6 @@ export const userSlice = createSlice({
     addOrganizations: (state, action) => {
       state.organizations = action.payload.organizations || [];
     },
-
-    addCurrentOrganization: (state, action)=> {
-      state.currentOrganizationUuid = action
-    }
   },
   extraReducers: (builder) => {
     // Get user-specific organizations
@@ -33,4 +29,4 @@ export const userSlice = createSlice({
 
 
 export const userReducer = userSlice.reducer;
-export const {addCurrentOrganization, addOrganizations} = userSlice.actions 
+export const { addOrganizations} = userSlice.actions 

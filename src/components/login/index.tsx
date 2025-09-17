@@ -175,7 +175,6 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                 </div>
               )}
             </Button>
-            <CreateLeaveType/>
           </form>
         </CardContent>
       </Card>

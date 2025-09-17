@@ -16,6 +16,8 @@ import { LoginCredentials, User } from "@/types/user";
 import { useAppDispatch } from "@/store";
 import { authenticate } from "@/app/auth/authenticate.action";
 import { signIn } from "@/features/user/user.service";
+import CreateLeaveType from "../leave-type/create-leave-type";
+
 
 interface LoginPageProps {
   onLogin?: (user: User) => void;
@@ -173,6 +175,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                 </div>
               )}
             </Button>
+            <CreateLeaveType/>
           </form>
         </CardContent>
       </Card>

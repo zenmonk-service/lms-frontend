@@ -31,27 +31,30 @@ import {
   Clock,
   Settings,
 } from "lucide-react";
-import { useState } from "react";
-import { useAppSelector } from "@/store";
+import { useEffect, useState } from "react";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { getRoles } from "@/features/organizations/organizations.service";
+import { addRoles } from "@/features/role/role.slice";
+import { createLeaveTypeAction } from "@/features/organizations/organizations.action";
+import z from "zod";
 
 export default function CreateLeaveType() {
-  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
-  const [period, setPeriod] = useState("");
-  const [applicableOn, setApplicableOn] = useState("");
-  const [leaveCount, setLeaveCount] = useState("");
-  const selector = useAppSelector(state=> state.organizationsSlice);
-  const organizationROles = selector.current_organization?.roles;
 
-  const availableRoles = [
-    { id: "role1", name: "Manager" },
-    { id: "role2", name: "Developer" },
-    { id: "role3", name: "Designer" },
-    { id: "role4", name: "HR" },
-    { id: "role5", name: "Sales" },
-    { id: "role6", name: "Marketing" },
-    { id: "role7", name: "Finance" },
-    { id: "role8", name: "Operations" },
-  ];
+  const leaveTypeSchema = z.object({
+    name: z.string().min(2, "Leave Type name is required"),
+    code: z.string().optional(),
+    description: z.string().optional(),
+    applicableRoles: z.string().optional(),
+    maxConsecutiveDays: z.number()
+  });
+  // const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  // const [period, setPeriod] = useState("");
+  // const [applicableOn, setApplicableOn] = useState("");
+  // const [leaveCount, setLeaveCount] = useState("");
+  const selector = useAppSelector((state) => state.rolesSlice);
+  const dispatch = useAppDispatch();
+  const organizationROles = selector.roles;
+  console.log('organizationROles: ', organizationROles);
 
   const handleRoleToggle = (roleId: string) => {
     setSelectedRoles((prev) =>
@@ -60,6 +63,20 @@ export default function CreateLeaveType() {
         : [...prev, roleId]
     );
   };
+
+  const getData = async () => {
+    const org_uuid = "17365071-58d0-4a6e-bc27-2d9df26c114f";
+    const response = await getRoles(org_uuid);
+    dispatch(addRoles(response.data));
+  };
+
+  useEffect(() => {
+    getData();
+  }, []);
+
+function handleCreateLeaveType() {
+  dispatch(createLeaveTypeAction({}))
+}
 
   return (
     <Dialog>
@@ -168,17 +185,17 @@ export default function CreateLeaveType() {
                   <div className="grid grid-cols-2 gap-2">
                     {organizationROles?.map((role) => (
                       <div
-                        key={role.id}
+                        key={role.uuid}
                         className="flex items-center space-x-2"
                       >
                         <Checkbox
-                          id={role.id}
-                          checked={selectedRoles.includes(role.id)}
-                          onCheckedChange={() => handleRoleToggle(role.id)}
+                          id={role.uuid}
+                          checked={selectedRoles.includes(role.uuid)}
+                          onCheckedChange={() => handleRoleToggle(role.uuid)}
                           className="border-2 border-orange-400 data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500"
                         />
                         <Label
-                          htmlFor={role.id}
+                          htmlFor={role.uuid}
                           className="text-sm text-gray-700 cursor-pointer hover:text-orange-600"
                         >
                           {role.name}
@@ -190,10 +207,11 @@ export default function CreateLeaveType() {
                     <div className="mt-3 pt-3 border-t border-orange-200">
                       <p className="text-xs text-orange-600 font-medium">
                         Selected:{" "}
-                        {organizationROles && organizationROles
-                          .filter((role) => selectedRoles.includes(role.id))
-                          .map((role) => role.name)
-                          .join(", ")}
+                        {organizationROles &&
+                          organizationROles
+                            .filter((role) => selectedRoles.includes(role.id))
+                            .map((role) => role.name)
+                            .join(", ")}
                       </p>
                     </div>
                   )}
@@ -259,7 +277,7 @@ export default function CreateLeaveType() {
                   <SelectTrigger className="w-full border-2 border-orange-200 focus:border-orange-400 focus:ring-orange-200 rounded-xl bg-white/70 backdrop-blur-sm hover:shadow-md p-3">
                     <SelectValue placeholder="Select period" />
                   </SelectTrigger>
-                  <SelectContent  className="bg-white border-0">
+                  <SelectContent className="bg-white border-0">
                     <SelectItem value="daily">Daily</SelectItem>
                     <SelectItem value="weekly">Weekly</SelectItem>
                     <SelectItem value="monthly">Monthly</SelectItem>
@@ -279,7 +297,9 @@ export default function CreateLeaveType() {
                     <SelectValue placeholder="Select start date" />
                   </SelectTrigger>
                   <SelectContent className="bg-white border-0">
-                    <SelectItem value="join_date">Employee Join Date</SelectItem>
+                    <SelectItem value="join_date">
+                      Employee Join Date
+                    </SelectItem>
                     <SelectItem value="calendar_year">
                       Calendar Year Start
                     </SelectItem>
@@ -341,6 +361,7 @@ export default function CreateLeaveType() {
           <Button
             type="submit"
             className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 rounded-xl px-8 py-2 font-semibold"
+            onClick={handleCreateLeaveType}
           >
             Create Leave Type
           </Button>

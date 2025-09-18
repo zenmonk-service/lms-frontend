@@ -1,9 +1,11 @@
 import { organizationsReducer } from "@/features/organizations/organizations.slice";
+import { rolesReducer } from "@/features/role/role.slice";
 import type { Action, ThunkAction } from "@reduxjs/toolkit";
 import { combineSlices, configureStore } from "@reduxjs/toolkit";
 
 const combinedReducer = combineSlices({
   organizationsSlice: organizationsReducer,
+  rolesSlice: rolesReducer
 });
 
 const rootReducer = (

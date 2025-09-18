@@ -5,6 +5,7 @@ import {
   updateOrganizationAction,
   deleteOrganizationAction,
   getOrganizationById,
+  getOrganizationRolesAction,
 } from "./organizations.action";
 
 export interface Organization {

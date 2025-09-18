@@ -10,7 +10,7 @@ import {
   updateOrganizationUser,
   deleteOrganizationUser,
   getOrganizationsById,
-  getOrganizationRoles,
+  createLeaveType,
 } from "./organizations.service";
 import { OrganizationFetchPayload } from "./organizations.type";
 
@@ -19,7 +19,7 @@ import { OrganizationFetchPayload } from "./organizations.type";
 // Get all organizations
 export const getOrganizationsAction = createAsyncThunk(
   "organizations/getAll",
-  async (payload : OrganizationFetchPayload, thunkAPI) => {
+  async (payload: OrganizationFetchPayload, thunkAPI) => {
     try {
       const response = await getOrganizations(payload);
       return response.data;
@@ -33,7 +33,7 @@ export const getOrganizationsAction = createAsyncThunk(
 // Get organization by id
 export const getOrganizationById = createAsyncThunk(
   "organizations/get",
-  async (payload: {organizationId :string  , email :  string}, thunkAPI) => {
+  async (payload: { organizationId: string; email: string }, thunkAPI) => {
     try {
       const response = await getOrganizationsById(payload);
       return response.data;
@@ -43,7 +43,6 @@ export const getOrganizationById = createAsyncThunk(
     }
   }
 );
-
 
 // Create organization
 export const createOrganizationAction = createAsyncThunk(
@@ -70,7 +69,10 @@ export const updateOrganizationAction = createAsyncThunk(
     thunkAPI
   ) => {
     try {
-      const response = await updateOrganization(organizationId, organizationInfo);
+      const response = await updateOrganization(
+        organizationId,
+        organizationInfo
+      );
       return response.data;
     } catch (err) {
       const error = err as AxiosError;
@@ -160,13 +162,11 @@ export const deleteUserAction = createAsyncThunk(
   }
 );
 
-
-export const getOrganizationRolesAction = createAsyncThunk(
-  "users/getAll",
-  async (organizationId: string, thunkAPI) => {
+export const createLeaveTypeAction = createAsyncThunk(
+  "orgnization/leave-type",
+  async (data: any, thunkAPI) => {
     try {
-      const response = await getOrganizationRoles(organizationId);
-console.log('✌️response --->', response);
+      const response = await createLeaveType(data, data.org_uuid);
       return response.data;
     } catch (err) {
       const error = err as AxiosError;

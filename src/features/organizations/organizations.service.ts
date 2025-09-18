@@ -4,12 +4,19 @@ import { Search } from "lucide-react";
 
 export const getOrganizations = (payload: OrganizationFetchPayload) => {
   return axiosInterceptorInstance.get(`/users/${payload.uuid}`, {
-    params: { page: payload.page , limit: payload.limit ,search : payload.search },
+    params: {
+      page: payload.page,
+      limit: payload.limit,
+      search: payload.search,
+    },
   });
 };
 
-export const getOrganizationsById = (payload: {organizationId :string  , email :  string}) => {
-  return axiosInterceptorInstance.post(`/organizations` , payload);
+export const getOrganizationsById = (payload: {
+  organizationId: string;
+  email: string;
+}) => {
+  return axiosInterceptorInstance.post(`/organizations`, payload);
 };
 
 export const createOrganization = (organizationInfo: any) => {
@@ -67,10 +74,18 @@ export const deleteOrganizationUser = (
   );
 };
 
-export const getOrganizationRoles = (org_uuid: string) => {
-  return axiosInterceptorInstance.get(`/organizations/roles` ,  {
-    // headers: {
-    //   org_uuid: org_uuid,
-    // }
-   })
+export const getRoles = (org_uuid: string) => {
+  return axiosInterceptorInstance.get(`/organizations/roles`, {
+    headers: {
+      org_uuid: org_uuid,
+    },
+  });
+};
+
+export const createLeaveType = (data: any, org_uuid: string) => {
+  return axiosInterceptorInstance.post(`/organizations/leave-types`, data, {
+    headers: {
+      org_uuid: org_uuid,
+    },
+  });
 };

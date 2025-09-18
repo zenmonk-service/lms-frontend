@@ -13,11 +13,11 @@ export const POST = async (request: Request) => {
     });
 
     return NextResponse.json(response.data);
-  } catch (error) {
+  } catch (error:any) {
     console.log("error: ", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
+     return NextResponse.json(
+      { error: error?.response.data.description || "Internal Server Error" },
+      { status: error.status ||500 }
     );
   }
 };

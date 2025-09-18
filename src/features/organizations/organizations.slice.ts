@@ -4,10 +4,11 @@ import {
   createOrganizationAction,
   updateOrganizationAction,
   deleteOrganizationAction,
+  getOrganizationById,
 } from "./organizations.action";
 
 export interface Organization {
-  id :string
+  id: string;
   uuid: string;
   name: string;
   domain: string;
@@ -18,17 +19,16 @@ export interface Organization {
 interface OrganizationState {
   isLoading: boolean;
   organizations: Organization[];
-  current_organization?: Organization;
+  currentOrganizationAndUser?: Organization;
   error: string | null;
   total: number;
   currentPage: number;
 }
 
-
 const initialState: OrganizationState = {
   isLoading: false,
-  organizations:[],
-  current_organization: undefined,
+  organizations: [],
+  currentOrganizationAndUser: undefined,
   error: null,
   total: 100,
   currentPage: 1,
@@ -39,17 +39,16 @@ export const organizationsSlice = createSlice({
   initialState,
   reducers: {
     addCurrentOrganization: (state, action) => {
-      state.current_organization = state.organizations.find(
+      state.currentOrganizationAndUser = state.organizations.find(
         (org) => org.uuid == action.payload
       );
     },
     addOrganizationRoles: (state, action) => {
-      if (state.current_organization)
-        state.current_organization.roles = action.payload;
+      if (state.currentOrganizationAndUser)
+        state.currentOrganizationAndUser.roles = action.payload;
     },
   },
   extraReducers: (builder) => {
-    // Get all organizations
     builder
       .addCase(getOrganizationsAction.pending, (state) => {
         state.isLoading = true;
@@ -65,6 +64,18 @@ export const organizationsSlice = createSlice({
         state.isLoading = false;
         state.error =
           action.payload?.message || "Failed to fetch organizations";
+      })
+      .addCase(getOrganizationById.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(getOrganizationById.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.currentOrganizationAndUser = action.payload;
+      })
+      .addCase(getOrganizationById.rejected, (state, action: any) => {
+        state.isLoading = false;
+        state.error = action.payload?.message || "Failed to fetch organizations";
       });
 
     // Create organization
@@ -122,8 +133,6 @@ export const organizationsSlice = createSlice({
         state.error =
           action.payload?.message || "Failed to delete organization";
       });
-
-  
   },
 });
 

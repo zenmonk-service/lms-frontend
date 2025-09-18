@@ -3,9 +3,22 @@ import { NextResponse } from "next/server";
 
 export const POST = async (request: Request) => {
   const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-  const data = await request.json();
 
-  const response = await axios.post(`${BASE_URL}/organizations`, data);
+  try {
+    const data = await request.json();
 
-  return NextResponse.json(response.data);
+    const response = await axios.post(
+      `${BASE_URL}/organizations/${data.organizationId}/login`,
+      data
+    );
+
+    return NextResponse.json(response.data);
+  } catch (error: any) {
+    console.error("Login API error:", error.message || error);
+
+    return NextResponse.json(
+      { error: error?.response.data.description || "Internal Server Error" },
+      { status: error.status || 500 }
+    );
+  }
 };

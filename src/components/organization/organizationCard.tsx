@@ -29,10 +29,15 @@ import {
   Pencil,
   Router,
 } from "lucide-react";
-import { addCurrentOrganization, addOrganizationRoles, Organization } from "@/features/organizations/organizations.slice";
-import { useAppDispatch, useAppSelector } from "@/store";
+import {
+  addCurrentOrganization,
+  addOrganizationRoles,
+  Organization,
+} from "@/features/organizations/organizations.slice";
+import { useAppDispatch } from "@/store";
 import { useRouter } from "next/navigation";
-import { getOrganizationRolesAction } from "@/features/organizations/organizations.action";
+import { getOrganizationById } from "@/features/organizations/organizations.action";
+import { getSession } from "@/app/auth/get-auth.action";
 
 interface Member {
   id: string;
@@ -40,8 +45,6 @@ interface Member {
   email: string;
   role: "Owner" | "Admin" | "Member";
 }
-
-
 
 function getInitials(name?: string) {
   if (!name) return "?";
@@ -64,21 +67,30 @@ export default function OrganizationCard({
   onEdit: (org: Organization) => void;
   onDelete: (org: Organization) => void;
 }) {
-const dispatch = useAppDispatch();
-const {current_organization } = useAppSelector((state)=> state.organizationsSlice)
-const router = useRouter();
+  const dispatch = useAppDispatch();
+  const router = useRouter();
 
-// useEffect(()=> {
-//   dispatch(getOrganizationRolesAction(current_organization?.uuid));
-  
-// },[])
+  async function handleClick() {
+    const session = await getSession();
+    try {
+      const result = await dispatch(
+        getOrganizationById({
+          organizationId: org.uuid,
+          email: session?.user?.email || "",
+        })
+      );
 
-  function handleClick() {
-    dispatch(addCurrentOrganization(org));
-    router.push(`/organizations/${org.uuid}`)
+      router.push(`/${org?.uuid}/dashboard`);
+    } catch (err) {
+      console.log("error", err);
+      throw err;
+    }
   }
   return (
-    <Card className="overflow-hidden bg-white border-0 hover:shadow-xl" onClick={handleClick}>
+    <Card
+      className="overflow-hidden bg-white border-0 hover:shadow-xl"
+      onClick={handleClick}
+    >
       <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10">

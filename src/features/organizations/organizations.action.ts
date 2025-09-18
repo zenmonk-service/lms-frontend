@@ -31,7 +31,7 @@ export const getOrganizationsAction = createAsyncThunk(
 );
 
 // Get organization by id
-export const getOrganizationsActionById = createAsyncThunk(
+export const getOrganizationById = createAsyncThunk(
   "organizations/get",
   async (payload: {organizationId :string  , email :  string}, thunkAPI) => {
     try {

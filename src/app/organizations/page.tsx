@@ -27,7 +27,14 @@ function Dashboard() {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(getOrganizationsAction(search));
+    dispatch(
+      getOrganizationsAction({
+        uuid: "44bc8d4e-606b-437c-990f-5be5807ffa46",
+        page: 1,
+        limit: 10,
+        search :search
+      })
+    );
   }, [search]);
 
   const handleSubmit = (data: any) => {
@@ -49,7 +56,7 @@ function Dashboard() {
         <div className="flex gap-8 justify-between">
           <Input
             value={search}
-            onChange={(e)=> setSearch(e.target.value as string)}
+            onChange={(e) => setSearch(e.target.value as string)}
             className="border-0 bg-white outline-0 max-w-md"
             placeholder="Search organization..."
           ></Input>

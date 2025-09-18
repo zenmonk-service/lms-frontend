@@ -68,14 +68,14 @@ const dispatch = useAppDispatch();
 const {current_organization } = useAppSelector((state)=> state.organizationsSlice)
 const router = useRouter();
 
-useEffect(()=> {
-  dispatch(getOrganizationRolesAction(current_organization?.uuid));
+// useEffect(()=> {
+//   dispatch(getOrganizationRolesAction(current_organization?.uuid));
   
-},[])
+// },[])
 
   function handleClick() {
     dispatch(addCurrentOrganization(org));
-    router.push("/dashboard")
+    router.push(`/organizations/${org.uuid}`)
   }
   return (
     <Card className="overflow-hidden bg-white border-0 hover:shadow-xl" onClick={handleClick}>

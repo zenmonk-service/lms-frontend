@@ -166,7 +166,7 @@ export default function CreateLeaveType() {
                 </Label>
                 <div className="border-2 border-orange-200 rounded-xl bg-white/70 backdrop-blur-sm p-4 max-h-32 overflow-y-auto">
                   <div className="grid grid-cols-2 gap-2">
-                    {organizationROles.map((role) => (
+                    {organizationROles?.map((role) => (
                       <div
                         key={role.id}
                         className="flex items-center space-x-2"
@@ -190,7 +190,7 @@ export default function CreateLeaveType() {
                     <div className="mt-3 pt-3 border-t border-orange-200">
                       <p className="text-xs text-orange-600 font-medium">
                         Selected:{" "}
-                        {organizationROles
+                        {organizationROles && organizationROles
                           .filter((role) => selectedRoles.includes(role.id))
                           .map((role) => role.name)
                           .join(", ")}

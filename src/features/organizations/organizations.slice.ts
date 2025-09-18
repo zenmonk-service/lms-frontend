@@ -7,6 +7,7 @@ import {
 } from "./organizations.action";
 
 export interface Organization {
+  id :string
   uuid: string;
   name: string;
   domain: string;
@@ -23,271 +24,10 @@ interface OrganizationState {
   currentPage: number;
 }
 
-const mockOrgs = [
-  {
-    id: "1",
-    name: "ZenMonk Technologies",
-    domain: "zenmonk.com",
-    website: "https://zenmonk.com",
-    description: "Building mindful software experiences.",
-    logoUrl: "/logo.svg",
-    members: [
-      {
-        id: "m1",
-        name: "Vinod Kumar",
-        email: "vinod@zenmonk.com",
-        role: "Owner",
-      },
-      {
-        id: "m2",
-        name: "Aarav Sharma",
-        email: "aarav@zenmonk.com",
-        role: "Admin",
-      },
-      {
-        id: "m3",
-        name: "Neha Patel",
-        email: "neha@zenmonk.com",
-        role: "Member",
-      },
-    ],
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "2",
-    name: "CloudCore Systems",
-    domain: "cloudcore.io",
-    website: "https://cloudcore.io",
-    description: "Cloud-native solutions for enterprises.",
-    members: [
-      {
-        id: "m1",
-        name: "Ravi Gupta",
-        email: "ravi@cloudcore.io",
-        role: "Owner",
-      },
-      {
-        id: "m2",
-        name: "Sonia Iyer",
-        email: "sonia@cloudcore.io",
-        role: "Member",
-      },
-      {
-        id: "m3",
-        name: "Karan Mehta",
-        email: "karan@cloudcore.io",
-        role: "Member",
-      },
-      {
-        id: "m4",
-        name: "Priya Reddy",
-        email: "priya@cloudcore.io",
-        role: "Admin",
-      },
-      {
-        id: "m5",
-        name: "Aditya Verma",
-        email: "aditya@cloudcore.io",
-        role: "Member",
-      },
-      {
-        id: "m6",
-        name: "Ishaan Nair",
-        email: "ishaan@cloudcore.io",
-        role: "Member",
-      },
-    ],
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "2",
-    name: "CloudCore Systems",
-    domain: "cloudcore.io",
-    website: "https://cloudcore.io",
-    description: "Cloud-native solutions for enterprises.",
-    members: [
-      {
-        id: "m1",
-        name: "Ravi Gupta",
-        email: "ravi@cloudcore.io",
-        role: "Owner",
-      },
-      {
-        id: "m2",
-        name: "Sonia Iyer",
-        email: "sonia@cloudcore.io",
-        role: "Member",
-      },
-      {
-        id: "m3",
-        name: "Karan Mehta",
-        email: "karan@cloudcore.io",
-        role: "Member",
-      },
-      {
-        id: "m4",
-        name: "Priya Reddy",
-        email: "priya@cloudcore.io",
-        role: "Admin",
-      },
-      {
-        id: "m5",
-        name: "Aditya Verma",
-        email: "aditya@cloudcore.io",
-        role: "Member",
-      },
-      {
-        id: "m6",
-        name: "Ishaan Nair",
-        email: "ishaan@cloudcore.io",
-        role: "Member",
-      },
-    ],
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "2",
-    name: "CloudCore Systems",
-    domain: "cloudcore.io",
-    website: "https://cloudcore.io",
-    description: "Cloud-native solutions for enterprises.",
-    members: [
-      {
-        id: "m1",
-        name: "Ravi Gupta",
-        email: "ravi@cloudcore.io",
-        role: "Owner",
-      },
-      {
-        id: "m2",
-        name: "Sonia Iyer",
-        email: "sonia@cloudcore.io",
-        role: "Member",
-      },
-      {
-        id: "m3",
-        name: "Karan Mehta",
-        email: "karan@cloudcore.io",
-        role: "Member",
-      },
-      {
-        id: "m4",
-        name: "Priya Reddy",
-        email: "priya@cloudcore.io",
-        role: "Admin",
-      },
-      {
-        id: "m5",
-        name: "Aditya Verma",
-        email: "aditya@cloudcore.io",
-        role: "Member",
-      },
-      {
-        id: "m6",
-        name: "Ishaan Nair",
-        email: "ishaan@cloudcore.io",
-        role: "Member",
-      },
-    ],
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "2",
-    name: "CloudCore Systems",
-    domain: "cloudcore.io",
-    website: "https://cloudcore.io",
-    description: "Cloud-native solutions for enterprises.",
-    members: [
-      {
-        id: "m1",
-        name: "Ravi Gupta",
-        email: "ravi@cloudcore.io",
-        role: "Owner",
-      },
-      {
-        id: "m2",
-        name: "Sonia Iyer",
-        email: "sonia@cloudcore.io",
-        role: "Member",
-      },
-      {
-        id: "m3",
-        name: "Karan Mehta",
-        email: "karan@cloudcore.io",
-        role: "Member",
-      },
-      {
-        id: "m4",
-        name: "Priya Reddy",
-        email: "priya@cloudcore.io",
-        role: "Admin",
-      },
-      {
-        id: "m5",
-        name: "Aditya Verma",
-        email: "aditya@cloudcore.io",
-        role: "Member",
-      },
-      {
-        id: "m6",
-        name: "Ishaan Nair",
-        email: "ishaan@cloudcore.io",
-        role: "Member",
-      },
-    ],
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "2",
-    name: "CloudCore Systems",
-    domain: "cloudcore.io",
-    website: "https://cloudcore.io",
-    description: "Cloud-native solutions for enterprises.",
-    members: [
-      {
-        id: "m1",
-        name: "Ravi Gupta",
-        email: "ravi@cloudcore.io",
-        role: "Owner",
-      },
-      {
-        id: "m2",
-        name: "Sonia Iyer",
-        email: "sonia@cloudcore.io",
-        role: "Member",
-      },
-      {
-        id: "m3",
-        name: "Karan Mehta",
-        email: "karan@cloudcore.io",
-        role: "Member",
-      },
-      {
-        id: "m4",
-        name: "Priya Reddy",
-        email: "priya@cloudcore.io",
-        role: "Admin",
-      },
-      {
-        id: "m5",
-        name: "Aditya Verma",
-        email: "aditya@cloudcore.io",
-        role: "Member",
-      },
-      {
-        id: "m6",
-        name: "Ishaan Nair",
-        email: "ishaan@cloudcore.io",
-        role: "Member",
-      },
-    ],
-    createdAt: new Date().toISOString(),
-  },
-];
 
 const initialState: OrganizationState = {
   isLoading: false,
-  organizations: mockOrgs as any,
+  organizations:[],
   current_organization: undefined,
   error: null,
   total: 100,
@@ -317,8 +57,9 @@ export const organizationsSlice = createSlice({
       })
       .addCase(getOrganizationsAction.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.organizations = action.payload.organizations || [];
+        state.organizations = action.payload.rows || [];
         state.total = action.payload.total || 0;
+        state.currentPage = action.payload.current_page || 0;
       })
       .addCase(getOrganizationsAction.rejected, (state, action: any) => {
         state.isLoading = false;
@@ -382,10 +123,7 @@ export const organizationsSlice = createSlice({
           action.payload?.message || "Failed to delete organization";
       });
 
-    builder.addCase(deleteOrganizationAction.fulfilled, (state, action) => {
-      if (state.current_organization)
-        state.current_organization.roles = action.payload;
-    });
+  
   },
 });
 

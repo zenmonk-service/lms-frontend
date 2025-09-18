@@ -79,13 +79,14 @@ export function AdminTablePagination({
     <Pagination>
       <PaginationContent>
         {/* Previous */}
+
         <PaginationItem
           onClick={() => {
             if (currentPage > 1) onPageChange(currentPage - 1);
           }}
           aria-disabled={currentPage <= 1}
         >
-          <PaginationPrevious href="#" />
+          <PaginationPrevious size="icon" href="#" />
         </PaginationItem>
 
         {/* Dynamic page items */}
@@ -102,7 +103,7 @@ export function AdminTablePagination({
                 if (pageNumber !== currentPage) onPageChange(pageNumber);
               }}
             >
-              <PaginationLink href="#" isActive={token === currentPage}>
+              <PaginationLink size="icon" href="#" isActive={token === currentPage}>
                 {token}
               </PaginationLink>
             </PaginationItem>
@@ -116,7 +117,7 @@ export function AdminTablePagination({
           }}
           aria-disabled={currentPage >= totalPages}
         >
-          <PaginationNext href="#" />
+          <PaginationNext size="icon" href="#" />
         </PaginationItem>
       </PaginationContent>
     </Pagination>

@@ -1,29 +1,16 @@
-import React from "react";
+import { getSession } from "@/app/auth/get-auth.action";
+import Dashboard from "@/components/dashboard/dashboard";
 
-import AppBar from "@/components/app-bar";
+async function UserDashBoard({
+  params}: {
+  params: { organization_uuid: string };
+}) 
+     
 
-import { getOrganizationsById } from "@/features/organizations/organizations.service";
-import { OrganizationUpdateForm, OrgFormValues } from "@/components/organization/organizationDetails";
-import { MembersSection } from "@/components/organization/membersSection";
-
-async function Dashboard() {
-//   const organizationData = await getOrganizationsById("zwxxsx");
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
-      <AppBar />
-
-      <main className="max-w-6xl mx-auto px-6 py-8 flex-1 flex flex-col gap-8">
-        <div className="text-center ">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Zenmonk</h2>
-        </div>
-          <OrganizationUpdateForm onSubmit={function (values: OrgFormValues): void {
-          throw new Error("Function not implemented.");
-        } } />
-        <MembersSection />
-      </main>
-    </div>
-  );
+{
+   const session = await getSession()
+console.log('✌️sessiocccn --->', session);
+  return <Dashboard organization_uuid={params.organization_uuid}  email ={session?.user?.email || ""} />;
 }
 
-export default Dashboard;
+export default UserDashBoard;

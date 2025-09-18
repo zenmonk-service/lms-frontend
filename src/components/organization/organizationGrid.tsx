@@ -5,16 +5,13 @@ import OrganizationCard from "./organizationCard";
 import { AdminTablePagination } from "./pagination";
 import { useAppSelector } from "@/store";
 
-import { RingLoader } from "react-spinners";
 import LoadingSkelton from "./loadingSkelton";
 
 export default function OrganizationGrid() {
   const { isLoading, organizations, total, currentPage } = useAppSelector(
     (state) => state.organizationsSlice
   );
-
-
-
+  
   const handleManageMembers = (org: any) => {
     console.log("Manage members clicked for", org);
   };
@@ -49,8 +46,8 @@ export default function OrganizationGrid() {
       </div>
       {currentPage && total && (
         <AdminTablePagination
-          total={100}
-          currentPage={2}
+          total={total}
+          currentPage={currentPage}
           pageSize={10}
           onPageChange={function (page: number): void {
             throw new Error("Function not implemented.");

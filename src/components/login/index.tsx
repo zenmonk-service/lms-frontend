@@ -16,14 +16,13 @@ import { LoginCredentials, User } from "@/types/user";
 import { useAppDispatch } from "@/store";
 import { authenticate } from "@/app/auth/authenticate.action";
 import { signIn } from "@/features/user/user.service";
-import CreateLeaveType from "../leave-type/create-leave-type";
+import { useRouter } from "next/navigation";
 
+// interface LoginPageProps {
+//   onLogin?: (user: User) => void;
+// }
 
-interface LoginPageProps {
-  onLogin?: (user: User) => void;
-}
-
-export default function LoginPage({ onLogin }: LoginPageProps) {
+export default function LoginPage() {
   const [credentials, setCredentials] = useState<LoginCredentials>({
     email: "",
     password: "",
@@ -32,7 +31,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-
+  const router = useRouter();
   const handleChange = (field: keyof LoginCredentials, value: string) => {
     setCredentials((prev) => ({ ...prev, [field]: value }));
   };
@@ -43,20 +42,20 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
     setError("");
 
     try {
-      const user : any= await signIn(credentials);
+      const user: any = await signIn(credentials);
+
+      console.log("user", user);
 
       if (!user) {
         throw new Error("Invalid email or password.");
       }
 
-      // Authenticate user session
       await authenticate({
         email: credentials.email,
-        name: user.name ?? "Guest",
+        name: user.data.name,
       });
 
-      // Callback for parent if provided
-      onLogin?.(user);
+      router.push("/organizations");
     } catch (err: any) {
       setError(err.message || "Something went wrong. Please try again.");
     } finally {
@@ -95,7 +94,10 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email Field */}
             <div className="space-y-2 group">
-              <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+              <Label
+                htmlFor="email"
+                className="text-sm font-medium text-gray-700"
+              >
                 Email Address
               </Label>
               <div className="relative">
@@ -114,14 +116,17 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
 
             {/* Password Field */}
             <div className="space-y-2 group">
-              <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+              <Label
+                htmlFor="password"
+                className="text-sm font-medium text-gray-700"
+              >
                 Password
               </Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5 group-focus-within:text-orange-500 transition-colors" />
                 <Input
                   id="password"
-                  minLength={6}
+                  // minLength={5}
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   value={credentials.password}
@@ -134,7 +139,11 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-orange-500 transition-colors"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
                 </button>
               </div>
             </div>
@@ -148,7 +157,9 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
 
             {/* Demo Credentials */}
             <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg text-sm">
-              <p className="font-medium text-orange-800 mb-2">Demo Credentials:</p>
+              <p className="font-medium text-orange-800 mb-2">
+                Demo Credentials:
+              </p>
               <p className="text-orange-700">
                 <strong>Admin:</strong> admin@company.com / admin123
               </p>

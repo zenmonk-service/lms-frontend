@@ -73,7 +73,7 @@ export default function OrganizationCard({
   async function handleClick() {
     const session = await getSession();
     try {
-      const result = await dispatch(
+      await dispatch(
         getOrganizationById({
           organizationId: org.uuid,
           email: session?.user?.email || "",

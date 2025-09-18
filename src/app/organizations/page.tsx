@@ -6,8 +6,7 @@ import AppBar from "@/components/app-bar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import DataGridDemo from "@/components/table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Shield, Users } from "lucide-react";
+
 import Settings from "@/components/organization/settings";
 import ExampleUsage from "@/components/organization/organizationGrid";
 import CreateOrganizationForm from "@/components/organization/createOrganization";
@@ -20,26 +19,27 @@ import {
 } from "@/components/ui/dialog";
 import { useAppDispatch } from "@/store";
 import { getOrganizationsAction } from "@/features/organizations/organizations.action";
+import { useSession } from "next-auth/react";
 
 function Dashboard() {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState<string>("");
   const dispatch = useAppDispatch();
-
+  
   useEffect(() => {
     dispatch(
       getOrganizationsAction({
         uuid: "44bc8d4e-606b-437c-990f-5be5807ffa46",
         page: 1,
         limit: 10,
-        search :search
+        search: search,
       })
     );
-  }, [search]);
+  }, [search ]);
 
   const handleSubmit = (data: any) => {
     console.log("New org data:", data);
-    setTimeout(() => setOpen(false), 500); // mock API delay
+    setTimeout(() => setOpen(false), 500);
   };
 
   return (

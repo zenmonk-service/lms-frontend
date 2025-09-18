@@ -53,6 +53,7 @@ export default function LoginPage() {
       await authenticate({
         email: credentials.email,
         name: user.data.name,
+        uuid :user.data.uuid
       });
 
       router.push("/organizations");

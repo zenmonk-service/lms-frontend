@@ -14,7 +14,7 @@ const UserDashBoard = async ({ params }: PageProps) => {
  
   return (
     <Dashboard
-      organization_uuid={organization_uuid} // correct usage
+      organization_uuid={organization_uuid} 
       email={session?.user?.email ?? ""}
     />
   );

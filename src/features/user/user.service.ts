@@ -7,6 +7,7 @@ export const getUserOrganizations = (userId: string) => {
 
 
 export const signIn = (signInfo?: SignInInterface) => {
-  return axiosInterceptorInstance.post("/login" , signInfo)
+  console.log("jii")
+  return  axiosInterceptorInstance.post("/login" , signInfo)
 };
 

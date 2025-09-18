@@ -7,11 +7,14 @@ import { signIn } from "./user.service";
 
 export const signInAction = createAsyncThunk(
   "auth/signIn",
-  async (signInfo: SignInInterface, thunkAPI) => {
+  async (signInfo: SignInInterface, thunkAPI ) => {
     try {
       const response = await signIn(signInfo);
+      console.log("Ffffccc")
       return response.data;
+
     } catch (err) {
+      console.log("Ffff")
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error?.response?.data);
     }

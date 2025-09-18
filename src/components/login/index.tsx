@@ -57,7 +57,7 @@ export default function LoginPage() {
 
       router.push("/organizations");
     } catch (err: any) {
-      setError(err.message || "Something went wrong. Please try again.");
+      setError(err.response.data.error ||  "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }

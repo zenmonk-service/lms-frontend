@@ -89,3 +89,4 @@ export const createLeaveType = (data: any, org_uuid: string) => {
     },
   });
 };
+

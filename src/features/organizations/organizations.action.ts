@@ -11,6 +11,7 @@ import {
   deleteOrganizationUser,
   getOrganizationsById,
   createLeaveType,
+  getLeaveTypes,
 } from "./organizations.service";
 import { OrganizationFetchPayload } from "./organizations.type";
 
@@ -174,3 +175,5 @@ export const createLeaveTypeAction = createAsyncThunk(
     }
   }
 );
+
+

@@ -144,17 +144,7 @@ export default function LoginPage() {
               </div>
             )}
 
-            <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg text-sm">
-              <p className="font-medium text-orange-800 mb-2">
-                Demo Credentials:
-              </p>
-              <p className="text-orange-700">
-                <strong>Admin:</strong> admin@company.com / admin123
-              </p>
-              <p className="text-orange-700">
-                <strong>User:</strong> user@company.com / user123
-              </p>
-            </div>
+          
 
             <Button
               type="submit"

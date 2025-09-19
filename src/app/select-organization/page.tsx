@@ -31,18 +31,22 @@ function App() {
   );
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { data } = useSession();
+  const { data, status } = useSession();
+  console.log("✌️status --->", status);
 
   useEffect(() => {
-    if (data?.user?.uuid) {
+    if (status === "authenticated" && data?.user?.uuid) {
       dispatch(
         getOrganizationsAction({
-          uuid: data?.user?.uuid,
+          uuid: data.user.uuid,
         })
       );
     }
-  }, [data]);
+  }, [status, data?.user?.uuid, dispatch]);
 
+  if (status === "loading") {
+    return <p>Loading session...</p>;
+  }
   const handleOrgSelect = async (uuid: string) => {
     try {
       await dispatch(

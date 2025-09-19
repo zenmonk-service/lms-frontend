@@ -22,7 +22,7 @@ export const userSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // Get user-specific organizations
+  
   },
 });
 

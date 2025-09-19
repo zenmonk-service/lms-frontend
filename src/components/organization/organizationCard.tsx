@@ -69,18 +69,10 @@ export default function OrganizationCard({
 }) {
   const dispatch = useAppDispatch();
   const router = useRouter();
-
+console.log(org)
   async function handleClick() {
     const session = await getSession();
     try {
-      await dispatch(
-        getOrganizationById({
-          organizationId: org.uuid,
-          email: session?.user?.email || "",
-        })
-      );
-
-      router.push(`/${org?.uuid}/dashboard`);
     } catch (err) {
       console.log("error", err);
       throw err;
@@ -108,9 +100,9 @@ export default function OrganizationCard({
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-sm text-muted-foreground min-h-[40px]">
+        {/* <p className="text-sm text-muted-foreground min-h-[40px]">
           {org?.description || "No description provided."}
-        </p>
+        </p> */}
         <div className="flex items-center justify-between">
           <Button
             className="cursor-pointer w-full shadow-none border-1 border-slate-200"

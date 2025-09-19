@@ -47,10 +47,10 @@ export default function CreateLeaveType() {
     applicableRoles: z.string().optional(),
     maxConsecutiveDays: z.number()
   });
-  // const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
-  // const [period, setPeriod] = useState("");
-  // const [applicableOn, setApplicableOn] = useState("");
-  // const [leaveCount, setLeaveCount] = useState("");
+  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const [period, setPeriod] = useState("");
+  const [applicableOn, setApplicableOn] = useState("");
+  const [leaveCount, setLeaveCount] = useState("");
   const selector = useAppSelector((state) => state.rolesSlice);
   const dispatch = useAppDispatch();
   const organizationROles = selector.roles;

@@ -12,6 +12,13 @@ export const getOrganizations = (payload: OrganizationFetchPayload) => {
   });
 };
 
+
+export const getAllOrganizations = (payload: OrganizationFetchPayload) => {
+  return axiosInterceptorInstance.get(`/organizations`, {
+    params: { page: payload.page , limit: payload.limit ,search : payload.search },
+  });
+};
+
 export const getOrganizationsById = (payload: {
   organizationId: string;
   email: string;

@@ -3,15 +3,16 @@
 import React, { useEffect } from "react";
 import OrganizationCard from "./organizationCard";
 import { AdminTablePagination } from "./pagination";
-import { useAppSelector } from "@/store";
+import { useAppDispatch, useAppSelector } from "@/store";
 
 import LoadingSkelton from "./loadingSkelton";
+import { getAllOrganizationsAction } from "@/features/organizations/organizations.action";
 
-export default function OrganizationGrid() {
+export default function OrganizationGrid({search } : {search :string}) {
   const { isLoading, organizations, total, currentPage } = useAppSelector(
     (state) => state.organizationsSlice
   );
-  
+ const dispatch =useAppDispatch()
   const handleManageMembers = (org: any) => {
     console.log("Manage members clicked for", org);
   };
@@ -41,16 +42,18 @@ export default function OrganizationGrid() {
           ))
         )}
         {organizations.length === 0 && !isLoading && (
-          <p>No organization available</p>
+          <div className="flex items-center justify-center w-full">
+            <p className="text-center w-full">No organization available</p>
+          </div>
         )}
       </div>
-      {currentPage && total && (
+      {organizations.length !== 0 && currentPage && total && (
         <AdminTablePagination
           total={total}
           currentPage={currentPage}
           pageSize={10}
           onPageChange={function (page: number): void {
-            throw new Error("Function not implemented.");
+           dispatch(getAllOrganizationsAction({page , limit:10, search}))
           }}
         />
       )}

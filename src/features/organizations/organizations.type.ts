@@ -1,5 +1,5 @@
 export interface OrganizationFetchPayload {
-  uuid: string;
+  uuid?: string;
   search?: string;
   page?: number;
   limit?: number;

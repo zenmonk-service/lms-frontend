@@ -12,11 +12,12 @@ import {
 type PageToken = number | "ELLIPSIS";
 
 interface AdminTablePaginationProps {
-  total: number; // total number of items
-  currentPage: number; // 1-based current page
-  pageSize: number; // items per page
+  total: number;
+  currentPage: number;
+  pageSize: number;
   onPageChange: (page: number) => void;
-  siblingCount?: number; // how many pages to show on each side of current (default 1)
+  siblingCount?: number;
+  showSummary?: boolean;
 }
 
 export function AdminTablePagination({
@@ -25,101 +26,112 @@ export function AdminTablePagination({
   pageSize,
   onPageChange,
   siblingCount = 1,
+  showSummary = true,
 }: AdminTablePaginationProps) {
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const ELLIPSIS_TOKEN: PageToken = "ELLIPSIS";
 
-  /**
-   * Build a compact list of pages where:
-   * - First and last pages are always present.
-   * - Pages in range [currentPage - siblingCount, currentPage + siblingCount] are present.
-   * - Gaps are represented by ELLIPSIS_TOKEN.
-   */
   const buildCompactPageList = (): PageToken[] => {
-    // If total is small, show every page.
-    const minPagesToShowAll = siblingCount * 2 + 5; // e.g., sibling=1 -> 7 pages
+    const minPagesToShowAll = siblingCount * 2 + 5;
     if (totalPages <= minPagesToShowAll) {
       return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
-
     const leftBoundary = Math.max(2, currentPage - siblingCount);
     const rightBoundary = Math.min(totalPages - 1, currentPage + siblingCount);
 
     const pages: PageToken[] = [];
-    pages.push(1); // first page
+    pages.push(1);
 
-    // left-side gap
     if (leftBoundary > 2) {
       pages.push(ELLIPSIS_TOKEN);
     } else {
-      // include page 2 when there is no left ellipsis
       for (let p = 2; p < leftBoundary; p++) pages.push(p);
     }
 
-    // middle range around current
-    for (let p = leftBoundary; p <= rightBoundary; p++) {
-      pages.push(p);
-    }
+    for (let p = leftBoundary; p <= rightBoundary; p++) pages.push(p);
 
-    // right-side gap
     if (rightBoundary < totalPages - 1) {
       pages.push(ELLIPSIS_TOKEN);
     } else {
-      // include pages up to totalPages-1 when there is no right ellipsis
       for (let p = rightBoundary + 1; p < totalPages; p++) pages.push(p);
     }
 
-    pages.push(totalPages); // last page
+    pages.push(totalPages);
     return pages;
   };
 
   const compactPages = buildCompactPageList();
+  const prevDisabled = currentPage <= 1;
+  const nextDisabled = currentPage >= totalPages;
 
   return (
-    <Pagination>
-      <PaginationContent>
-        {/* Previous */}
-
-        <PaginationItem
-          onClick={() => {
-            if (currentPage > 1) onPageChange(currentPage - 1);
-          }}
-          aria-disabled={currentPage <= 1}
-        >
-          <PaginationPrevious size="icon" href="#" />
-        </PaginationItem>
-
-        {/* Dynamic page items */}
-        {compactPages.map((token, idx) =>
-          token === ELLIPSIS_TOKEN ? (
-            <PaginationItem key={`ellipsis-${idx}`}>
-              <PaginationEllipsis />
-            </PaginationItem>
-          ) : (
-            <PaginationItem
-              key={`page-${token}`}
-              onClick={() => {
-                const pageNumber = token as number;
-                if (pageNumber !== currentPage) onPageChange(pageNumber);
+    <div className="flex flex-col items-center gap-2">
+      <Pagination>
+        <PaginationContent className="flex items-center gap-10">
+          <PaginationItem
+            aria-disabled={prevDisabled}
+            tabIndex={prevDisabled ? -1 : undefined}
+            className={prevDisabled ? "opacity-40 pointer-events-none" : ""}
+          >
+            <PaginationPrevious
+              href="#"
+              aria-label="Go to previous page"
+              onClick={(e) => {
+                e.preventDefault();
+                if (!prevDisabled) onPageChange(currentPage - 1);
               }}
-            >
-              <PaginationLink size="icon" href="#" isActive={token === currentPage}>
-                {token}
-              </PaginationLink>
-            </PaginationItem>
-          )
-        )}
+              className="hover:scale-105 transition"
+            />
+          </PaginationItem>
 
-        {/* Next */}
-        <PaginationItem
-          onClick={() => {
-            if (currentPage < totalPages) onPageChange(currentPage + 1);
-          }}
-          aria-disabled={currentPage >= totalPages}
-        >
-          <PaginationNext size="icon" href="#" />
-        </PaginationItem>
-      </PaginationContent>
-    </Pagination>
+          {compactPages.map((token, idx) =>
+            token === ELLIPSIS_TOKEN ? (
+              <PaginationItem key={`ellipsis-${idx}`}>
+                <PaginationEllipsis />
+              </PaginationItem>
+            ) : (
+              <PaginationItem key={`page-${token}`}>
+                <PaginationLink
+                  href="#"
+                  isActive={token === currentPage}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const pageNumber = token as number;
+                    if (pageNumber !== currentPage) onPageChange(pageNumber);
+                  }}
+                  className="hover:scale-105 transition"
+                >
+                  {token}
+                </PaginationLink>
+              </PaginationItem>
+            )
+          )}
+
+          <PaginationItem
+            aria-disabled={nextDisabled}
+            tabIndex={nextDisabled ? -1 : undefined}
+            className={nextDisabled ? "opacity-40 pointer-events-none" : ""}
+          >
+            <PaginationNext
+              href="#"
+              aria-label="Go to next page"
+              onClick={(e) => {
+                e.preventDefault();
+                if (!nextDisabled) onPageChange(currentPage + 1);
+              }}
+              className="hover:scale-105 transition"
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+
+      {showSummary && (
+        <p className="text-sm text-muted-foreground">
+          Page <span className="font-medium">{currentPage}</span> of{" "}
+          <span className="font-medium">{totalPages}</span> ·{" "}
+          <span className="font-medium">{total}</span> items
+        </p>
+      )}
+    </div>
   );
 }

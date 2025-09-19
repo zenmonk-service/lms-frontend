@@ -5,7 +5,7 @@ import {
   updateOrganizationAction,
   deleteOrganizationAction,
   getOrganizationById,
-  getOrganizationRolesAction,
+  getAllOrganizationsAction,
 } from "./organizations.action";
 
 export interface Organization {
@@ -62,6 +62,21 @@ export const organizationsSlice = createSlice({
         state.currentPage = action.payload.current_page || 0;
       })
       .addCase(getOrganizationsAction.rejected, (state, action: any) => {
+        state.isLoading = false;
+        state.error =
+          action.payload?.message || "Failed to fetch organizations";
+      })
+       .addCase(getAllOrganizationsAction.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(getAllOrganizationsAction.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.organizations = action.payload.rows || [];
+        state.total = action.payload.total || 0;
+        state.currentPage = action.payload.current_page || 0;
+      })
+      .addCase(getAllOrganizationsAction.rejected, (state, action: any) => {
         state.isLoading = false;
         state.error =
           action.payload?.message || "Failed to fetch organizations";

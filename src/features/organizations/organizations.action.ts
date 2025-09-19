@@ -10,6 +10,7 @@ import {
   updateOrganizationUser,
   deleteOrganizationUser,
   getOrganizationsById,
+  getAllOrganizations,
   createLeaveType,
 } from "./organizations.service";
 import { OrganizationFetchPayload } from "./organizations.type";
@@ -18,8 +19,9 @@ import { OrganizationFetchPayload } from "./organizations.type";
 
 // Get all organizations
 export const getOrganizationsAction = createAsyncThunk(
-  "organizations/getAll",
-  async (payload: OrganizationFetchPayload, thunkAPI) => {
+  "user/organizations/getAll",
+  async (payload : OrganizationFetchPayload, thunkAPI) => {
+
     try {
       const response = await getOrganizations(payload);
       return response.data;
@@ -30,6 +32,19 @@ export const getOrganizationsAction = createAsyncThunk(
   }
 );
 
+
+export const getAllOrganizationsAction = createAsyncThunk(
+  "organizations/getAll",
+  async (payload : OrganizationFetchPayload, thunkAPI) => {
+    try {
+      const response = await getAllOrganizations(payload);
+      return response.data;
+    } catch (err) {
+      const error = err as AxiosError;
+      return thunkAPI.rejectWithValue(error.response?.data);
+    }
+  }
+);
 // Get organization by id
 export const getOrganizationById = createAsyncThunk(
   "organizations/get",

@@ -13,14 +13,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { LoginCredentials, User } from "@/types/user";
-import { useAppDispatch } from "@/store";
 import { authenticate } from "@/app/auth/authenticate.action";
 import { signIn } from "@/features/user/user.service";
 import { useRouter } from "next/navigation";
-
-// interface LoginPageProps {
-//   onLogin?: (user: User) => void;
-// }
 
 export default function LoginPage() {
   const [credentials, setCredentials] = useState<LoginCredentials>({
@@ -43,22 +38,20 @@ export default function LoginPage() {
 
     try {
       const user: any = await signIn(credentials);
-
-      console.log("user", user);
-
-      if (!user) {
-        throw new Error("Invalid email or password.");
-      }
-
       await authenticate({
         email: credentials.email,
         name: user.data.name,
-        uuid :user.data.uuid
+        uuid: user.data.user_id,
       });
-
-      router.push("/organizations");
+      if (user.data.role == "super-admin") {
+        router.push("/organizations");
+      } else {
+        router.push("/select-organization");
+      }
     } catch (err: any) {
-      setError(err.response.data.error ||  "Something went wrong. Please try again.");
+      setError(
+        err.response.data.error || "Something went wrong. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -66,7 +59,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-100 flex items-center justify-center p-4">
-      {/* Subtle background glow */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-20 left-20 w-72 h-72 bg-orange-200/30 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-20 right-20 w-96 h-96 bg-orange-300/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -93,7 +85,6 @@ export default function LoginPage() {
 
         <CardContent className="pb-8">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email Field */}
             <div className="space-y-2 group">
               <Label
                 htmlFor="email"
@@ -115,7 +106,6 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Password Field */}
             <div className="space-y-2 group">
               <Label
                 htmlFor="password"
@@ -127,7 +117,6 @@ export default function LoginPage() {
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5 group-focus-within:text-orange-500 transition-colors" />
                 <Input
                   id="password"
-                  // minLength={5}
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   value={credentials.password}
@@ -149,14 +138,12 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Error Message */}
             {error && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600 animate-in fade-in">
                 {error}
               </div>
             )}
 
-            {/* Demo Credentials */}
             <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg text-sm">
               <p className="font-medium text-orange-800 mb-2">
                 Demo Credentials:
@@ -169,7 +156,6 @@ export default function LoginPage() {
               </p>
             </div>
 
-            {/* Submit Button */}
             <Button
               type="submit"
               disabled={loading}

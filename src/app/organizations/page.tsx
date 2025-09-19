@@ -5,9 +5,6 @@ import React, { useEffect, useState } from "react";
 import AppBar from "@/components/app-bar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import DataGridDemo from "@/components/table";
-
-import Settings from "@/components/organization/settings";
 import ExampleUsage from "@/components/organization/organizationGrid";
 import CreateOrganizationForm from "@/components/organization/createOrganization";
 import {
@@ -18,28 +15,39 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useAppDispatch } from "@/store";
-import { getOrganizationsAction } from "@/features/organizations/organizations.action";
+import {
+  createOrganizationAction,
+  getAllOrganizationsAction,
+  getOrganizationsAction,
+} from "@/features/organizations/organizations.action";
 import { useSession } from "next-auth/react";
 
 function Dashboard() {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState<string>("");
-  const dispatch = useAppDispatch();
   
+  const dispatch = useAppDispatch();
+
   useEffect(() => {
     dispatch(
-      getOrganizationsAction({
-        uuid: "44bc8d4e-606b-437c-990f-5be5807ffa46",
+      getAllOrganizationsAction({
         page: 1,
         limit: 10,
         search: search,
       })
     );
-  }, [search ]);
+  }, [search]);
 
-  const handleSubmit = (data: any) => {
-    console.log("New org data:", data);
-    setTimeout(() => setOpen(false), 500);
+  const handleSubmit = async(data: any) => {
+    try {
+      await dispatch(createOrganizationAction(data));
+      await dispatch(
+        getAllOrganizationsAction({ page: 1, limit: 10, search: search })
+      );
+      setOpen(false);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
@@ -75,7 +83,7 @@ function Dashboard() {
           </Dialog>
         </div>
         <div>
-          <ExampleUsage />
+          <ExampleUsage search={search} />
         </div>
       </main>
       <div></div>

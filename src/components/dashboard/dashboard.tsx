@@ -5,7 +5,6 @@ import AppBar from "@/components/app-bar";
 
 import { useAppDispatch } from "@/store";
 import { getOrganizationById } from "@/features/organizations/organizations.action";
-import { useSession } from "next-auth/react";
 
 function Dashboard({
   organization_uuid,

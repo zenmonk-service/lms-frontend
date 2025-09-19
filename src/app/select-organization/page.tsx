@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Search,
   Building2,
@@ -10,6 +10,13 @@ import {
   Settings,
 } from "lucide-react";
 import AppBar from "@/components/app-bar";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { useSession } from "next-auth/react";
+import {
+  getOrganizationById,
+  getOrganizationsAction,
+} from "@/features/organizations/organizations.action";
+import { useRouter } from "next/navigation";
 
 interface Organization {
   id: string;
@@ -18,21 +25,38 @@ interface Organization {
   avatar?: string;
 }
 
-const mockOrganizations: Organization[] = [
-  {
-    id: "1",
-    name: "TechCorp Industries",
-    domain: "techcorp.com",
-  }, 
-  {
-    id: "2",
-    name: "Design Studio Pro",
-    domain: "designstudio.io",
-  },
-];
-
 function App() {
-  const handleOrgSelect = (id: string) => {};
+  const { isLoading, organizations, total, currentPage } = useAppSelector(
+    (state) => state.organizationsSlice
+  );
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+  const { data } = useSession();
+
+  useEffect(() => {
+    if (data?.user?.uuid) {
+      dispatch(
+        getOrganizationsAction({
+          uuid: data?.user?.uuid,
+        })
+      );
+    }
+  }, [data]);
+
+  const handleOrgSelect = async (uuid: string) => {
+    try {
+      await dispatch(
+        getOrganizationById({
+          organizationId: uuid,
+          email: data?.user?.email || "",
+        })
+      );
+
+      router.push(`/${uuid}/dashboard`);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const getOrgInitials = (name: string) => {
     return name
@@ -62,7 +86,7 @@ function App() {
 
         {/* Organizations Grid */}
         <div className="grid gap-4 max-w-2xl mx-auto">
-          {mockOrganizations.length === 0 ? (
+          {organizations.length === 0 && !isLoading ? (
             <div className="text-center py-12">
               <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-500">
@@ -70,10 +94,10 @@ function App() {
               </p>
             </div>
           ) : (
-            mockOrganizations.map((org) => (
+            organizations.map((org) => (
               <div
                 key={org.id}
-                onClick={() => handleOrgSelect(org.id)}
+                onClick={() => handleOrgSelect(org.uuid)}
                 className={`group cursor-pointer bg-white rounded-xl border-2 p-6 transition-all duration-200 hover:border-orange-300 hover:shadow-lg hover:shadow-orange-100 ${"border-gray-200 hover:scale-[1.01]"}`}
               >
                 <div className="flex items-center justify-between">

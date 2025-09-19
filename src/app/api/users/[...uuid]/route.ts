@@ -7,7 +7,6 @@ export async function GET(
   request: NextRequest,
   context: { params: { uuid: string } } | { params: Promise<{ uuid: string }> }
 ) {
-  // Handle both cases
   const params = await context.params;
   const { uuid } = params;
 

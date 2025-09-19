@@ -38,6 +38,7 @@ import { useAppDispatch } from "@/store";
 import { useRouter } from "next/navigation";
 import { getOrganizationById } from "@/features/organizations/organizations.action";
 import { getSession } from "@/app/auth/get-auth.action";
+import CreateUser from "../user/create-user";
 
 interface Member {
   id: string;
@@ -111,6 +112,7 @@ console.log(org)
             <Users className="mr-2 h-4 w-4" /> Manage Organization
           </Button>
         </div>
+        <CreateUser/>
       </CardContent>
     </Card>
   );

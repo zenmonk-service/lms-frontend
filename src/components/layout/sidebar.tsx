@@ -1,4 +1,7 @@
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react"
+"use client";
+
+import { useState } from "react";
+import { Home, Users, Calendar, ClipboardList, Plane, ChevronDown } from "lucide-react";
 
 import {
   Sidebar,
@@ -9,59 +12,111 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
-// Menu items.
-const items = [
+export function AppSidebar({uuid} : {uuid :string}) {
+
+  const items = [
   {
     title: "Home",
-    url: "#",
+    url: "/",
     icon: Home,
   },
   {
-    title: "Inbox",
-    url: "#",
-    icon: Inbox,
+    title: "User Management",
+    url: "/users",
+    icon: Users,
   },
   {
-    title: "Calendar",
+    title: "Leave Management",
     url: "#",
     icon: Calendar,
+    items: [
+      {
+        title: "Leave Types",
+        url: `/${uuid}/leave-types`,
+        icon: ClipboardList,
+      },
+      {
+        title: "My Leaves",
+        url: "/my-leaves",
+        icon: Plane,
+      },
+    ],
   },
-  {
-    title: "Search",
-    url: "#",
-    icon: Search,
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: Settings,
-  },
-]
+];
 
-export function AppSidebar() {
+function SidebarNestedItem({ item }: { item: any }) {
+  const [open, setOpen] = useState(false);
+
+  if (item.items) {
+    return (
+      <SidebarMenuItem>
+        <SidebarMenuButton
+          asChild
+          onClick={() => setOpen((prev) => !prev)}
+          className="flex justify-between cursor-pointer"
+        >
+          <div className="flex items-center gap-2">
+            <item.icon className="w-4 h-4" />
+            <span>{item.title}</span>
+            <ChevronDown
+              className={`ml-auto w-4 h-4 transition-transform ${open ? "rotate-180" : ""}`}
+            />
+          </div>
+        </SidebarMenuButton>
+
+        {/* Collapsible children */}
+        <div
+          className={`overflow-hidden transition-[max-height] duration-300 ease-in-out ${
+            open ? "max-h-40" : "max-h-0"
+          }`}
+        >
+          <SidebarMenu className="ml-4">
+            {item.items.map((child: any) => (
+              <SidebarMenuItem key={child.title}>
+                <SidebarMenuButton asChild>
+                  <a href={child.url}>
+                    <child.icon className="w-4 h-4" />
+                    <span>{child.title}</span>
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </div>
+      </SidebarMenuItem>
+    );
+  }
+
+  return (
+    <SidebarMenuItem>
+      <SidebarMenuButton asChild>
+        <a href={item.url}>
+          <item.icon className="w-4 h-4" />
+          <span>{item.title}</span>
+        </a>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
+  );
+}
   return (
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
+          <SidebarGroupLabel></SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                <SidebarNestedItem key={item.title} item={item} />
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>
-  )
+  );
 }
+
+
+

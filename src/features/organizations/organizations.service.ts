@@ -23,7 +23,7 @@ export const getOrganizationsById = (payload: {
   organizationId: string;
   email: string;
 }) => {
-  return axiosInterceptorInstance.post(`/organizations`, payload);
+  return axiosInterceptorInstance.post(`/organizations/login`, payload);
 };
 
 export const createOrganization = (organizationInfo: any) => {
@@ -96,3 +96,4 @@ export const createLeaveType = (data: any, org_uuid: string) => {
     },
   });
 };
+

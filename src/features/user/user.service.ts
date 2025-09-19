@@ -10,3 +10,8 @@ export const signIn = (signInfo?: SignInInterface) => {
   return  axiosInterceptorInstance.post("/login" , signInfo)
 };
 
+
+
+export const createUser = (user?: any) => {
+  return axiosInterceptorInstance.post("/users" , user)
+};

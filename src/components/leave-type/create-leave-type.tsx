@@ -33,12 +33,12 @@ import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-// single schema (simplified)
+// single schema (simplified) — applicableRoles accepts array<string> OR literal "all"
 const leaveTypeSchema = z.object({
   name: z.string().min(2, "Leave Type name is required"),
   code: z.string().min(1, "Code is required"),
   description: z.string().optional(),
-  applicableRoles: z.array(z.string()).optional(),
+  applicableRoles: z.union([z.array(z.string()), z.literal("all")]).optional(),
   // simplified accrual options
   accrualFrequency: z.enum(["none", "monthly", "yearly"]).optional(),
   leaveCount: z.union([z.string(), z.number()]).optional(),
@@ -83,7 +83,6 @@ export default function CreateLeaveType() {
     getData();
   }, []);
 
-  // helper: remove keys that are null/undefined (or optionally empty string)
   function cleanObject<T extends Record<string, any>>(
     obj: T,
     keysToClean: string[] = []
@@ -97,20 +96,26 @@ export default function CreateLeaveType() {
     return out;
   }
 
-  // transformFormData (updated)
+  // transformFormData (updated) — recognizes applicableRoles === "all"
   function transformFormData(data: any, availableRoles: any[]) {
-    const selected = (data.applicableRoles || []).map((id: string) =>
-      id.trim()
-    );
-
     const availableUuids = (availableRoles || []).map((r: any) => r.uuid);
+
+    // handle "all" explicitly, otherwise normalize selected array
+    const selected =
+      data.applicableRoles === "all"
+        ? availableUuids
+        : (data.applicableRoles || []).map((id: string) => id.trim());
 
     const applicable_for = {
       type: "role",
-      value: selected.length === availableUuids.length ? "all" : selected,
+      value:
+        data.applicableRoles === "all" ||
+        selected.length === availableUuids.length
+          ? "all"
+          : selected,
     };
 
-    // map frontend accrualFrequency -> backend period values (adjust if you import a shared enum)
+    // map frontend accrualFrequency -> backend period values
     const frequencyToPeriodMap: Record<string, string> = {
       monthly: "monthly",
       yearly: "yearly",
@@ -127,8 +132,8 @@ export default function CreateLeaveType() {
       period || (data.leaveCount !== "" && data.leaveCount !== undefined)
         ? cleanObject(
             {
-              period, // <-- renamed from frequency to period
-              applicable_on: "start_of_month", // hard-coded as requested
+              period, // renamed from frequency to period
+              applicable_on: "start_of_month", // hard-coded
               leave_count:
                 data.leaveCount !== "" && data.leaveCount !== undefined
                   ? Number(data.leaveCount)
@@ -161,6 +166,9 @@ export default function CreateLeaveType() {
     if (createLeaveTypeAction.fulfilled.match(resultAction)) {
       console.log("✅ Leave type created:", resultAction.payload);
       reset();
+      // reset selectedRoles too
+      setSelectedRoles([]);
+      setValue("applicableRoles", []);
     } else {
       console.error("❌ Create leave type failed:", resultAction.payload);
     }
@@ -169,6 +177,23 @@ export default function CreateLeaveType() {
   // preview watchers
   const accrualFrequency = watch("accrualFrequency");
   const leaveCount = watch("leaveCount");
+
+  // helper: toggle select all / clear
+  const toggleSelectAll = () => {
+    const allUuids = (organizationRoles || []).map((r: any) => r.uuid);
+    const currentlyAllSelected =
+      selectedRoles.length === allUuids.length && allUuids.length > 0;
+
+    if (currentlyAllSelected) {
+      // clear all
+      setSelectedRoles([]);
+      setValue("applicableRoles", []);
+    } else {
+      // select all and explicitly store "all" for the form value
+      setSelectedRoles(allUuids);
+      setValue("applicableRoles", "all");
+    }
+  };
 
   return (
     <Dialog>
@@ -224,8 +249,22 @@ export default function CreateLeaveType() {
 
             {/* Roles */}
             <div>
-              <Label>Select Applicable Roles</Label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="flex items-center justify-between">
+                <Label>Select Applicable Roles</Label>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  type="button"
+                  onClick={toggleSelectAll}
+                >
+                  {selectedRoles.length ===
+                  (organizationRoles || []).map((r: any) => r.uuid).length
+                    ? "Clear"
+                    : "Select All"}
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 mt-2">
                 {organizationRoles?.map((role: any) => (
                   <div key={role.uuid} className="flex items-center space-x-2">
                     <Checkbox
@@ -235,8 +274,23 @@ export default function CreateLeaveType() {
                         const updated = checked
                           ? [...selectedRoles, role.uuid]
                           : selectedRoles.filter((r) => r !== role.uuid);
+
+                        // always keep state as array for UI
                         setSelectedRoles(updated);
-                        setValue("applicableRoles", updated);
+
+                        const allUuids = (organizationRoles || []).map(
+                          (r: any) => r.uuid
+                        );
+
+                        // if updated equals all, set form value to "all", else set array
+                        if (
+                          updated.length === allUuids.length &&
+                          allUuids.length > 0
+                        ) {
+                          setValue("applicableRoles", "all");
+                        } else {
+                          setValue("applicableRoles", updated);
+                        }
                       }}
                     />
                     <label htmlFor={role.uuid} className="select-none">

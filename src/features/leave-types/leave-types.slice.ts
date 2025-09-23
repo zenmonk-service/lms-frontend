@@ -1,19 +1,13 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 
-export interface SignInInterface {
-  email: string;
-  password: string;
-  organization_uuid?: string;
-}
-
 const initialState: any = {
   isLoading: false,
-  roles: [],
+  leaveTypes: [],
 };
 
 export const roleSlice = createSlice({
-  name: "role",
+  name: "leave-type",
   initialState,
   reducers: {
     addRoles: (state, action) => {

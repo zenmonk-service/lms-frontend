@@ -19,17 +19,16 @@ export function AppSidebar({uuid} : {uuid :string}) {
   const items = [
   {
     title: "Home",
-    url: "/",
+    url: `/${uuid}/dashboard`,
     icon: Home,
   },
   {
     title: "User Management",
-    url: "/users",
+    url: `/${uuid}/users`,
     icon: Users,
   },
   {
     title: "Leave Management",
-    url: "#",
     icon: Calendar,
     items: [
       {
@@ -39,7 +38,7 @@ export function AppSidebar({uuid} : {uuid :string}) {
       },
       {
         title: "My Leaves",
-        url: "/my-leaves",
+        url: `/${uuid}/my-leaves`,
         icon: Plane,
       },
     ],
@@ -106,7 +105,7 @@ function SidebarNestedItem({ item }: { item: any }) {
         <SidebarGroup>
           <SidebarGroupLabel></SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="mt-8">
               {items.map((item) => (
                 <SidebarNestedItem key={item.title} item={item} />
               ))}

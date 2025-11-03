@@ -83,7 +83,7 @@ type FormData = {
   role: string;
 };
 
-export default function CreateUser() {
+export default function CreateUser({org_uuid}: {org_uuid: string}) {
   const [selectedRole, setSelectedRole] = useState("");
   const {
     register,
@@ -93,7 +93,7 @@ export default function CreateUser() {
   } = useForm<FormData>();
 
   const onSubmit = (data: FormData) => {
-    createUser(data)
+    createUser({ ...data , org_uuid: org_uuid });
     console.log("Form submitted:", data);
   };
 

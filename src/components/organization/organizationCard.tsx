@@ -101,9 +101,6 @@ console.log(org)
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* <p className="text-sm text-muted-foreground min-h-[40px]">
-          {org?.description || "No description provided."}
-        </p> */}
         <div className="flex items-center justify-between">
           <Button
             className="cursor-pointer w-full shadow-none border-1 border-slate-200"
@@ -112,7 +109,7 @@ console.log(org)
             <Users className="mr-2 h-4 w-4" /> Manage Organization
           </Button>
         </div>
-        <CreateUser/>
+        <CreateUser org_uuid={org.uuid} />
       </CardContent>
     </Card>
   );

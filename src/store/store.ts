@@ -1,9 +1,9 @@
 import { organizationsReducer } from "@/features/organizations/organizations.slice";
 import { rolesReducer } from "@/features/role/role.slice";
+import { userReducer } from "@/features/user/user.slice";
 import type { Action, ThunkAction } from "@reduxjs/toolkit";
 import { combineSlices, configureStore } from "@reduxjs/toolkit";
 import leaveTypeReducer from "@/features/leave-types/leave-types.slice";
-import userReducer from "@/features/user/user.slice";
 
 import {
   FLUSH,
@@ -35,7 +35,9 @@ const combinedReducer = combineSlices({
   organizationsSlice: organizationsReducer,
   rolesSlice: rolesReducer,
   leaveTypeSlice: leaveTypeReducer,
+  userSlice: userReducer,
 });
+
 
 const rootReducer = (
   state: ReturnType<typeof combinedReducer> | undefined,

@@ -17,6 +17,7 @@ import {
   getOrganizationsAction,
 } from "@/features/organizations/organizations.action";
 import { useRouter } from "next/navigation";
+import { addOrganizations } from "@/features/user/user.slice";
 
 interface Organization {
   id: string;
@@ -56,6 +57,7 @@ function App() {
         })
       );
 
+      dispatch(addOrganizations(uuid));
       router.push(`/${uuid}/dashboard`);
     } catch (err) {
       console.log(err);

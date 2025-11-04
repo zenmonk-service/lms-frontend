@@ -1,4 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { getOrganizationRoles } from "./role.service";
+import { getOrganizationRolesAction } from "./role.action";
 
 
 export interface SignInInterface {
@@ -16,16 +18,26 @@ export const roleSlice = createSlice({
   name: "role",
   initialState,
   reducers: {
-    addRoles: (state, action) => {
-      state.roles = action.payload || [];
-    },
   },
   extraReducers: (builder) => {
-    // Get user-specific organizations
+  builder.addCase(getOrganizationRolesAction.pending, (state) => {
+          state.isLoading = true;
+          state.error = null;
+        })
+        .addCase(getOrganizationRolesAction.fulfilled, (state, action) => {
+          state.isLoading = false;
+          state.roles = action.payload ||  [];
+         
+        })
+        .addCase(getOrganizationRolesAction.rejected, (state, action: any) => {
+          state.isLoading = false;
+          state.error =
+            action.payload?.message || "Failed to fetch organizations";
+        })
   },
 });
 
 
 
 export const rolesReducer = roleSlice.reducer;
-export const { addRoles} = roleSlice.actions 
+export const {  } = roleSlice.actions

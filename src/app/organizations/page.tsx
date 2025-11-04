@@ -18,9 +18,7 @@ import { useAppDispatch } from "@/store";
 import {
   createOrganizationAction,
   getAllOrganizationsAction,
-  getOrganizationsAction,
 } from "@/features/organizations/organizations.action";
-import { useSession } from "next-auth/react";
 
 function Dashboard() {
   const [open, setOpen] = useState(false);

@@ -24,12 +24,11 @@ import {
 import { Calendar, LoaderCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/store";
-import { getRoles } from "@/features/organizations/organizations.service";
-import { addRoles } from "@/features/role/role.slice";
 
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { getOrganizationRolesAction } from "@/features/role/role.action";
 import {
   createLeaveTypeAction,
   updateLeaveTypeAction,
@@ -122,14 +121,10 @@ export default function LeaveTypeForm({
     }
   }, [data, isOpen, reset, organizationRoles]);
 
-  const getData = async () => {
-    const org_uuid = "b1eebc91-9c0b-4ef8-bb6d-6bb9bd380a22";
-    const response = await getRoles(org_uuid);
-    dispatch(addRoles(response.data));
-  };
+
 
   useEffect(() => {
-    getData();
+    dispatch(getOrganizationRolesAction("b1eebc91-9c0b-4ef8-bb6d-6bb9bd380a22"));
   }, []);
 
   function cleanObject<T extends Record<string, any>>(

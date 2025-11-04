@@ -1,8 +1,8 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { AxiosError } from "axios";
 import { SignInInterface } from "./user.slice";
-import { createUser, listUser, signIn } from "./user.service";
-import { CreateUserPayload, listUserPayload } from "./user.type";
+import { createUser, listUser, signIn, updateUser } from "./user.service";
+import { CreateUserPayload, listUserPayload, UpdateUserPayload } from "./user.type";
 
 export const signInAction = createAsyncThunk(
   "auth/signIn",
@@ -24,6 +24,20 @@ export const createUserAction = createAsyncThunk(
   async (payload : CreateUserPayload, thunkAPI) => {
     try {
       const response = await createUser(payload);
+      return response.data;
+    } catch (err) {
+      const error = err as AxiosError;
+      return thunkAPI.rejectWithValue(error?.response?.data);
+    }
+  }
+);
+
+
+export const updateUserAction = createAsyncThunk(
+  "auth/update",
+  async (payload : UpdateUserPayload, thunkAPI) => {
+    try {
+      const response = await updateUser(payload);
       return response.data;
     } catch (err) {
       const error = err as AxiosError;

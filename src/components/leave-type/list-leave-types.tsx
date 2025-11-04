@@ -49,6 +49,7 @@ export default function ListLeaveTypes({
   );
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(2);
+  const [search, setSearch] = useState<string>("");
 
   const handleEdit = (leaveType: LeaveTypes) => {
     setSelectedLeaveType(leaveType);
@@ -69,9 +70,10 @@ export default function ListLeaveTypes({
         org_uuid: orgUuid,
         page,
         limit,
+        search,
       })
     );
-  }, [dispatch, orgUuid, page, limit]);
+  }, [dispatch, orgUuid, page, limit, search]);
 
   return (
     <div className="mt-6">
@@ -81,133 +83,136 @@ export default function ListLeaveTypes({
           <p className="text-sm text-muted-foreground">
             List of configured leave types for the organization.
           </p>
+          <Input
+            placeholder="Filter emails..."
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            className="max-w-sm mt-4"
+          />
         </div>
       </div>
 
       <div className="bg-white border rounded-lg p-4 min-h-[160px]">
-        {isLoading ? (
-          <div className="flex justify-center items-center py-8">
-            <LoaderCircle className="animate-spin" />
-          </div>
-        ) : !leaveTypes ||
-          (Array.isArray(leaveTypes.rows) && leaveTypes.rows.length === 0) ? (
-          <div className="text-center py-8">
-            <div className="text-sm text-muted-foreground">
-              No leave types found.
-            </div>
-          </div>
-        ) : (
-          <>
-            <div className="overflow-hidden rounded-md border">
-              <Table>
-                <TableHeader className="bg-[#eaeef1]">
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id}>
-                      {headerGroup.headers.map((header) => {
-                        return (
-                          <TableHead
-                            className="text-[#707483] font-medium"
-                            key={header.id}
-                          >
-                            {header.isPlaceholder
-                              ? null
-                              : flexRender(
-                                  header.column.columnDef.header,
-                                  header.getContext()
-                                )}
-                          </TableHead>
-                        );
-                      })}
-                    </TableRow>
-                  ))}
-                </TableHeader>
-                <TableBody>
-                  {table.getRowModel().rows?.length ? (
-                    table.getRowModel().rows.map((row) => (
-                      <TableRow
-                        key={row.id}
-                        data-state={row.getIsSelected() && "selected"}
+        <div className="overflow-hidden rounded-md border">
+          <Table>
+            <TableHeader className="bg-[#eaeef1]">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead
+                        className="text-[#707483] font-medium"
+                        key={header.id}
                       >
-                        {row.getVisibleCells().map((cell) => (
-                          <TableCell key={cell.id}>
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext()
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
                             )}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell
-                        colSpan={useLeaveTypesColumns().length}
-                        className="h-24 text-center"
-                      >
-                        No results.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-            <div className="flex items-center justify-end space-x-2 py-4">
-              <div className="text-muted-foreground flex-1 text-sm">
-                {table.getFilteredSelectedRowModel().rows.length} of{" "}
-                {table.getFilteredRowModel().rows.length} row(s) selected.
-              </div>
-              <div className="space-x-2">
-
-                <Select
-                  onValueChange={(val) => {
-                    const newPageSize = Number(val);
-                    setLimit(newPageSize);
-                    setPage(1);
-                    dispatch(
-                      getLeaveTypesAction({
-                        org_uuid: orgUuid,
-                        page,
-                        limit: newPageSize,
-                      })
+                      </TableHead>
                     );
-                  }}
-                >
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Select Page Size" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel className="text-xs">Page Size</SelectLabel>
-                      {[2, 5, 10, 20, 50].map((size) => (
-                        <SelectItem key={size} value={size.toString()}>
-                          {size}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setPage(page - 1)}
-                  disabled={page === 1}
-                >
-                  Previous
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setPage(page + 1)}
-                  disabled={page * limit >= leaveTypes.total}
-                >
-                  Next
-                </Button>
-              </div>
-            </div>
-          </>
-        )}
+                  })}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="text-center p-8"
+                  >
+                    <div className="flex justify-center items-center">
+                      <LoaderCircle
+                        className="animate-spin"
+                        width={20}
+                        height={20}
+                      />
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : !leaveTypes ||
+                (Array.isArray(leaveTypes.rows) &&
+                  leaveTypes.rows.length === 0) ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="text-center p-8"
+                  >
+                    No leave types found.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+        <div className="flex items-center justify-end space-x-2 py-4">
+          <div className="space-x-2">
+            <Select
+              onValueChange={(val) => {
+                const newPageSize = Number(val);
+                setLimit(newPageSize);
+                setPage(1);
+                dispatch(
+                  getLeaveTypesAction({
+                    org_uuid: orgUuid,
+                    page,
+                    limit: newPageSize,
+                  })
+                );
+              }}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select Page Size" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel className="text-xs">Page Size</SelectLabel>
+                  {[2, 5, 10, 20, 50].map((size) => (
+                    <SelectItem key={size} value={size.toString()}>
+                      {size}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(page - 1)}
+              disabled={page === 1}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(page + 1)}
+              disabled={page * limit >= leaveTypes.count}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
       </div>
       {selectedLeaveType && (
         <LeaveTypeForm

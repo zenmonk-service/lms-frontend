@@ -5,10 +5,10 @@ import { createLeaveType, updateLeaveType } from "../organizations/organizations
 
 export const getLeaveTypesAction = createAsyncThunk(
   "organizations/getLeaveTypes",
-  async (payload: { org_uuid: string; page?: number; limit?: number }, thunkAPI) => {
+  async (payload: { org_uuid: string; page?: number; limit?: number, search?: string }, thunkAPI) => {
     try {
-      const { org_uuid, page = 1, limit = 10 } = payload;
-      const response = await getLeaveTypes(org_uuid, { page, limit });
+      const { org_uuid, page = 1, limit = 10, search } = payload;
+      const response = await getLeaveTypes(org_uuid, { page, limit, search });
       return response.data;
     } catch (err) {
       const error = err as AxiosError;

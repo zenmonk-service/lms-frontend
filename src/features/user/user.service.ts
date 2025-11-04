@@ -13,3 +13,12 @@ export const signIn = (signInfo?: SignInInterface) => {
 export const createUser = (user?: CreateUserPayload) => {
   return axiosInterceptorInstance.post("/users", user);
 };
+
+export const listUser = (
+  filters: { page: number; limit: number },
+  org_uuid: string
+) => {
+  return axiosInterceptorInstance.get(`/users/${org_uuid}`, {
+    params: filters,
+  });
+};

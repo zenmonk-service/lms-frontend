@@ -7,17 +7,17 @@ export const POST = async (request: Request) => {
 
   try {
     const response = await axios.post(`${BASE_URL}/users`, data, {
-        headers: {
-            org_uuid: data.org_uuid
-        }
+      headers: {
+        org_uuid: data.org_uuid,
+      },
     });
 
     return NextResponse.json(response.data);
-  } catch (error:any) {
+  } catch (error: any) {
     console.log("error: ", error);
-     return NextResponse.json(
+    return NextResponse.json(
       { error: error?.response.data.description || "Internal Server Error" },
-      { status: error.status ||500 }
+      { status: error.status || 500 }
     );
   }
 };

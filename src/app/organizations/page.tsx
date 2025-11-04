@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import AppBar from "@/components/app-bar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import ExampleUsage from "@/components/organization/organizationGrid";
+import OrganizationGrid from "@/components/organization/organizationGrid";
 import CreateOrganizationForm from "@/components/organization/createOrganization";
 import {
   Dialog,
@@ -83,7 +83,7 @@ function Dashboard() {
           </Dialog>
         </div>
         <div>
-          <ExampleUsage search={search} />
+          <OrganizationGrid search={search} />
         </div>
       </main>
       <div></div>

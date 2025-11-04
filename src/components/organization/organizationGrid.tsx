@@ -7,14 +7,17 @@ import { useAppDispatch, useAppSelector } from "@/store";
 
 import LoadingSkelton from "./loadingSkelton";
 import { getAllOrganizationsAction } from "@/features/organizations/organizations.action";
+import { useRouter } from "next/navigation";
+import { Organization } from "@/features/organizations/organizations.slice";
 
-export default function OrganizationGrid({search } : {search :string}) {
+export default function OrganizationGrid({ search }: { search: string }) {
+  const router = useRouter();
   const { isLoading, organizations, total, currentPage } = useAppSelector(
     (state) => state.organizationsSlice
   );
- const dispatch =useAppDispatch()
+  const dispatch = useAppDispatch();
   const handleManageMembers = (org: any) => {
-    console.log("Manage members clicked for", org);
+      router.push(`/organizations/${org.uuid}`);
   };
 
   const handleEdit = (org: any) => {
@@ -31,7 +34,7 @@ export default function OrganizationGrid({search } : {search :string}) {
         {isLoading ? (
           <LoadingSkelton />
         ) : (
-          organizations.map((org) => (
+          organizations.map((org:Organization) => (
             <OrganizationCard
               key={org.id}
               org={org}
@@ -53,7 +56,7 @@ export default function OrganizationGrid({search } : {search :string}) {
           currentPage={currentPage}
           pageSize={10}
           onPageChange={function (page: number): void {
-           dispatch(getAllOrganizationsAction({page , limit:10, search}))
+            dispatch(getAllOrganizationsAction({ page, limit: 10, search }));
           }}
         />
       )}

@@ -23,6 +23,15 @@ import { LeaveTypes, useLeaveTypesColumns } from "./list-leave-types-columns";
 import LeaveTypeForm from "./leave-type-form";
 import { LoaderCircle } from "lucide-react";
 import { Input } from "../ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 export default function ListLeaveTypes({
   orgUuid = "b1eebc91-9c0b-4ef8-bb6d-6bb9bd380a22",
@@ -147,19 +156,11 @@ export default function ListLeaveTypes({
                 {table.getFilteredSelectedRowModel().rows.length} of{" "}
                 {table.getFilteredRowModel().rows.length} row(s) selected.
               </div>
-              <div className="flex items-center space-x-2">
-                <label
-                  htmlFor="pageSize"
-                  className="text-sm text-muted-foreground"
-                >
-                  Rows per page:
-                </label>
-                <select
-                  id="pageSize"
-                  className="border rounded px-2 py-1 text-sm"
-                  value={limit}
-                  onChange={(e) => {
-                    const newPageSize = Number(e.target.value);
+              <div className="space-x-2">
+
+                <Select
+                  onValueChange={(val) => {
+                    const newPageSize = Number(val);
                     setLimit(newPageSize);
                     setPage(1);
                     dispatch(
@@ -171,12 +172,20 @@ export default function ListLeaveTypes({
                     );
                   }}
                 >
-                  {[2, 5, 10, 20, 50].map((size) => (
-                    <option key={size} value={size}>
-                      {size}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Select Page Size" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel className="text-xs">Page Size</SelectLabel>
+                      {[2, 5, 10, 20, 50].map((size) => (
+                        <SelectItem key={size} value={size.toString()}>
+                          {size}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-x-2">
                 <Button

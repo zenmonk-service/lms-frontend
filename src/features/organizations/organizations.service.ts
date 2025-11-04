@@ -97,3 +97,10 @@ export const createLeaveType = (data: any, org_uuid: string) => {
   });
 };
 
+export const updateLeaveType = (data: any, org_uuid: string) => {
+  return axiosInterceptorInstance.put(`/organizations/leave-types`, data, {
+    headers: {
+      org_uuid: org_uuid,
+    },
+  });
+};

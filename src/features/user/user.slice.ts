@@ -28,5 +28,5 @@ export const userSlice = createSlice({
 
 
 
-export const userReducer = userSlice.reducer;
+export default userSlice.reducer;
 export const { addOrganizations} = userSlice.actions 

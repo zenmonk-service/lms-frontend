@@ -31,6 +31,11 @@ export default function LoginPage() {
     setCredentials((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleForgotPassword = () => {
+    const baseURL = process.env.NEXT_PUBLIC_FORGOT_PASSWORD_URL;
+    router.push(`${baseURL}/password/forgot`);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -135,6 +140,13 @@ export default function LoginPage() {
                     <Eye className="w-5 h-5" />
                   )}
                 </button>
+                <button
+                  className="float-right cursor-pointer mt-1 mb-2"
+                  type="button"
+                  onClick={handleForgotPassword}
+                >
+                  <p className="text-xs text-orange-600">Forgot password?</p>
+                </button>
               </div>
             </div>
 
@@ -143,8 +155,6 @@ export default function LoginPage() {
                 {error}
               </div>
             )}
-
-          
 
             <Button
               type="submit"

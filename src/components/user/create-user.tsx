@@ -100,7 +100,7 @@ export default function CreateUser({org_uuid}: {org_uuid: string}) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 px-8 py-3 rounded-xl font-semibold flex items-center gap-2">
+        <Button className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-8 py-3 rounded-xl font-semibold flex items-center gap-2">
           <UserPlus className="w-5 h-5" />
           Create User
         </Button>

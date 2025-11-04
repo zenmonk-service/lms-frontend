@@ -22,32 +22,50 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Calendar } from "lucide-react";
+import { Plus, Calendar, LoaderCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { getRoles } from "@/features/organizations/organizations.service";
 import { addRoles } from "@/features/role/role.slice";
-import { createLeaveTypeAction } from "@/features/organizations/organizations.action";
 
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  createLeaveTypeAction,
+  updateLeaveTypeAction,
+} from "@/features/leave-types/leave-types.action";
 
-// single schema (simplified) — applicableRoles accepts array<string> OR literal "all"
 const leaveTypeSchema = z.object({
   name: z.string().min(2, "Leave Type name is required"),
   code: z.string().min(1, "Code is required"),
   description: z.string().optional(),
   applicableRoles: z.union([z.array(z.string()), z.literal("all")]).optional(),
-  // simplified accrual options
   accrualFrequency: z.enum(["none", "monthly", "yearly"]).optional(),
   leaveCount: z.union([z.string(), z.number()]).optional(),
 });
 
 type LeaveTypeFormData = z.infer<typeof leaveTypeSchema>;
 
-export default function CreateLeaveType() {
+interface LeaveTypeFormProps {
+  label: "edit" | "create";
+  data?: LeaveTypeFormData;
+  leave_type_uuid?: string;
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  onClose: () => void;
+}
+
+export default function LeaveTypeForm({
+  label,
+  data,
+  leave_type_uuid,
+  isOpen,
+  onOpenChange,
+  onClose,
+}: LeaveTypeFormProps) {
   const selector = useAppSelector((state) => state.rolesSlice);
+  const { isLoading } = useAppSelector((state) => state.leaveTypeSlice);
   const dispatch = useAppDispatch();
 
   const {
@@ -73,6 +91,38 @@ export default function CreateLeaveType() {
   const organizationRoles = selector.roles || [];
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
 
+  useEffect(() => {
+    if (data && isOpen) {
+      reset({
+        name: data.name || "",
+        code: data.code || "",
+        description: data.description || "",
+        applicableRoles: data.applicableRoles || [],
+        accrualFrequency: data.accrualFrequency || "none",
+        leaveCount: data.leaveCount || "",
+      });
+
+      if (data.applicableRoles === "all") {
+        const allUuids = organizationRoles.map((r: any) => r.uuid);
+        setSelectedRoles(allUuids);
+      } else if (Array.isArray(data.applicableRoles)) {
+        setSelectedRoles(data.applicableRoles);
+      } else {
+        setSelectedRoles([]);
+      }
+    } else if (!isOpen) {
+      reset({
+        name: "",
+        code: "",
+        description: "",
+        applicableRoles: [],
+        accrualFrequency: "none",
+        leaveCount: "",
+      });
+      setSelectedRoles([]);
+    }
+  }, [data, isOpen, reset, organizationRoles]);
+
   const getData = async () => {
     const org_uuid = "b1eebc91-9c0b-4ef8-bb6d-6bb9bd380a22";
     const response = await getRoles(org_uuid);
@@ -96,7 +146,6 @@ export default function CreateLeaveType() {
     return out;
   }
 
-  // transformFormData (updated) — recognizes applicableRoles === "all"
   function transformFormData(data: any, availableRoles: any[]) {
     const availableUuids = (availableRoles || []).map((r: any) => r.uuid);
 
@@ -154,31 +203,34 @@ export default function CreateLeaveType() {
     return payload;
   }
 
-  // Ideally get org_uuid from store/context; kept hardcoded per your example
   const org_uuid = "b1eebc91-9c0b-4ef8-bb6d-6bb9bd380a22";
 
   const onSubmit = async (values: LeaveTypeFormData) => {
-    console.log("values: ", values);
     const transformed = transformFormData(values, organizationRoles);
-    const payload = { ...transformed, org_uuid };
+    const payload =
+      label === "create"
+        ? { ...transformed, org_uuid }
+        : { ...transformed, org_uuid, leave_type_uuid };
 
-    const resultAction = await dispatch(createLeaveTypeAction(payload));
-    if (createLeaveTypeAction.fulfilled.match(resultAction)) {
-      console.log("✅ Leave type created:", resultAction.payload);
+    try {
+      if (label === "create") {
+        await dispatch(createLeaveTypeAction(payload));
+      } else {
+        await dispatch(updateLeaveTypeAction(payload));
+      }
+
       reset();
-      // reset selectedRoles too
       setSelectedRoles([]);
       setValue("applicableRoles", []);
-    } else {
-      console.error("❌ Create leave type failed:", resultAction.payload);
+      onClose(); 
+    } catch (error) {
+      throw error;
     }
   };
 
-  // preview watchers
   const accrualFrequency = watch("accrualFrequency");
   const leaveCount = watch("leaveCount");
 
-  // helper: toggle select all / clear
   const toggleSelectAll = () => {
     const allUuids = (organizationRoles || []).map((r: any) => r.uuid);
     const currentlyAllSelected =
@@ -196,13 +248,7 @@ export default function CreateLeaveType() {
   };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button className="bg-gradient-to-r from-orange-500 to-amber-500 text-white">
-          <Plus className="w-5 h-5" /> Create Leave Type
-        </Button>
-      </DialogTrigger>
-
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[650px] bg-gradient-to-br from-white to-orange-50 border-2 border-orange-200">
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader className="space-y-4 pb-2">
@@ -211,11 +257,13 @@ export default function CreateLeaveType() {
                 <Calendar className="w-6 h-6 text-white" />
               </div>
               <DialogTitle className="text-2xl font-bold">
-                Create Leave Type
+                {label === "create" ? "Create Leave Type" : "Edit Leave Type"}
               </DialogTitle>
             </div>
             <DialogDescription>
-              Configure a new leave type with custom rules and settings.
+              {label === "create"
+                ? "Configure a new leave type with custom rules and settings."
+                : "Edit the leave type with custom rules and settings."}
             </DialogDescription>
           </DialogHeader>
 
@@ -345,9 +393,23 @@ export default function CreateLeaveType() {
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline" className="cursor-pointer">
+                Cancel
+              </Button>
             </DialogClose>
-            <Button type="submit">Create Leave Type</Button>
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="cursor-pointer min-w-[150px]"
+            >
+              {isLoading ? (
+                <LoaderCircle className="animate-spin" />
+              ) : (label === "edit" ? (
+                "Update Leave Type"
+              ) : (
+                "Create Leave Type"
+              ))}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

@@ -81,7 +81,7 @@ console.log(org)
   }
   return (
     <Card
-      className="overflow-hidden bg-white border-0 hover:shadow-xl"
+      className="overflow-hidden bg-white border-0"
       onClick={handleClick}
     >
       <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">

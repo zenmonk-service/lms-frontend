@@ -11,7 +11,6 @@ import {
   deleteOrganizationUser,
   getOrganizationsById,
   getAllOrganizations,
-  createLeaveType,
 } from "./organizations.service";
 import { OrganizationFetchPayload } from "./organizations.type";
 
@@ -176,18 +175,4 @@ export const deleteUserAction = createAsyncThunk(
     }
   }
 );
-
-export const createLeaveTypeAction = createAsyncThunk(
-  "orgnization/leave-type",
-  async (data: any, thunkAPI) => {
-    try {
-      const response = await createLeaveType(data, data.org_uuid);
-      return response.data;
-    } catch (err) {
-      const error = err as AxiosError;
-      return thunkAPI.rejectWithValue(error.response?.data);
-    }
-  }
-);
-
 

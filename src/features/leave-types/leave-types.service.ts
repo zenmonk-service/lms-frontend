@@ -1,6 +1,6 @@
 import axiosInterceptorInstance from "@/config/axios";
 
-export const getLeaveTypes = (org_uuid: string, params?: { page?: number; per_page?: number }) => {
+export const getLeaveTypes = (org_uuid: string, params?: { page?: number; limit?: number }) => {
   return axiosInterceptorInstance.get(`/organizations/leave-types`, {
     params,
     headers: {

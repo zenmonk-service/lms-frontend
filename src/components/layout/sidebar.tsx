@@ -24,7 +24,7 @@ export function AppSidebar({uuid} : {uuid :string}) {
   },
   {
     title: "User Management",
-    url: `/organizations/${uuid}`,
+    url: `/${uuid}/user-management`,
     icon: Users,
   },
   {

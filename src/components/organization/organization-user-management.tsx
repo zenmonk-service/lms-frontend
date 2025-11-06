@@ -26,15 +26,6 @@ import {
 
 import {
   ColumnDef,
-  ColumnFiltersState,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  SortingState,
-  useReactTable,
-  VisibilityState,
 } from "@tanstack/react-table";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { listUserAction } from "@/features/user/user.action";
@@ -42,23 +33,25 @@ import { UserInterface } from "@/features/user/user.slice";
 import { format } from "date-fns";
 import CreateUser from "@/components/user/create-user";
 import { Switch } from "@/components/ui/switch";
+import DataTable, { PaginationState } from "../table";
 
 export default function ManageOrganizationsUser() {
   const dispatch = useAppDispatch();
-  const currentOrgUUID = useAppSelector((state) => state.userSlice.currentOrganizationUuid);
-
-  const data = useAppSelector((state) => state.userSlice.users);
-  const total = useAppSelector((state) => state.userSlice.total);
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [page, setPage] = React.useState<number>(1);
-  const [limit, setLimit] = React.useState<number>(10);
-  const [search, setSearch] = React.useState<string>("");
-  const [active, setActive] = React.useState(true);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+  const currentOrgUUID = useAppSelector(
+    (state) => state.userSlice.currentOrganizationUuid
   );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+
+  const { users, isLoading, total } = useAppSelector(
+    (state) => state.userSlice
+  );
+  const [pagination, setPagination] = React.useState<PaginationState>({
+    page: 1,
+    limit: 10,
+    search: "",
+  });
+
+  const [active, setActive] = React.useState(true);
+
   const columns: ColumnDef<UserInterface>[] = [
     {
       accessorKey: "name",
@@ -76,9 +69,7 @@ export default function ManageOrganizationsUser() {
     {
       accessorKey: "role",
       header: "Role",
-      cell: ({ row }) => (
-        <div>{row.original.role.name}</div>
-      ),
+      cell: ({ row }) => <div>{row.original.role.name}</div>,
     },
     {
       accessorKey: "created_at",
@@ -133,153 +124,37 @@ export default function ManageOrganizationsUser() {
       },
     },
   ];
-  const table = useReactTable({
-    data,
-    columns,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    state: {
-      sorting,
-      columnFilters,
-      columnVisibility,
-    },
-  });
 
   const handleToggle = () => {
-    // Call your API to update user active status here
     setActive((prev) => !prev);
+  };
+  const handlePaginationChange = (newPagination: Partial<PaginationState>) => {
+    setPagination((prev) => ({ ...prev, ...newPagination }));
   };
 
   React.useEffect(() => {
     dispatch(
       listUserAction({
         org_uuid: currentOrgUUID,
-        pagination: { page: page, limit: limit, search: search },
+        pagination: { page: pagination.page, limit: pagination.limit, search: pagination.search },
       })
     );
-  }, [page, limit, search]);
+  }, [pagination, currentOrgUUID]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
-      <AppBar />
-     
-
-      <div className="w-full h- p-8">
-        <div className="flex items-center py-4">
-          <Input
-            placeholder="Filter emails..."
-            onChange={(event) => setSearch(event.target.value)}
-            className="max-w-sm"
-          />
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto">
-                Columns <ChevronDown />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {table
-                .getAllColumns()
-                .filter((column) => column.getCanHide())
-                .map((column) => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) =>
-                        column.toggleVisibility(!!value)
-                      }
-                    >
-                      {column.id}
-                    </DropdownMenuCheckboxItem>
-                  );
-                })}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-        <div className="overflow-hidden rounded-md border">
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </TableHead>
-                    );
-                  })}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    No results.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-        <div className="flex items-center justify-end space-x-2 py-4">
-          <div className="flex items-center justify-center space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage(page - 1)}
-              disabled={page === 1}
-              className="rounded-full px-2 py-1 text-xs"
-            >
-              Previous
-            </Button>
-            <span className="font-semibold text-orange-600 bg-orange-100 px-2 py-1 rounded-full shadow text-xs">
-              Page {page} of {Math.max(1, Math.ceil(total / limit))}
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage(page + 1)}
-              disabled={page === Math.ceil(total / limit) || total === 0}
-              className="rounded-full px-2 py-1 text-xs"
-            >
-              Next
-            </Button>
-          </div>
-        </div>
-      </div>
-     
+    <div className="p-6">
+      <DataTable
+        data={users || []}
+        columns={columns}
+        isLoading={isLoading}
+        totalCount={total || 0}
+        pagination={pagination}
+        onPaginationChange={handlePaginationChange}
+        searchPlaceholder="Filter organization users..."
+        title="User Management"
+        description="List of users in the organization."
+        noDataMessage="No users found."
+      />
     </div>
   );
 }

@@ -76,8 +76,8 @@ export default function DataTable({
   };
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-4">
+    <div className="h-[calc(100vh-120px)]">
+      <div className="flex items-center justify-between mb-4 ">
         <div>
           <h2 className="text-lg font-semibold">{title}</h2>
           <p className="text-sm text-muted-foreground">{description}</p>
@@ -90,8 +90,8 @@ export default function DataTable({
         </div>
       </div>
 
-      <div className="bg-white border rounded-lg p-4 min-h-[160px]">
-        <div className="overflow-hidden rounded-md border">
+      <div className="bg-white border rounded-lg p-4 min-h-[160px] max-h-[calc(100%-110px)] overflow-auto flex flex-col justify-between">
+        <div className="overflow-auto rounded-md border   max-h-[calc(100%-70px)]">
           <Table>
             <TableHeader className="bg-[#eaeef1]">
               {table.getHeaderGroups().map((headerGroup) => (

@@ -9,7 +9,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,32 +21,52 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Calendar } from "lucide-react";
+import { Calendar, LoaderCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/store";
-import { getRoles } from "@/features/organizations/organizations.service";
-import { addRoles } from "@/features/role/role.slice";
-import { createLeaveTypeAction } from "@/features/organizations/organizations.action";
 
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { getOrganizationRolesAction } from "@/features/role/role.action";
+import {
+  createLeaveTypeAction,
+  getLeaveTypesAction,
+  updateLeaveTypeAction,
+} from "@/features/leave-types/leave-types.action";
 
-// single schema (simplified) — applicableRoles accepts array<string> OR literal "all"
 const leaveTypeSchema = z.object({
   name: z.string().min(2, "Leave Type name is required"),
   code: z.string().min(1, "Code is required"),
   description: z.string().optional(),
-  applicableRoles: z.union([z.array(z.string()), z.literal("all")]).optional(),
-  // simplified accrual options
-  accrualFrequency: z.enum(["none", "monthly", "yearly"]).optional(),
-  leaveCount: z.union([z.string(), z.number()]).optional(),
+  applicableRoles: z
+    .array(z.string())
+    .min(1, "At least one role must be selected"),
+  accrualFrequency: z.enum(["none", "monthly", "yearly"]),
+  leaveCount: z.number().min(0, "Leave count must be a positive number"),
 });
 
 type LeaveTypeFormData = z.infer<typeof leaveTypeSchema>;
 
-export default function CreateLeaveType() {
+interface LeaveTypeFormProps {
+  label: "edit" | "create";
+  data?: LeaveTypeFormData;
+  leave_type_uuid?: string;
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  onClose: () => void;
+}
+
+export default function LeaveTypeForm({
+  label,
+  data,
+  leave_type_uuid,
+  isOpen,
+  onOpenChange,
+  onClose,
+}: LeaveTypeFormProps) {
   const selector = useAppSelector((state) => state.rolesSlice);
+  const { isLoading } = useAppSelector((state) => state.leaveTypeSlice);
   const dispatch = useAppDispatch();
 
   const {
@@ -60,28 +79,42 @@ export default function CreateLeaveType() {
     formState: { errors },
   } = useForm<LeaveTypeFormData>({
     resolver: zodResolver(leaveTypeSchema),
-    defaultValues: {
-      name: "",
-      code: "",
-      description: "",
-      applicableRoles: [],
-      accrualFrequency: "none",
-      leaveCount: "",
-    },
   });
 
   const organizationRoles = selector.roles || [];
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
-
-  const getData = async () => {
-    const org_uuid = "b1eebc91-9c0b-4ef8-bb6d-6bb9bd380a22";
-    const response = await getRoles(org_uuid);
-    dispatch(addRoles(response.data));
-  };
+  const currentOrgUUID = useAppSelector(
+    (state) => state.userSlice.currentOrganizationUuid
+  );
 
   useEffect(() => {
-    getData();
-  }, []);
+    if (data && isOpen) {
+      reset({
+        name: data.name || "",
+        code: data.code || "",
+        description: data.description || "",
+        applicableRoles: data.applicableRoles || [],
+        accrualFrequency: data.accrualFrequency || "none",
+        leaveCount: data.leaveCount ? Number(data.leaveCount) : 0,
+      });
+
+      setSelectedRoles(data.applicableRoles);
+    } else if (!isOpen) {
+      reset({
+        name: "",
+        code: "",
+        description: "",
+        applicableRoles: [],
+        accrualFrequency: "none",
+        leaveCount: 0,
+      });
+      setSelectedRoles([]);
+    }
+  }, [data, isOpen, reset, organizationRoles]);
+
+  useEffect(() => {
+    dispatch(getOrganizationRolesAction(currentOrgUUID));
+  }, [currentOrgUUID]);
 
   function cleanObject<T extends Record<string, any>>(
     obj: T,
@@ -96,26 +129,16 @@ export default function CreateLeaveType() {
     return out;
   }
 
-  // transformFormData (updated) — recognizes applicableRoles === "all"
-  function transformFormData(data: any, availableRoles: any[]) {
-    const availableUuids = (availableRoles || []).map((r: any) => r.uuid);
-
-    // handle "all" explicitly, otherwise normalize selected array
-    const selected =
-      data.applicableRoles === "all"
-        ? availableUuids
-        : (data.applicableRoles || []).map((id: string) => id.trim());
+  function transformFormData(data: any) {
+    const selected = (data.applicableRoles || []).map((id: string) =>
+      id.trim()
+    );
 
     const applicable_for = {
       type: "role",
-      value:
-        data.applicableRoles === "all" ||
-        selected.length === availableUuids.length
-          ? "all"
-          : selected,
+      value: selected,
     };
 
-    // map frontend accrualFrequency -> backend period values
     const frequencyToPeriodMap: Record<string, string> = {
       monthly: "monthly",
       yearly: "yearly",
@@ -132,12 +155,9 @@ export default function CreateLeaveType() {
       period || (data.leaveCount !== "" && data.leaveCount !== undefined)
         ? cleanObject(
             {
-              period, // renamed from frequency to period
-              applicable_on: "start_of_month", // hard-coded
-              leave_count:
-                data.leaveCount !== "" && data.leaveCount !== undefined
-                  ? Number(data.leaveCount)
-                  : null,
+              period,
+              applicable_on: "start_of_month",
+              leave_count: Number(data.leaveCount),
             },
             ["period", "applicable_on", "leave_count"]
           )
@@ -154,55 +174,50 @@ export default function CreateLeaveType() {
     return payload;
   }
 
-  // Ideally get org_uuid from store/context; kept hardcoded per your example
-  const org_uuid = "b1eebc91-9c0b-4ef8-bb6d-6bb9bd380a22";
-
   const onSubmit = async (values: LeaveTypeFormData) => {
-    console.log("values: ", values);
-    const transformed = transformFormData(values, organizationRoles);
-    const payload = { ...transformed, org_uuid };
+    const transformed = transformFormData(values);
+    const payload =
+      label === "create"
+        ? { ...transformed, org_uuid: currentOrgUUID }
+        : { ...transformed, org_uuid: currentOrgUUID, leave_type_uuid };
 
-    const resultAction = await dispatch(createLeaveTypeAction(payload));
-    if (createLeaveTypeAction.fulfilled.match(resultAction)) {
-      console.log("✅ Leave type created:", resultAction.payload);
+    try {
+      if (label === "create") {
+        await dispatch(createLeaveTypeAction(payload));
+      } else {
+        await dispatch(updateLeaveTypeAction(payload));
+      }
+
+      await dispatch(getLeaveTypesAction({ org_uuid: currentOrgUUID }));
+
       reset();
-      // reset selectedRoles too
       setSelectedRoles([]);
       setValue("applicableRoles", []);
-    } else {
-      console.error("❌ Create leave type failed:", resultAction.payload);
+      onClose();
+    } catch (error) {
+      throw error;
     }
   };
 
-  // preview watchers
   const accrualFrequency = watch("accrualFrequency");
   const leaveCount = watch("leaveCount");
 
-  // helper: toggle select all / clear
   const toggleSelectAll = () => {
     const allUuids = (organizationRoles || []).map((r: any) => r.uuid);
     const currentlyAllSelected =
       selectedRoles.length === allUuids.length && allUuids.length > 0;
 
     if (currentlyAllSelected) {
-      // clear all
       setSelectedRoles([]);
       setValue("applicableRoles", []);
     } else {
-      // select all and explicitly store "all" for the form value
       setSelectedRoles(allUuids);
-      setValue("applicableRoles", "all");
+      setValue("applicableRoles", allUuids);
     }
   };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button className="bg-gradient-to-r from-orange-500 to-amber-500 text-white">
-          <Plus className="w-5 h-5" /> Create Leave Type
-        </Button>
-      </DialogTrigger>
-
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[650px] bg-gradient-to-br from-white to-orange-50 border-2 border-orange-200">
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader className="space-y-4 pb-2">
@@ -211,11 +226,13 @@ export default function CreateLeaveType() {
                 <Calendar className="w-6 h-6 text-white" />
               </div>
               <DialogTitle className="text-2xl font-bold">
-                Create Leave Type
+                {label === "create" ? "Create Leave Type" : "Edit Leave Type"}
               </DialogTitle>
             </div>
             <DialogDescription>
-              Configure a new leave type with custom rules and settings.
+              {label === "create"
+                ? "Configure a new leave type with custom rules and settings."
+                : "Edit the leave type with custom rules and settings."}
             </DialogDescription>
           </DialogHeader>
 
@@ -275,22 +292,8 @@ export default function CreateLeaveType() {
                           ? [...selectedRoles, role.uuid]
                           : selectedRoles.filter((r) => r !== role.uuid);
 
-                        // always keep state as array for UI
                         setSelectedRoles(updated);
-
-                        const allUuids = (organizationRoles || []).map(
-                          (r: any) => r.uuid
-                        );
-
-                        // if updated equals all, set form value to "all", else set array
-                        if (
-                          updated.length === allUuids.length &&
-                          allUuids.length > 0
-                        ) {
-                          setValue("applicableRoles", "all");
-                        } else {
-                          setValue("applicableRoles", updated);
-                        }
+                        setValue("applicableRoles", updated);
                       }}
                     />
                     <label htmlFor={role.uuid} className="select-none">
@@ -298,6 +301,11 @@ export default function CreateLeaveType() {
                     </label>
                   </div>
                 ))}
+                {errors.applicableRoles && (
+                  <p className="text-red-500 text-sm col-span-2">
+                    {errors.applicableRoles.message}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -321,12 +329,20 @@ export default function CreateLeaveType() {
               />
 
               <Input
-                {...register("leaveCount")}
+                {...register("leaveCount", {
+                  valueAsNumber: true,
+                  setValueAs: (v) => (v === "" ? 0 : Number(v)),
+                })}
                 type="number"
                 step="0.5"
                 min="0"
                 placeholder="Leave count (e.g. 2.5)"
               />
+              {errors.leaveCount && (
+                <p className="text-red-500 text-sm">
+                  {errors.leaveCount.message}
+                </p>
+              )}
 
               <div>
                 {/* Preview */}
@@ -343,11 +359,25 @@ export default function CreateLeaveType() {
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="pt-2">
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline" className="cursor-pointer">
+                Cancel
+              </Button>
             </DialogClose>
-            <Button type="submit">Create Leave Type</Button>
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="cursor-pointer min-w-[150px]"
+            >
+              {isLoading ? (
+                <LoaderCircle className="animate-spin" />
+              ) : label === "edit" ? (
+                "Update Leave Type"
+              ) : (
+                "Create Leave Type"
+              )}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

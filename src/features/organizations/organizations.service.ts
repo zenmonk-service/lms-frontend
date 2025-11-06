@@ -1,6 +1,5 @@
 import axiosInterceptorInstance from "@/config/axios";
 import { OrganizationFetchPayload } from "./organizations.type";
-import { Search } from "lucide-react";
 
 export const getOrganizations = (payload: OrganizationFetchPayload) => {
   return axiosInterceptorInstance.get(`/users/${payload.uuid}`, {
@@ -97,3 +96,10 @@ export const createLeaveType = (data: any, org_uuid: string) => {
   });
 };
 
+export const updateLeaveType = (data: any, org_uuid: string) => {
+  return axiosInterceptorInstance.put(`/organizations/leave-types`, data, {
+    headers: {
+      org_uuid: org_uuid,
+    },
+  });
+};

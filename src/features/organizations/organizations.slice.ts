@@ -66,7 +66,7 @@ export const organizationsSlice = createSlice({
         state.error =
           action.payload?.message || "Failed to fetch organizations";
       })
-       .addCase(getAllOrganizationsAction.pending, (state) => {
+      .addCase(getAllOrganizationsAction.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
@@ -91,10 +91,10 @@ export const organizationsSlice = createSlice({
       })
       .addCase(getOrganizationById.rejected, (state, action: any) => {
         state.isLoading = false;
-        state.error = action.payload?.message || "Failed to fetch organizations";
+        state.error =
+          action.payload?.message || "Failed to fetch organizations";
       });
 
-    // Create organization
     builder
       .addCase(createOrganizationAction.pending, (state) => {
         state.isLoading = true;

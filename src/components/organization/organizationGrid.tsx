@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import OrganizationCard from "./organizationCard";
 import { AdminTablePagination } from "./pagination";
 import { useAppDispatch, useAppSelector } from "@/store";
@@ -9,14 +9,17 @@ import LoadingSkelton from "./loadingSkelton";
 import { getAllOrganizationsAction } from "@/features/organizations/organizations.action";
 import { useRouter } from "next/navigation";
 import { Organization } from "@/features/organizations/organizations.slice";
+import { setCurrentOrganizationUuid } from "@/features/user/user.slice";
 
 export default function OrganizationGrid({ search }: { search: string }) {
   const router = useRouter();
+  
   const { isLoading, organizations, total, currentPage } = useAppSelector(
     (state) => state.organizationsSlice
   );
   const dispatch = useAppDispatch();
   const handleManageMembers = (org: any) => {
+    dispatch(setCurrentOrganizationUuid(org.uuid));
       router.push(`/organizations/${org.uuid}`);
   };
 

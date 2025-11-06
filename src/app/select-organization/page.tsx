@@ -2,60 +2,56 @@
 
 import React, { useEffect, useState } from "react";
 import {
-  Search,
   Building2,
-  Users,
-  ChevronRight,
-  User,
-  Settings,
+
 } from "lucide-react";
 import AppBar from "@/components/app-bar";
 import { useAppDispatch, useAppSelector } from "@/store";
-import { useSession } from "next-auth/react";
 import {
   getOrganizationById,
   getOrganizationsAction,
 } from "@/features/organizations/organizations.action";
 import { useRouter } from "next/navigation";
+import { setCurrentOrganizationUuid } from "@/features/user/user.slice";
+import { getSession } from "../auth/get-auth.action";
 
-interface Organization {
-  id: string;
-  name: string;
-  domain: string;
-  avatar?: string;
-}
 
 function App() {
-  const { isLoading, organizations, total, currentPage } = useAppSelector(
+  const { isLoading, organizations } = useAppSelector(
     (state) => state.organizationsSlice
   );
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { data, status } = useSession();
-  console.log("✌️status --->", status);
+  const [sessionData, setSessionData] = useState<any>(null);
+
+
+  async function getSessionData() {
+    setSessionData(await getSession());
+  }
 
   useEffect(() => {
-    if (status === "authenticated" && data?.user?.uuid) {
+    getSessionData();
+    if (sessionData?.user?.uuid) {
       dispatch(
         getOrganizationsAction({
-          uuid: data.user.uuid,
+          uuid: sessionData?.user?.uuid,
         })
       );
     }
-  }, [status, data?.user?.uuid, dispatch]);
+  }, [sessionData?.user?.uuid]);
 
-  if (status === "loading") {
-    return <p>Loading session...</p>;
-  }
+
+
   const handleOrgSelect = async (uuid: string) => {
     try {
       await dispatch(
         getOrganizationById({
           organizationId: uuid,
-          email: data?.user?.email || "",
+          email: sessionData?.user?.email || "",
         })
       );
 
+      dispatch(setCurrentOrganizationUuid(uuid));
       router.push(`/${uuid}/dashboard`);
     } catch (err) {
       console.log(err);
@@ -90,7 +86,7 @@ function App() {
 
         {/* Organizations Grid */}
         <div className="grid gap-4 max-w-2xl mx-auto">
-          {organizations.length === 0 && !isLoading ? (
+          {organizations.length === 0 && !isLoading  && sessionData? (
             <div className="text-center py-12">
               <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-500">

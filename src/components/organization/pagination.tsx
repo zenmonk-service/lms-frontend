@@ -74,6 +74,7 @@ export function AdminTablePagination({
             className={prevDisabled ? "opacity-40 pointer-events-none" : ""}
           >
             <PaginationPrevious
+              size="sm"
               href="#"
               aria-label="Go to previous page"
               onClick={(e) => {
@@ -92,6 +93,7 @@ export function AdminTablePagination({
             ) : (
               <PaginationItem key={`page-${token}`}>
                 <PaginationLink
+                  size="sm"
                   href="#"
                   isActive={token === currentPage}
                   onClick={(e) => {
@@ -113,6 +115,7 @@ export function AdminTablePagination({
             className={nextDisabled ? "opacity-40 pointer-events-none" : ""}
           >
             <PaginationNext
+              size={"sm"}
               href="#"
               aria-label="Go to next page"
               onClick={(e) => {

@@ -6,7 +6,8 @@ import {
 } from '@radix-ui/react-icons';
 
 import { cn } from '@/libs/utils';
-import { ButtonProps, buttonVariants } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
+import { type ButtonProps } from 'react-day-picker';
 
 const Pagination = ({ className, ...props }: React.ComponentProps<'nav'>) => (
   <nav
@@ -40,8 +41,8 @@ PaginationItem.displayName = 'PaginationItem';
 
 type PaginationLinkProps = {
   isActive?: boolean;
-} & Pick<ButtonProps, 'size'> &
-  React.ComponentProps<'a'>;
+  size?: 'icon' | 'sm' | 'lg' | 'default'; // Add the possible size values used in your buttonVariants
+} & React.ComponentProps<'a'>;
 
 const PaginationLink = ({
   className,

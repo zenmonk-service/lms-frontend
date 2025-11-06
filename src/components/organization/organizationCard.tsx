@@ -1,43 +1,18 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import {
   Card,
   CardHeader,
   CardTitle,
   CardDescription,
   CardContent,
-  CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Globe,
-  Link as LinkIcon,
-  Users,
-  MoreVertical,
-  Trash2,
-  Pencil,
-  Router,
-} from "lucide-react";
-import {
-  addCurrentOrganization,
-  addOrganizationRoles,
-  Organization,
-} from "@/features/organizations/organizations.slice";
-import { useAppDispatch } from "@/store";
-import { useRouter } from "next/navigation";
-import { getOrganizationById } from "@/features/organizations/organizations.action";
-import { getSession } from "@/app/auth/get-auth.action";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
+import { Globe, Link, Users } from "lucide-react";
+import { Organization } from "@/features/organizations/organizations.slice";
 import CreateUser from "../user/create-user";
 
 interface Member {
@@ -68,22 +43,8 @@ export default function OrganizationCard({
   onEdit: (org: Organization) => void;
   onDelete: (org: Organization) => void;
 }) {
-  const dispatch = useAppDispatch();
-  const router = useRouter();
-console.log(org)
-  async function handleClick() {
-    const session = await getSession();
-    try {
-    } catch (err) {
-      console.log("error", err);
-      throw err;
-    }
-  }
   return (
-    <Card
-      className="overflow-hidden bg-white border-0"
-      onClick={handleClick}
-    >
+    <Card className="overflow-hidden bg-white border-0">
       <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10">

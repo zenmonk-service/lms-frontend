@@ -3,15 +3,18 @@
 import AppBar from "@/components/app-bar";
 import * as React from "react";
 
-import { ChevronDown, MoreHorizontal } from "lucide-react";
+import { ChevronDown, MoreHorizontal, Pencil, UserPlus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
@@ -24,9 +27,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import {
-  ColumnDef,
-} from "@tanstack/react-table";
+import { ColumnDef } from "@tanstack/react-table";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { listUserAction } from "@/features/user/user.action";
 import { UserInterface } from "@/features/user/user.slice";
@@ -34,7 +35,8 @@ import { format } from "date-fns";
 import CreateUser from "@/components/user/create-user";
 import { Switch } from "@/components/ui/switch";
 import DataTable, { PaginationState } from "../table";
-
+import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
+type Checked = DropdownMenuCheckboxItemProps["checked"];
 export default function ManageOrganizationsUser() {
   const dispatch = useAppDispatch();
   const currentOrgUUID = useAppSelector(
@@ -49,9 +51,11 @@ export default function ManageOrganizationsUser() {
     limit: 10,
     search: "",
   });
-
-  const [active, setActive] = React.useState(true);
-
+  const [showStatusBar, setShowStatusBar] = React.useState<Checked>(true);
+  const [showActivityBar, setShowActivityBar] = React.useState<Checked>(false);
+  const [editingUser, setEditingUser] = React.useState<UserInterface | null>(
+    null
+  );
   const columns: ColumnDef<UserInterface>[] = [
     {
       accessorKey: "name",
@@ -87,37 +91,44 @@ export default function ManageOrganizationsUser() {
       header: "Actions",
       enableHiding: false,
       cell: ({ row }) => {
-        const user = row.original;
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className="h-8 w-8 p-0 flex items-center justify-center"
-              >
-                <span className="sr-only">Open menu</span>
+              <Button variant="ghost" className="h-8 w-8 p-0">
                 <MoreHorizontal />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="min-w-[130px] flex flex-col items-center"
-            >
+            <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <div className="flex justify-center ">
-                <CreateUser
-                  org_uuid={currentOrgUUID}
-                  isEdited={true}
-                  userData={user}
-                />
-              </div>
               <DropdownMenuSeparator />
-              <div className="flex items-center gap-2 py-2">
-                <span className="text-sm font-medium">
-                  {active ? "Active" : "Inactive"}
-                </span>
-                <Switch checked={active} onCheckedChange={handleToggle} />
-              </div>
+                <div>
+          
+                  <CreateUser
+                    org_uuid={currentOrgUUID}
+                    isEdited={true}
+                    userData={row.original}
+            
+                  />
+
+                  <DropdownMenuShortcut>
+                    <Pencil height={14} width={14} />
+                  </DropdownMenuShortcut>
+                </div>
+                <DropdownMenuSeparator />
+
+                <DropdownMenuCheckboxItem
+                  checked={showStatusBar}
+                  onCheckedChange={setShowStatusBar}
+                >
+                  Active
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={showActivityBar}
+                  onCheckedChange={setShowActivityBar}
+                  disabled
+                >
+                  Inactive
+                </DropdownMenuCheckboxItem>
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -125,9 +136,7 @@ export default function ManageOrganizationsUser() {
     },
   ];
 
-  const handleToggle = () => {
-    setActive((prev) => !prev);
-  };
+
   const handlePaginationChange = (newPagination: Partial<PaginationState>) => {
     setPagination((prev) => ({ ...prev, ...newPagination }));
   };
@@ -136,13 +145,17 @@ export default function ManageOrganizationsUser() {
     dispatch(
       listUserAction({
         org_uuid: currentOrgUUID,
-        pagination: { page: pagination.page, limit: pagination.limit, search: pagination.search },
+        pagination: {
+          page: pagination.page,
+          limit: pagination.limit,
+          search: pagination.search,
+        },
       })
     );
   }, [pagination, currentOrgUUID]);
 
   return (
-    <div className="p-6">
+    <div className="p-6 h-max-[calc(100vh-69px)]">
       <DataTable
         data={users || []}
         columns={columns}

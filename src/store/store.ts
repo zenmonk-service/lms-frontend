@@ -4,6 +4,7 @@ import { userReducer } from "@/features/user/user.slice";
 import type { Action, ThunkAction } from "@reduxjs/toolkit";
 import { combineSlices, configureStore } from "@reduxjs/toolkit";
 import leaveTypeReducer from "@/features/leave-types/leave-types.slice";
+import leaveRequestReducer from "@/features/leave-requests/leave-requests.slice";
 
 import {
   FLUSH,
@@ -27,17 +28,21 @@ const userPersistConfig = {
 const persistConfig = {
   key: "root",
   storage,
-  blacklist: ["organizationsSlice", "rolesSlice", "leaveTypeSlice"],
+  blacklist: [
+    "organizationsSlice",
+    "rolesSlice",
+    "leaveTypeSlice",
+    "leaveRequestSlice",
+  ],
 };
 
 const combinedReducer = combineSlices({
-  user: persistReducer(userPersistConfig, userReducer),
+  userSlice: persistReducer(userPersistConfig, userReducer),
   organizationsSlice: organizationsReducer,
   rolesSlice: rolesReducer,
   leaveTypeSlice: leaveTypeReducer,
-  userSlice: userReducer,
+  leaveRequestSlice: leaveRequestReducer,
 });
-
 
 const rootReducer = (
   state: ReturnType<typeof combinedReducer> | undefined,

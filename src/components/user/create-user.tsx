@@ -27,6 +27,8 @@ import { createUser, updateUser } from "@/features/user/user.service";
 import { UserInterface } from "@/features/user/user.slice";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { getOrganizationRolesAction } from "@/features/role/role.action";
+import { listUserAction } from "@/features/user/user.action";
+
 
 type FormData = {
   name: string;
@@ -55,6 +57,7 @@ export default function CreateUser({
     handleSubmit,
     setValue,
     reset,
+    watch,
     formState: { errors },
   } = useForm<FormData>({
     defaultValues: {
@@ -63,7 +66,9 @@ export default function CreateUser({
       role: isEdited && userData ? userData.role.uuid : "",
     },
   });
+  const emailValue = watch("email");
   const [open, setOpen] = useState(false);
+  const isUserPresent = useAppSelector((state) => state.userSlice.total);
 
   const onSubmit = async (data: FormData) => {
     if (isEdited && userData) {
@@ -84,6 +89,22 @@ export default function CreateUser({
   useEffect(() => {
     dispatch(getOrganizationRolesAction(org_uuid));
   }, []);
+
+  const isValidEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  console.log(isValidEmail(emailValue))
+  useEffect(() => {
+    if (isValidEmail(emailValue) && emailValue !== "") {
+      dispatch(
+        listUserAction({
+          org_uuid: "",
+          pagination: { page: 1, limit: 10, search: emailValue },
+        })
+      );
+    }
+  }, [emailValue]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

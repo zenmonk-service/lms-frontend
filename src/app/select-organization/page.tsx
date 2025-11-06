@@ -1,14 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import {
-  Search,
-  Building2,
-  Users,
-  ChevronRight,
-  User,
-  Settings,
-} from "lucide-react";
+import React, { useEffect } from "react";
+import { Building2 } from "lucide-react";
 import AppBar from "@/components/app-bar";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { useSession } from "next-auth/react";
@@ -17,14 +10,7 @@ import {
   getOrganizationsAction,
 } from "@/features/organizations/organizations.action";
 import { useRouter } from "next/navigation";
-import { addOrganizations } from "@/features/user/user.slice";
-
-interface Organization {
-  id: string;
-  name: string;
-  domain: string;
-  avatar?: string;
-}
+import { setCurrentOrganizationUuid } from "@/features/user/user.slice";
 
 function App() {
   const { isLoading, organizations, total, currentPage } = useAppSelector(
@@ -57,7 +43,7 @@ function App() {
         })
       );
 
-      dispatch(addOrganizations(uuid));
+      dispatch(setCurrentOrganizationUuid(uuid));
       router.push(`/${uuid}/dashboard`);
     } catch (err) {
       console.log(err);

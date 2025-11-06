@@ -88,6 +88,7 @@ export default function LeaveTypeForm({
 
   const organizationRoles = selector.roles || [];
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const currentOrgUUID = useAppSelector((state) => state.userSlice.currentOrganizationUuid);
 
   useEffect(() => {
     if (data && isOpen) {
@@ -124,8 +125,8 @@ export default function LeaveTypeForm({
 
 
   useEffect(() => {
-    dispatch(getOrganizationRolesAction("b1eebc91-9c0b-4ef8-bb6d-6bb9bd380a22"));
-  }, []);
+    dispatch(getOrganizationRolesAction(currentOrgUUID));
+  }, [currentOrgUUID]);
 
   function cleanObject<T extends Record<string, any>>(
     obj: T,
@@ -197,14 +198,14 @@ export default function LeaveTypeForm({
     return payload;
   }
 
-  const org_uuid = "b1eebc91-9c0b-4ef8-bb6d-6bb9bd380a22";
+
 
   const onSubmit = async (values: LeaveTypeFormData) => {
     const transformed = transformFormData(values, organizationRoles);
     const payload =
       label === "create"
-        ? { ...transformed, org_uuid }
-        : { ...transformed, org_uuid, leave_type_uuid };
+        ? { ...transformed, org_uuid: currentOrgUUID }
+        : { ...transformed, org_uuid: currentOrgUUID, leave_type_uuid };
 
     try {
       if (label === "create") {

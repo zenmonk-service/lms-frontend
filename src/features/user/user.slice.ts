@@ -22,7 +22,7 @@ export interface UserInterface {
 type UserState = {
   isLoading: boolean;
   organizations: any[];
-  currentOrganizationUuid: string | null;
+  currentOrganizationUuid: string ;
   users: UserInterface[];
   total: number;
   currentPage: number;
@@ -32,7 +32,7 @@ type UserState = {
 const initialState: UserState = {
   isLoading: false,
   organizations: [],
-  currentOrganizationUuid: null,
+  currentOrganizationUuid: "",
   users: [],
   total: 0,
   currentPage: 0,
@@ -43,8 +43,8 @@ export const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    addOrganizations: (state, action) => {
-      state.currentOrganizationUuid = action.payload || null;
+    setCurrentOrganizationUuid: (state, action) => {
+      state.currentOrganizationUuid = action.payload || "";
     },
   },
   extraReducers: (builder) => {
@@ -78,4 +78,4 @@ export const userSlice = createSlice({
 });
 
 export const userReducer = userSlice.reducer;
-export const { addOrganizations } = userSlice.actions;
+export const { setCurrentOrganizationUuid } = userSlice.actions;

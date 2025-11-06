@@ -45,6 +45,8 @@ import { Switch } from "@/components/ui/switch";
 
 export default function ManageOrganizationsUser() {
   const dispatch = useAppDispatch();
+  const currentOrgUUID = useAppSelector((state) => state.userSlice.currentOrganizationUuid);
+
   const data = useAppSelector((state) => state.userSlice.users);
   const total = useAppSelector((state) => state.userSlice.total);
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -113,7 +115,7 @@ export default function ManageOrganizationsUser() {
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <div className="flex justify-center ">
                 <CreateUser
-                  org_uuid={"b1eebc91-9c0b-4ef8-bb6d-6bb9bd380a22"}
+                  org_uuid={currentOrgUUID}
                   isEdited={true}
                   userData={user}
                 />
@@ -156,7 +158,7 @@ export default function ManageOrganizationsUser() {
   React.useEffect(() => {
     dispatch(
       listUserAction({
-        org_uuid: "b1eebc91-9c0b-4ef8-bb6d-6bb9bd380a22",
+        org_uuid: currentOrgUUID,
         pagination: { page: page, limit: limit, search: search },
       })
     );

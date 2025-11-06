@@ -33,15 +33,14 @@ import {
   SelectValue,
 } from "../ui/select";
 
-export default function ListLeaveTypes({
-  orgUuid = "b1eebc91-9c0b-4ef8-bb6d-6bb9bd380a22",
-}: {
-  orgUuid?: string;
-}) {
+export default function ListLeaveTypes() {
   const dispatch = useAppDispatch();
   const { leaveTypes, isLoading } = useAppSelector(
     (state) => state.leaveTypeSlice
   );
+
+  const currentOrgUUID = useAppSelector((state) => state.userSlice.currentOrganizationUuid);
+
 
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedLeaveType, setSelectedLeaveType] = useState<LeaveTypes | null>(
@@ -67,13 +66,13 @@ export default function ListLeaveTypes({
   useEffect(() => {
     dispatch(
       getLeaveTypesAction({
-        org_uuid: orgUuid,
+        org_uuid: currentOrgUUID,
         page,
         limit,
         search,
       })
     );
-  }, [dispatch, orgUuid, page, limit, search]);
+  }, [dispatch, currentOrgUUID, page, limit]);
 
   return (
     <div className="mt-6">
@@ -172,7 +171,7 @@ export default function ListLeaveTypes({
                 setPage(1);
                 dispatch(
                   getLeaveTypesAction({
-                    org_uuid: orgUuid,
+                    org_uuid: currentOrgUUID,
                     page,
                     limit: newPageSize,
                   })

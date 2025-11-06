@@ -17,7 +17,7 @@ export default function RootLayout({
       <body className={`antialiased`}>
         <link rel="icon" href="/favicon.svg" />
         <SessionProvider>
-          <StoreProvider  >{children}</StoreProvider>
+          <StoreProvider >{children}</StoreProvider>
         </SessionProvider>
       </body>
     </html>

@@ -31,6 +31,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { getOrganizationRolesAction } from "@/features/role/role.action";
 import {
   createLeaveTypeAction,
+  getLeaveTypesAction,
   updateLeaveTypeAction,
 } from "@/features/leave-types/leave-types.action";
 
@@ -38,9 +39,11 @@ const leaveTypeSchema = z.object({
   name: z.string().min(2, "Leave Type name is required"),
   code: z.string().min(1, "Code is required"),
   description: z.string().optional(),
-  applicableRoles: z.union([z.array(z.string()), z.literal("all")]).optional(),
-  accrualFrequency: z.enum(["none", "monthly", "yearly"]).optional(),
-  leaveCount: z.union([z.string(), z.number()]).optional(),
+  applicableRoles: z
+    .array(z.string())
+    .min(1, "At least one role must be selected"),
+  accrualFrequency: z.enum(["none", "monthly", "yearly"]),
+  leaveCount: z.number().min(0, "Leave count must be a positive number"),
 });
 
 type LeaveTypeFormData = z.infer<typeof leaveTypeSchema>;
@@ -76,19 +79,13 @@ export default function LeaveTypeForm({
     formState: { errors },
   } = useForm<LeaveTypeFormData>({
     resolver: zodResolver(leaveTypeSchema),
-    defaultValues: {
-      name: "",
-      code: "",
-      description: "",
-      applicableRoles: [],
-      accrualFrequency: "none",
-      leaveCount: "",
-    },
   });
 
   const organizationRoles = selector.roles || [];
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
-  const currentOrgUUID = useAppSelector((state) => state.userSlice.currentOrganizationUuid);
+  const currentOrgUUID = useAppSelector(
+    (state) => state.userSlice.currentOrganizationUuid
+  );
 
   useEffect(() => {
     if (data && isOpen) {
@@ -98,17 +95,10 @@ export default function LeaveTypeForm({
         description: data.description || "",
         applicableRoles: data.applicableRoles || [],
         accrualFrequency: data.accrualFrequency || "none",
-        leaveCount: data.leaveCount || "",
+        leaveCount: data.leaveCount ? Number(data.leaveCount) : 0,
       });
 
-      if (data.applicableRoles === "all") {
-        const allUuids = organizationRoles.map((r: any) => r.uuid);
-        setSelectedRoles(allUuids);
-      } else if (Array.isArray(data.applicableRoles)) {
-        setSelectedRoles(data.applicableRoles);
-      } else {
-        setSelectedRoles([]);
-      }
+      setSelectedRoles(data.applicableRoles);
     } else if (!isOpen) {
       reset({
         name: "",
@@ -116,13 +106,11 @@ export default function LeaveTypeForm({
         description: "",
         applicableRoles: [],
         accrualFrequency: "none",
-        leaveCount: "",
+        leaveCount: 0,
       });
       setSelectedRoles([]);
     }
   }, [data, isOpen, reset, organizationRoles]);
-
-
 
   useEffect(() => {
     dispatch(getOrganizationRolesAction(currentOrgUUID));
@@ -141,25 +129,16 @@ export default function LeaveTypeForm({
     return out;
   }
 
-  function transformFormData(data: any, availableRoles: any[]) {
-    const availableUuids = (availableRoles || []).map((r: any) => r.uuid);
-
-    // handle "all" explicitly, otherwise normalize selected array
-    const selected =
-      data.applicableRoles === "all"
-        ? availableUuids
-        : (data.applicableRoles || []).map((id: string) => id.trim());
+  function transformFormData(data: any) {
+    const selected = (data.applicableRoles || []).map((id: string) =>
+      id.trim()
+    );
 
     const applicable_for = {
       type: "role",
-      value:
-        data.applicableRoles === "all" ||
-        selected.length === availableUuids.length
-          ? "all"
-          : selected,
+      value: selected,
     };
 
-    // map frontend accrualFrequency -> backend period values
     const frequencyToPeriodMap: Record<string, string> = {
       monthly: "monthly",
       yearly: "yearly",
@@ -176,12 +155,9 @@ export default function LeaveTypeForm({
       period || (data.leaveCount !== "" && data.leaveCount !== undefined)
         ? cleanObject(
             {
-              period, // renamed from frequency to period
-              applicable_on: "start_of_month", // hard-coded
-              leave_count:
-                data.leaveCount !== "" && data.leaveCount !== undefined
-                  ? Number(data.leaveCount)
-                  : null,
+              period,
+              applicable_on: "start_of_month",
+              leave_count: Number(data.leaveCount),
             },
             ["period", "applicable_on", "leave_count"]
           )
@@ -198,10 +174,8 @@ export default function LeaveTypeForm({
     return payload;
   }
 
-
-
   const onSubmit = async (values: LeaveTypeFormData) => {
-    const transformed = transformFormData(values, organizationRoles);
+    const transformed = transformFormData(values);
     const payload =
       label === "create"
         ? { ...transformed, org_uuid: currentOrgUUID }
@@ -214,10 +188,12 @@ export default function LeaveTypeForm({
         await dispatch(updateLeaveTypeAction(payload));
       }
 
+      await dispatch(getLeaveTypesAction({ org_uuid: currentOrgUUID }));
+
       reset();
       setSelectedRoles([]);
       setValue("applicableRoles", []);
-      onClose(); 
+      onClose();
     } catch (error) {
       throw error;
     }
@@ -232,13 +208,11 @@ export default function LeaveTypeForm({
       selectedRoles.length === allUuids.length && allUuids.length > 0;
 
     if (currentlyAllSelected) {
-      // clear all
       setSelectedRoles([]);
       setValue("applicableRoles", []);
     } else {
-      // select all and explicitly store "all" for the form value
       setSelectedRoles(allUuids);
-      setValue("applicableRoles", "all");
+      setValue("applicableRoles", allUuids);
     }
   };
 
@@ -318,22 +292,8 @@ export default function LeaveTypeForm({
                           ? [...selectedRoles, role.uuid]
                           : selectedRoles.filter((r) => r !== role.uuid);
 
-                        // always keep state as array for UI
                         setSelectedRoles(updated);
-
-                        const allUuids = (organizationRoles || []).map(
-                          (r: any) => r.uuid
-                        );
-
-                        // if updated equals all, set form value to "all", else set array
-                        if (
-                          updated.length === allUuids.length &&
-                          allUuids.length > 0
-                        ) {
-                          setValue("applicableRoles", "all");
-                        } else {
-                          setValue("applicableRoles", updated);
-                        }
+                        setValue("applicableRoles", updated);
                       }}
                     />
                     <label htmlFor={role.uuid} className="select-none">
@@ -341,6 +301,11 @@ export default function LeaveTypeForm({
                     </label>
                   </div>
                 ))}
+                {errors.applicableRoles && (
+                  <p className="text-red-500 text-sm col-span-2">
+                    {errors.applicableRoles.message}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -364,12 +329,20 @@ export default function LeaveTypeForm({
               />
 
               <Input
-                {...register("leaveCount")}
+                {...register("leaveCount", {
+                  valueAsNumber: true,
+                  setValueAs: (v) => (v === "" ? 0 : Number(v)),
+                })}
                 type="number"
                 step="0.5"
                 min="0"
                 placeholder="Leave count (e.g. 2.5)"
               />
+              {errors.leaveCount && (
+                <p className="text-red-500 text-sm">
+                  {errors.leaveCount.message}
+                </p>
+              )}
 
               <div>
                 {/* Preview */}
@@ -386,7 +359,7 @@ export default function LeaveTypeForm({
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="pt-2">
             <DialogClose asChild>
               <Button variant="outline" className="cursor-pointer">
                 Cancel
@@ -399,11 +372,11 @@ export default function LeaveTypeForm({
             >
               {isLoading ? (
                 <LoaderCircle className="animate-spin" />
-              ) : (label === "edit" ? (
+              ) : label === "edit" ? (
                 "Update Leave Type"
               ) : (
                 "Create Leave Type"
-              ))}
+              )}
             </Button>
           </DialogFooter>
         </form>

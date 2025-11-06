@@ -72,6 +72,15 @@ export const leaveTypeSlice = createSlice({
       })
       .addCase(updateLeaveTypeAction.rejected, (state) => {
         state.isLoading = false;
+      })
+      .addCase(createLeaveTypeAction.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(createLeaveTypeAction.fulfilled, (state, action) => {
+        state.isLoading = false;
+      })
+      .addCase(createLeaveTypeAction.rejected, (state) => {
+        state.isLoading = false;
       });
   },
 });

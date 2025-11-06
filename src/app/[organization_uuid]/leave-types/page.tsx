@@ -19,8 +19,11 @@ export default function LeaveTypes() {
 
   return (
     <>
-      <div className="p-6 flex items-center gap-4">
-        <Button className="bg-gradient-to-r from-orange-500 to-amber-500 text-white" onClick={() => onOpenChange(true)}>
+      <div className="pt-4 px-6">
+        <Button
+          className="bg-gradient-to-r from-orange-500 to-amber-500 text-white"
+          onClick={() => onOpenChange(true)}
+        >
           <Plus className="w-5 h-5" /> Create Leave Type
         </Button>
         <LeaveTypeForm

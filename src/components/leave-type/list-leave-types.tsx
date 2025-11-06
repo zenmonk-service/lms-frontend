@@ -16,7 +16,6 @@ import {
 import {
   flexRender,
   getCoreRowModel,
-  getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 import { LeaveTypes, useLeaveTypesColumns } from "./list-leave-types-columns";
@@ -47,7 +46,7 @@ export default function ListLeaveTypes() {
     null
   );
   const [page, setPage] = useState<number>(1);
-  const [limit, setLimit] = useState<number>(2);
+  const [limit, setLimit] = useState<number>(10);
   const [search, setSearch] = useState<string>("");
 
   const handleEdit = (leaveType: LeaveTypes) => {
@@ -75,7 +74,7 @@ export default function ListLeaveTypes() {
   }, [dispatch, currentOrgUUID, page, limit]);
 
   return (
-    <div className="mt-6">
+    <div>
       <div className="flex items-center justify-between mb-4">
         <div>
           <h2 className="text-lg font-semibold">All Leave Types</h2>
@@ -163,7 +162,8 @@ export default function ListLeaveTypes() {
           </Table>
         </div>
         <div className="flex items-center justify-end space-x-2 py-4">
-          <div className="space-x-2">
+          <div className="flex items-center space-x-2">
+            <span className="text-sm">Select Page Size:</span>
             <Select
               onValueChange={(val) => {
                 const newPageSize = Number(val);
@@ -177,14 +177,15 @@ export default function ListLeaveTypes() {
                   })
                 );
               }}
+              value={limit.toString()}
             >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select Page Size" />
+              <SelectTrigger className="w-[70px]">
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel className="text-xs">Page Size</SelectLabel>
-                  {[2, 5, 10, 20, 50].map((size) => (
+                  {[5, 10, 20, 50].map((size) => (
                     <SelectItem key={size} value={size.toString()}>
                       {size}
                     </SelectItem>
@@ -235,13 +236,4 @@ export default function ListLeaveTypes() {
       )}
     </div>
   );
-}
-
-function renderApplicableFor(val: any) {
-  if (!val) return "All";
-  // if it's the { type: 'role', value: 'all' } structure
-  if (val.value === "all") return "All roles";
-  if (Array.isArray(val.value)) return `${val.value.length} role(s)`;
-  if (Array.isArray(val)) return `${val.length} role(s)`;
-  return String(val.value ?? val);
 }

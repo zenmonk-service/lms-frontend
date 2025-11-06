@@ -1,43 +1,47 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getOrganizationRoles } from "./role.service";
 import { getOrganizationRolesAction } from "./role.action";
 
-
-export interface SignInInterface {
-  email: string;
-  password: string;
-  organization_uuid?: string;
+interface Role {
+  uuid: string;
+  name: string;
+  description: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+interface RoleState {
+  isLoading: boolean;
+  error: string | null;
+  roles: Role[];
 }
 
-const initialState: any = {
+const initialState: RoleState = {
   isLoading: false,
+  error: null,
   roles: [],
 };
 
 export const roleSlice = createSlice({
   name: "role",
   initialState,
-  reducers: {
-  },
+  reducers: {},
   extraReducers: (builder) => {
-  builder.addCase(getOrganizationRolesAction.pending, (state) => {
-          state.isLoading = true;
-          state.error = null;
-        })
-        .addCase(getOrganizationRolesAction.fulfilled, (state, action) => {
-          state.isLoading = false;
-          state.roles = action.payload ||  [];
-         
-        })
-        .addCase(getOrganizationRolesAction.rejected, (state, action: any) => {
-          state.isLoading = false;
-          state.error =
-            action.payload?.message || "Failed to fetch organizations";
-        })
+    builder
+      .addCase(getOrganizationRolesAction.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(getOrganizationRolesAction.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.roles = action.payload || [];
+      })
+      .addCase(getOrganizationRolesAction.rejected, (state, action: any) => {
+        state.isLoading = false;
+        state.error =
+          action.payload?.message || "Failed to fetch organizations";
+      });
   },
 });
 
-
-
 export const rolesReducer = roleSlice.reducer;
-export const {  } = roleSlice.actions
+export const {} = roleSlice.actions;

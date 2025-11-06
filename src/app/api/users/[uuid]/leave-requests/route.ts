@@ -37,23 +37,29 @@ export async function POST(
 ) {
   const params = await context.params;
   const { uuid } = params;
-
   const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-  const { searchParams } = new URL(request.url);
 
-  const page = searchParams.get("page");
-  const limit = searchParams.get("limit");
-  const search = searchParams.get("search");
+  const body = await request.json();
+
+  const org_uuid = request.headers.get("org_uuid") ?? undefined;
+  const authorization = request.headers.get("authorization") ?? undefined;
+
+  const forwardHeaders: Record<string, string> = {};
+  if (org_uuid) forwardHeaders["org_uuid"] = org_uuid;
+  if (authorization) forwardHeaders["authorization"] = authorization;
 
   try {
-    const response = await axios.get(
+    const response = await axios.post(
       `${BASE_URL}/users/${uuid}/leave-requests`,
-      { params: { page, limit, search } }
+      body,
+      {
+        headers: forwardHeaders,
+      }
     );
 
     return NextResponse.json(response.data);
   } catch (error: any) {
-    console.error("Error fetching organizations:", error.message);
+    console.log("error: ", error);
     return NextResponse.json(
       { error: error?.response.data.description || "Internal Server Error" },
       { status: error.status || 500 }

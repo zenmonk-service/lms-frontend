@@ -2,7 +2,7 @@ import axiosInterceptorInstance from "@/config/axios";
 import { OrganizationFetchPayload } from "./organizations.type";
 
 export const getOrganizations = (payload: OrganizationFetchPayload) => {
-  return axiosInterceptorInstance.get(`/users/${payload.uuid}`, {
+  return axiosInterceptorInstance.get(`/users/${payload.uuid}/organizations`, {
     params: {
       page: payload.page,
       limit: payload.limit,

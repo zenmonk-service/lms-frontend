@@ -1,6 +1,5 @@
 import axiosInterceptorInstance from "@/config/axios";
 import { OrganizationFetchPayload } from "./organizations.type";
-import { Search } from "lucide-react";
 
 export const getOrganizations = (payload: OrganizationFetchPayload) => {
   return axiosInterceptorInstance.get(`/users/${payload.uuid}`, {

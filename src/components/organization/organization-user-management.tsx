@@ -56,6 +56,7 @@ export default function ManageOrganizationsUser() {
   const [editingUser, setEditingUser] = React.useState<UserInterface | null>(
     null
   );
+
   const columns: ColumnDef<UserInterface>[] = [
     {
       accessorKey: "name",
@@ -110,9 +111,6 @@ export default function ManageOrganizationsUser() {
             
                   />
 
-                  <DropdownMenuShortcut>
-                    <Pencil height={14} width={14} />
-                  </DropdownMenuShortcut>
                 </div>
                 <DropdownMenuSeparator />
 

@@ -5,7 +5,7 @@ export const POST = async (request: Request) => {
   const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   const data = await request.json();
   try {
-    const response = await axios.post(`${BASE_URL}/login`, data);
+    const response = await axios.post(`${BASE_URL}/users/verify`, data);
     return NextResponse.json(response.data);
   } catch (error :any) {
     return NextResponse.json(

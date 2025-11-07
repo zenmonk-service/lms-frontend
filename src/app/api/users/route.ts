@@ -47,7 +47,7 @@ export const PUT = async (request: Request) => {
   const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   const data = await request.json();
   try {
-    const response = await axios.put(`${BASE_URL}/users`, data, {
+    const response = await axios.put(`${BASE_URL}/users/${data.user_uuid}`, data, {
       headers: {
         org_uuid: data.org_uuid,
       },

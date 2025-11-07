@@ -43,12 +43,13 @@ export default function LoginPage() {
 
     try {
       const user: any = await signIn(credentials);
+      const userData = user.data.data;
       await authenticate({
         email: credentials.email,
-        name: user.data.name,
-        uuid: user.data.user_id,
+        name: userData.name,
+        uuid: userData.user_id,
       });
-      if (user.data.role == "super-admin") {
+      if (userData.role == "super-admin") {
         router.push("/organizations");
       } else {
         router.push("/select-organization");

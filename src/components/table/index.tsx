@@ -55,9 +55,9 @@ export default function DataTable({
   pagination,
   onPaginationChange,
   searchPlaceholder = "Search...",
-  title = "Data Table",
-  description = "List of items",
-  noDataMessage = "No data found.",
+  title,
+  description,
+  noDataMessage = "No data available.",
 }: DataTableProps) {
   const table = useReactTable({
     data,
@@ -66,7 +66,7 @@ export default function DataTable({
   });
 
   const handleSearchChange = (value: string) => {
-    if(value?.trim() === pagination.search) return;
+    if (value?.trim() === pagination.search) return;
     onPaginationChange({ search: value, page: 1 });
   };
 
@@ -82,8 +82,10 @@ export default function DataTable({
     <div className="h-[calc(100vh-120px)]">
       <div className="flex items-center justify-between mb-4 ">
         <div>
-          <h2 className="text-lg font-semibold">{title}</h2>
-          <p className="text-sm text-muted-foreground">{description}</p>
+          {title && <h2 className="text-lg font-semibold">{title}</h2>}
+          {description && (
+            <p className="text-sm text-muted-foreground">{description}</p>
+          )}
           {searchable && (
             <Input
               placeholder={searchPlaceholder}

@@ -42,13 +42,13 @@ export default function CreateUser({
   isEdited = false,
   userData,
 }: {
+
   org_uuid: string;
   isEdited?: boolean;
   userData?: UserInterface;
 }) {
   const dispatch = useAppDispatch();
   const roles = useAppSelector((state) => state.rolesSlice.roles);
-
   const [selectedRole, setSelectedRole] = useState(
     isEdited ? (userData ? userData.role.uuid : "") : ""
   );
@@ -67,8 +67,8 @@ export default function CreateUser({
     },
   });
   const emailValue = watch("email");
-  const [open, setOpen] = useState(false);
   const isUserPresent = useAppSelector((state) => state.userSlice.total);
+  const [open , setOpen] = useState(false);
 
   const onSubmit = async (data: FormData) => {
     if (isEdited && userData) {
@@ -96,7 +96,7 @@ export default function CreateUser({
 
   console.log(isValidEmail(emailValue))
   useEffect(() => {
-    if (isValidEmail(emailValue) && emailValue !== "") {
+    if (isValidEmail(emailValue) && emailValue !== "" && !isEdited) {
       dispatch(
         listUserAction({
           org_uuid: "",
@@ -107,17 +107,15 @@ export default function CreateUser({
   }, [emailValue]);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button className="bg-gradient-to-r w-full from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 px-8 py-3 rounded-xl font-semibold flex items-center space-between gap-2">
-          {isEdited ? (
-            <EditIcon className="w-5 h-5" />
-          ) : (
-            <UserPlus className="w-5 h-5" />
-          )}
-          {isEdited ? "Edit User" : "Create User"}
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={() => setOpen(!open)}>
+      <Button onClick={() => setOpen(true)} className="bg-gradient-to-r w-full from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 px-8 py-3 rounded-xl font-semibold flex items-center space-between gap-2">
+        {isEdited ? (
+          <EditIcon className="w-5 h-5" />
+        ) : (
+          <UserPlus className="w-5 h-5" />
+        )}
+        {isEdited ? "Edit User" : "Create User"}
+      </Button>
 
       <DialogContent className="sm:max-w-[600px] bg-gradient-to-br from-white to-orange-50 border-2 border-orange-200 shadow-2xl rounded-2xl">
         <form onSubmit={handleSubmit(onSubmit)}>

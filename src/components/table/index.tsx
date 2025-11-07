@@ -64,6 +64,7 @@ export default function DataTable({
   });
 
   const handleSearchChange = (value: string) => {
+    if(value?.trim() === pagination.search) return;
     onPaginationChange({ search: value, page: 1 });
   };
 
@@ -83,7 +84,6 @@ export default function DataTable({
           <p className="text-sm text-muted-foreground">{description}</p>
           <Input
             placeholder={searchPlaceholder}
-            value={pagination.search}
             onChange={(event) => handleSearchChange(event.target.value)}
             className="max-w-sm mt-4"
           />

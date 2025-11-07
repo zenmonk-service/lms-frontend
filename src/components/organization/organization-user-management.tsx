@@ -127,6 +127,8 @@ export default function ManageOrganizationsUser() {
   const handlePaginationChange = (newPagination: Partial<PaginationState>) => {
     dispatch(setPagination({ ...pagination, ...newPagination }));
   };
+
+
   React.useEffect(() => {
     dispatch(
       listUserAction({
@@ -134,7 +136,7 @@ export default function ManageOrganizationsUser() {
         pagination: {
           page: pagination.page,
           limit: pagination.limit,
-          search: pagination.search,
+          search: pagination.search?.trim(),
         },
       })
     );

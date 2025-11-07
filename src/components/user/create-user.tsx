@@ -28,6 +28,7 @@ import { setPagination, UserInterface } from "@/features/user/user.slice";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { getOrganizationRolesAction } from "@/features/role/role.action";
 import { listUserAction } from "@/features/user/user.action";
+import { da } from "date-fns/locale";
 
 type FormData = {
   name: string;
@@ -85,7 +86,12 @@ export default function CreateUser({
       dispatch(setPagination({ page: 1, limit: 10 }));
       setOpen(false);
     } else {
-      await createUser({ ...data, org_uuid: org_uuid });
+      await createUser({
+        ...data,
+        org_uuid: org_uuid,
+        role_uuid: data.role,
+        role: "user",
+      });
       setOpen(false);
     }
     reset();
@@ -106,7 +112,7 @@ export default function CreateUser({
       dispatch(
         listUserAction({
           org_uuid: "",
-          pagination: { page: 1, limit: 10, search: emailValue },
+          pagination: { page: 1, limit: 10, search: emailValue?.trim() },
         })
       );
     }

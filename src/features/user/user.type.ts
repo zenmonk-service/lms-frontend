@@ -4,8 +4,10 @@ export interface CreateUserPayload {
   name: string;
   email: string;
   password: string;
-  role: string;
+  role_uuid: string;
+  role:string
   org_uuid: string;
+
 }
 
 

@@ -87,7 +87,6 @@ export default function DataTable({
           {searchable && (
             <Input
               placeholder={searchPlaceholder}
-              value={pagination.search}
               onChange={(event) => handleSearchChange(event.target.value)}
               className="max-w-sm mt-4"
             />

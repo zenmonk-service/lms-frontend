@@ -36,6 +36,7 @@ interface DataTableProps {
   data: any[];
   columns: any[];
   isLoading: boolean;
+  searchable?: boolean;
   totalCount: number;
   pagination: PaginationState;
   onPaginationChange: (newPagination: Partial<PaginationState>) => void;
@@ -49,6 +50,7 @@ export default function DataTable({
   data,
   columns,
   isLoading,
+  searchable = true,
   totalCount,
   pagination,
   onPaginationChange,
@@ -81,12 +83,14 @@ export default function DataTable({
         <div>
           <h2 className="text-lg font-semibold">{title}</h2>
           <p className="text-sm text-muted-foreground">{description}</p>
-          <Input
-            placeholder={searchPlaceholder}
-            value={pagination.search}
-            onChange={(event) => handleSearchChange(event.target.value)}
-            className="max-w-sm mt-4"
-          />
+          {searchable && (
+            <Input
+              placeholder={searchPlaceholder}
+              value={pagination.search}
+              onChange={(event) => handleSearchChange(event.target.value)}
+              className="max-w-sm mt-4"
+            />
+          )}
         </div>
       </div>
 

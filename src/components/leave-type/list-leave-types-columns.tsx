@@ -5,7 +5,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "../ui/hover-card";
-import { useAppSelector } from "@/store";
+import { useAppDispatch, useAppSelector } from "@/store";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -20,7 +20,13 @@ import {
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  activateLeaveTypeAction,
+  deactivateLeaveTypeAction,
+  getLeaveTypesAction,
+} from "@/features/leave-types/leave-types.action";
+import { getSession } from "next-auth/react";
 
 type Checked = DropdownMenuCheckboxItemProps["checked"];
 
@@ -40,6 +46,7 @@ export type LeaveTypes = {
     leave_count: number;
     applicable_on: string;
   };
+  is_active: boolean;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -67,17 +74,39 @@ const renderApplicableFor = (
 };
 
 export const useLeaveTypesColumns = (
-  onEdit?: (leaveType: LeaveTypes) => void
+  onEdit?: (leaveType: LeaveTypes) => void,
+  org_uuid?: string
 ): ColumnDef<LeaveTypes>[] => {
-  const { roles } = useAppSelector((state) => state.rolesSlice);
+  const [session, setSession] = useState<any>(null);
 
-  const [showStatusBar, setShowStatusBar] = useState<Checked>(true);
-  const [showActivityBar, setShowActivityBar] = useState<Checked>(false);
-  const [showPanel, setShowPanel] = useState<Checked>(false);
+  const { roles } = useAppSelector((state) => state.rolesSlice);
+  const dispatch = useAppDispatch();
 
   function getRole(roleUuid: string) {
     return roles.find((role: any) => role.uuid === roleUuid);
   }
+
+  async function getUserUuid() {
+    const session = await getSession();
+    setSession(session);
+  }
+
+  async function handleUpdateLeaveType() {
+    if (org_uuid) {
+      await dispatch(
+        getLeaveTypesAction({
+          org_uuid,
+        })
+      );
+    }
+  }
+
+  useEffect(() => {
+    async function fetchUserLeaves() {
+      await getUserUuid();
+    }
+    fetchUserLeaves();
+  }, [session?.user?.uuid]);
 
   return [
     {
@@ -156,15 +185,32 @@ export const useLeaveTypesColumns = (
                 <DropdownMenuSeparator />
 
                 <DropdownMenuCheckboxItem
-                  checked={showStatusBar}
-                  onCheckedChange={setShowStatusBar}
+                  checked={leaveType.is_active}
+                  onCheckedChange={async () => {
+                    await dispatch(
+                      activateLeaveTypeAction({
+                        org_uuid,
+                        leave_type_uuid: leaveType.uuid,
+                      })
+                    );
+                    await handleUpdateLeaveType();
+                  }}
+                  disabled={leaveType.is_active}
                 >
                   Active
                 </DropdownMenuCheckboxItem>
                 <DropdownMenuCheckboxItem
-                  checked={showActivityBar}
-                  onCheckedChange={setShowActivityBar}
-                  disabled
+                  checked={!leaveType.is_active}
+                  onCheckedChange={async () => {
+                    await dispatch(
+                      deactivateLeaveTypeAction({
+                        org_uuid,
+                        leave_type_uuid: leaveType.uuid,
+                      })
+                    );
+                    await handleUpdateLeaveType();
+                  }}
+                  disabled={!leaveType.is_active}
                 >
                   Inactive
                 </DropdownMenuCheckboxItem>

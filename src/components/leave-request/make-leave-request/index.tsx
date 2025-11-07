@@ -5,7 +5,7 @@ import { LeaveRequestModal } from "../modal";
 
 const MakeLeaveRequest = () => {
   const [open, setOpen] = useState(false);
-  
+
   function onOpenChange(value: boolean) {
     setOpen(value);
   }
@@ -15,7 +15,7 @@ const MakeLeaveRequest = () => {
   }
 
   return (
-    <div>
+    <div className="pt-4 px-6">
       <Button
         className="bg-gradient-to-r from-orange-500 to-amber-500 text-white"
         onClick={() => onOpenChange(true)}

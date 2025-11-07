@@ -1,12 +1,45 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
   createUserLeaveRequestsAction,
-  getLeaveRequestsAction,
+  getUserLeaveRequestsAction,
 } from "./leave-requests.action";
+import { LeaveRequestStatus } from "./leave-requests.types";
 
-const initialState = {
+interface Row {
+  uuid: string;
+  start_date: string;
+  end_date: string;
+  type: string;
+  range: string;
+  leave_duration: string;
+  reason: string;
+  status: LeaveRequestStatus;
+  leave_type: {
+    name: string;
+    uuid: string;
+  };
+  managers: {
+    remarks: string;
+    user: {
+      user_id: string;
+      name: string;
+      email: string;
+    };
+  }[];
+}
+interface LeaveRequest {
+  count: number;
+  rows: Row[];
+}
+
+interface LeaveRequestState {
+  isLoading: boolean;
+  userLeaveRequests: LeaveRequest;
+}
+
+const initialState: LeaveRequestState = {
   isLoading: false,
-  leaveRequests: {},
+  userLeaveRequests: {} as LeaveRequest,
 };
 
 const leaveRequestSilce = createSlice({
@@ -15,14 +48,14 @@ const leaveRequestSilce = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(getLeaveRequestsAction.pending, (state) => {
+      .addCase(getUserLeaveRequestsAction.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(getLeaveRequestsAction.fulfilled, (state, action) => {
+      .addCase(getUserLeaveRequestsAction.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.leaveRequests = action.payload;
+        state.userLeaveRequests = action.payload;
       })
-      .addCase(getLeaveRequestsAction.rejected, (state) => {
+      .addCase(getUserLeaveRequestsAction.rejected, (state) => {
         state.isLoading = false;
       })
       .addCase(createUserLeaveRequestsAction.pending, (state) => {

@@ -13,3 +13,11 @@ export enum LeaveRequestType {
   HALF_DAY = "half_day",
   SHORT_LEAVE = "short_leave",
 }
+
+export enum LeaveRequestStatus {
+  PENDING = "Pending",
+  APPROVED = "Approved",
+  REJECTED = "Rejected",
+  CANCELLED = "Cancelled",
+  RECOMMENDED = "Recommended",
+}

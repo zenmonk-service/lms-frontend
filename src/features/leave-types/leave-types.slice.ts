@@ -1,6 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
+  activateLeaveTypeAction,
   createLeaveTypeAction,
+  deactivateLeaveTypeAction,
   getLeaveTypesAction,
   updateLeaveTypeAction,
 } from "./leave-types.action";
@@ -21,6 +23,7 @@ interface Rows {
     leave_count: number;
     applicable_on: string;
   };
+  is_active: boolean;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -80,6 +83,24 @@ export const leaveTypeSlice = createSlice({
         state.isLoading = false;
       })
       .addCase(createLeaveTypeAction.rejected, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(activateLeaveTypeAction.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(activateLeaveTypeAction.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(activateLeaveTypeAction.rejected, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(deactivateLeaveTypeAction.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(deactivateLeaveTypeAction.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(deactivateLeaveTypeAction.rejected, (state) => {
         state.isLoading = false;
       });
   },

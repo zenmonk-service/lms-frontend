@@ -32,7 +32,7 @@ export default function ListLeaveTypes() {
     setEditDialogOpen(true);
   };
 
-  const columns = useLeaveTypesColumns(handleEdit);
+  const columns = useLeaveTypesColumns(handleEdit, currentOrgUUID);
 
   useEffect(() => {
     if (currentOrgUUID) {

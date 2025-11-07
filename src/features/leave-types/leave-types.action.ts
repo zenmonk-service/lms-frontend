@@ -1,10 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { getLeaveTypes } from "./leave-types.service";
+import { activateLeaveType, createLeaveType, deactivateLeaveType, getLeaveTypes, updateLeaveType } from "./leave-types.service";
 import { AxiosError } from "axios";
-import {
-  createLeaveType,
-  updateLeaveType,
-} from "../organizations/organizations.service";
 
 export const getLeaveTypesAction = createAsyncThunk(
   "organizations/getLeaveTypes",
@@ -55,3 +51,31 @@ export const updateLeaveTypeAction = createAsyncThunk(
     }
   }
 );
+
+
+export const activateLeaveTypeAction = createAsyncThunk(
+  "orgnization/activate-leave-type",
+  async (data: any, thunkAPI) => {
+    try {
+      const response = await activateLeaveType(data.org_uuid, data.leave_type_uuid);
+      return response.data;
+    } catch (err) {
+      const error = err as AxiosError;
+      return thunkAPI.rejectWithValue(error.response?.data);
+    }
+  }
+);
+
+export const deactivateLeaveTypeAction = createAsyncThunk(
+  "orgnization/deactivate-leave-type",
+  async (data: any, thunkAPI) => {
+    try {
+      const response = await deactivateLeaveType(data.org_uuid, data.leave_type_uuid);
+      return response.data;
+    } catch (err) {
+      const error = err as AxiosError;
+      return thunkAPI.rejectWithValue(error.response?.data);
+    }
+  }
+);
+

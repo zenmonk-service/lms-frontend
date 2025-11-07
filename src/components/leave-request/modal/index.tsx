@@ -32,14 +32,16 @@ import {
 import { getLeaveTypesAction } from "@/features/leave-types/leave-types.action";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LoaderCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import z from "zod";
 import { getOrganizationRolesAction } from "@/features/role/role.action";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
-import { createUserLeaveRequestsAction } from "@/features/leave-requests/leave-requests.action";
+import {
+  createUserLeaveRequestsAction,
+  getUserLeaveRequestsAction,
+} from "@/features/leave-requests/leave-requests.action";
 import { getSession } from "next-auth/react";
 import {
   LeaveRange,
@@ -73,13 +75,10 @@ export function LeaveRequestModal({
   onOpenChange,
   onClose,
 }: LeaveRequestModalProps) {
-  const { leaveTypes, isLoading } = useAppSelector(
-    (state) => state.leaveTypeSlice
-  );
+  const { leaveTypes } = useAppSelector((state) => state.leaveTypeSlice);
   const currentOrganizationUuid = useAppSelector(
     (state) => state.userSlice.currentOrganizationUuid
   );
-  const { roles } = useAppSelector((state) => state.rolesSlice);
   const { users } = useAppSelector((state) => state.userSlice);
   const dispatch = useAppDispatch();
 
@@ -99,7 +98,12 @@ export function LeaveRequestModal({
     getUserUuid();
     dispatch(getLeaveTypesAction({ org_uuid: currentOrganizationUuid }));
     dispatch(getOrganizationRolesAction(currentOrganizationUuid));
-    dispatch(listUserAction({pagination: {page: 1, limit: 10}, org_uuid: currentOrganizationUuid }))
+    dispatch(
+      listUserAction({
+        pagination: { page: 1, limit: 10 },
+        org_uuid: currentOrganizationUuid,
+      })
+    );
   }, []);
 
   function transformDateRange(dateRange: { from?: Date; to?: Date }) {
@@ -125,248 +129,246 @@ export function LeaveRequestModal({
       ...data,
       ...transformedDateRange,
     };
+    if (session) {
+      await dispatch(
+        createUserLeaveRequestsAction({
+          org_uuid: currentOrganizationUuid,
+          user_uuid: session?.user?.uuid,
+          ...payload,
+        })
+      );
 
-    dispatch(
-      createUserLeaveRequestsAction({
-        org_uuid: currentOrganizationUuid,
-        user_uuid: session?.user?.uuid,
-        ...payload,
-      })
-    );
-    reset();
-    onClose();
+      await dispatch(
+        getUserLeaveRequestsAction({
+          org_uuid: currentOrganizationUuid,
+          user_uuid: session?.user?.uuid,
+        })
+      );
+      reset();
+      onClose();
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      {isLoading ? (
-        <LoaderCircle className="animate-spin" />
-      ) : (
-        <DialogContent className="sm:max-w-[650px]">
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <DialogHeader>
-              <DialogTitle>Request Leave</DialogTitle>
-              <DialogDescription>
-                Fill in the form below to request leave.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 overflow-y-auto max-h-96 no-scrollbar p-2">
-              <div className="grid gap-3">
-                <Controller
-                  name="leave_type_uuid"
-                  control={control}
-                  render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                      <Select
-                        value={field.value}
-                        onValueChange={(val) => field.onChange(val)}
-                      >
-                        <SelectTrigger className="w-[180px]">
-                          <SelectValue placeholder="Select a leave" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectLabel className="text-xs">
-                              Leaves
-                            </SelectLabel>
-                            {leaveTypes.rows.map((leave) => {
-                              return (
-                                <SelectItem key={leave.uuid} value={leave.uuid}>
-                                  {leave.name}
-                                </SelectItem>
-                              );
-                            })}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    </Field>
-                  )}
-                />
-              </div>
+      <DialogContent className="sm:max-w-[650px]">
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <DialogHeader>
+            <DialogTitle>Request Leave</DialogTitle>
+            <DialogDescription>
+              Fill in the form below to request leave.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 overflow-y-auto max-h-96 no-scrollbar p-2">
+            <div className="grid gap-3">
+              <Controller
+                name="leave_type_uuid"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <Select
+                      value={field.value}
+                      onValueChange={(val) => field.onChange(val)}
+                    >
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Select a leave" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel className="text-xs">Leaves</SelectLabel>
+                          {leaveTypes.rows.map((leave) => {
+                            return (
+                              <SelectItem key={leave.uuid} value={leave.uuid}>
+                                {leave.name}
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                )}
+              />
+            </div>
 
-              <div className="grid gap-3">
-                <Controller
-                  name="range"
-                  control={control}
-                  render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                      <Select
-                        value={field.value}
-                        onValueChange={(val) => field.onChange(val)}
-                      >
-                        <SelectTrigger className="w-[180px]">
-                          <SelectValue placeholder="Select a leave range" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectLabel className="text-xs">
-                              Leaves
-                            </SelectLabel>
-                            {Object.entries(LeaveRange).map(([key, value]) => {
+            <div className="grid gap-3">
+              <Controller
+                name="range"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <Select
+                      value={field.value}
+                      onValueChange={(val) => field.onChange(val)}
+                    >
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Select a leave range" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel className="text-xs">Leaves</SelectLabel>
+                          {Object.entries(LeaveRange).map(([key, value]) => {
+                            return (
+                              <SelectItem key={key} value={value}>
+                                {key.replaceAll("_", " ").toLowerCase()}
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                )}
+              />
+            </div>
+
+            <div className="grid gap-3">
+              <Controller
+                name="type"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <Select
+                      value={field.value}
+                      onValueChange={(val) => field.onChange(val)}
+                    >
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Select a leave type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel className="text-xs">Leaves</SelectLabel>
+                          {Object.entries(LeaveRequestType).map(
+                            ([key, value]) => {
                               return (
                                 <SelectItem key={key} value={value}>
                                   {key.replaceAll("_", " ").toLowerCase()}
                                 </SelectItem>
                               );
-                            })}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    </Field>
-                  )}
-                />
-              </div>
-
-              <div className="grid gap-3">
-                <Controller
-                  name="type"
-                  control={control}
-                  render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                      <Select
-                        value={field.value}
-                        onValueChange={(val) => field.onChange(val)}
-                      >
-                        <SelectTrigger className="w-[180px]">
-                          <SelectValue placeholder="Select a leave type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectLabel className="text-xs">
-                              Leaves
-                            </SelectLabel>
-                            {Object.entries(LeaveRequestType).map(
-                              ([key, value]) => {
-                                return (
-                                  <SelectItem key={key} value={value}>
-                                    {key.replaceAll("_", " ").toLowerCase()}
-                                  </SelectItem>
-                                );
-                              }
-                            )}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    </Field>
-                  )}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-2 w-full">
-                <Controller
-                  name="managers"
-                  control={control}
-                  render={({ field, fieldState }) => (
-                    <Field
-                      data-invalid={fieldState.invalid}
-                      className="gap-1 col-span-2"
-                    >
-                      <FieldLabel>Apply To</FieldLabel>
-                      <FieldDescription>
-                        Select the roles this leave request applies to.
-                      </FieldDescription>
-                      <div className="grid grid-cols-2 gap-2">
-                        {users?.map((user: any) => (
-                          <div
-                            key={user.user_id}
-                            className="flex items-center space-x-2"
-                          >
-                            <Checkbox
-                              id={user.user_id}
-                              checked={
-                                Array.isArray(field.value)
-                                  ? field.value.includes(user.user_id)
-                                  : false
-                              }
-                              onCheckedChange={(checked) => {
-                                const current: string[] = Array.isArray(
-                                  field.value
-                                )
-                                  ? field.value
-                                  : [];
-                                const updated = checked
-                                  ? [...current, user.user_id]
-                                  : current.filter((r) => r !== user.user_id);
-                                field.onChange(updated);
-                              }}
-                            />
-                            <label htmlFor={user.user_id} className="select-none">
-                              {user.name}
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                      {fieldState.invalid && (
-                        <FieldError errors={[fieldState.error]} />
-                      )}
-                    </Field>
-                  )}
-                />
-              </div>
-
-              <div className="grid gap-3">
-                <Controller
-                  name="reason"
-                  control={control}
-                  render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid} className="gap-1">
-                      <FieldLabel htmlFor="form-rhf-demo-reason">
-                        Reason
-                      </FieldLabel>
-                      <InputGroup>
-                        <InputGroupTextarea
-                          {...field}
-                          id="form-rhf-demo-reason"
-                          placeholder="I'm requesting leave because..."
-                          rows={6}
-                          className="min-h-24 resize-none"
-                          aria-invalid={fieldState.invalid}
-                        />
-                        <InputGroupAddon align="block-end">
-                          <InputGroupText className="tabular-nums">
-                            {field?.value?.length || 0}/100 characters
-                          </InputGroupText>
-                        </InputGroupAddon>
-                      </InputGroup>
-                      <FieldDescription>
-                        Briefly describe why you are requesting this leave.
-                      </FieldDescription>
-                      {fieldState.invalid && (
-                        <FieldError errors={[fieldState.error]} />
-                      )}
-                    </Field>
-                  )}
-                />
-              </div>
-
-              <div className="grid gap-3">
-                <Controller
-                  name="date_range"
-                  control={control}
-                  render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid} className="gap-1">
-                      <DateRangePicker
-                        onUpdate={(values) => field.onChange(values.range)}
-                        initialDateFrom={new Date()}
-                        initialDateTo={new Date()}
-                        align="start"
-                        locale="en-GB"
-                        showCompare={false}
-                      />
-                    </Field>
-                  )}
-                />
-              </div>
+                            }
+                          )}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                )}
+              />
             </div>
-            <DialogFooter className="pt-2">
-              <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
-              </DialogClose>
-              <Button type="submit">Save changes</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      )}
+
+            <div className="grid grid-cols-2 gap-2 w-full">
+              <Controller
+                name="managers"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field
+                    data-invalid={fieldState.invalid}
+                    className="gap-1 col-span-2"
+                  >
+                    <FieldLabel>Apply To</FieldLabel>
+                    <FieldDescription>
+                      Select the roles this leave request applies to.
+                    </FieldDescription>
+                    <div className="grid grid-cols-2 gap-2">
+                      {users?.map((user: any) => (
+                        <div
+                          key={user.user_id}
+                          className="flex items-center space-x-2"
+                        >
+                          <Checkbox
+                            id={user.user_id}
+                            checked={
+                              Array.isArray(field.value)
+                                ? field.value.includes(user.user_id)
+                                : false
+                            }
+                            onCheckedChange={(checked) => {
+                              const current: string[] = Array.isArray(
+                                field.value
+                              )
+                                ? field.value
+                                : [];
+                              const updated = checked
+                                ? [...current, user.user_id]
+                                : current.filter((r) => r !== user.user_id);
+                              field.onChange(updated);
+                            }}
+                          />
+                          <label htmlFor={user.user_id} className="select-none">
+                            {user.name}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+            </div>
+
+            <div className="grid gap-3">
+              <Controller
+                name="reason"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid} className="gap-1">
+                    <FieldLabel htmlFor="form-rhf-demo-reason">
+                      Reason
+                    </FieldLabel>
+                    <InputGroup>
+                      <InputGroupTextarea
+                        {...field}
+                        id="form-rhf-demo-reason"
+                        placeholder="I'm requesting leave because..."
+                        rows={6}
+                        className="min-h-24 resize-none"
+                        aria-invalid={fieldState.invalid}
+                      />
+                      <InputGroupAddon align="block-end">
+                        <InputGroupText className="tabular-nums">
+                          {field?.value?.length || 0}/100 characters
+                        </InputGroupText>
+                      </InputGroupAddon>
+                    </InputGroup>
+                    <FieldDescription>
+                      Briefly describe why you are requesting this leave.
+                    </FieldDescription>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+            </div>
+
+            <div className="grid gap-3">
+              <Controller
+                name="date_range"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid} className="gap-1">
+                    <DateRangePicker
+                      onUpdate={(values) => field.onChange(values.range)}
+                      initialDateFrom={new Date()}
+                      initialDateTo={new Date()}
+                      align="start"
+                      locale="en-GB"
+                      showCompare={false}
+                    />
+                  </Field>
+                )}
+              />
+            </div>
+          </div>
+          <DialogFooter className="pt-2">
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button type="submit">Save changes</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
     </Dialog>
   );
 }

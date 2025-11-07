@@ -32,7 +32,7 @@ export default function LoginPage() {
   };
 
   const handleForgotPassword = () => {
-    const baseURL = process.env.NEXT_PUBLIC_FORGOT_PASSWORD_URL;
+    const baseURL = process.env.NEXT_PUBLIC_SSO_URL;
     router.push(`${baseURL}/password/forgot`);
   };
 

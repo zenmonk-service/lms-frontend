@@ -43,6 +43,7 @@ export default function LoginPage() {
 
     try {
       const user: any = await signIn(credentials);
+console.log('✌️user --->', user);
       const userData = user.data.data;
       await authenticate({
         email: credentials.email,
@@ -55,6 +56,7 @@ export default function LoginPage() {
         router.push("/select-organization");
       }
     } catch (err: any) {
+console.log('✌️err --->', err);
       setError(
         err.response.data.error || "Something went wrong. Please try again."
       );

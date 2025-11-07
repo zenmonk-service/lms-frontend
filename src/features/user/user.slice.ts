@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { listUserAction, updateUserAction } from "./user.action";
+import { Search } from "lucide-react";
 
 export interface SignInInterface {
   email: string;
@@ -19,11 +20,18 @@ export interface UserInterface {
   created_at: string;
 }
 
+interface PaginationState {
+  page: number;
+  limit: number;
+  search: string;
+}
+
 type UserState = {
   isLoading: boolean;
   organizations: any[];
-  currentOrganizationUuid: string ;
+  currentOrganizationUuid: string;
   users: UserInterface[];
+  pagination: PaginationState;
   total: number;
   currentPage: number;
   error?: string | null;
@@ -37,6 +45,11 @@ const initialState: UserState = {
   total: 0,
   currentPage: 0,
   error: null,
+  pagination: {
+    page: 1,
+    limit: 10,
+    search: "",
+  },
 };
 
 export const userSlice = createSlice({
@@ -45,6 +58,9 @@ export const userSlice = createSlice({
   reducers: {
     setCurrentOrganizationUuid: (state, action) => {
       state.currentOrganizationUuid = action.payload || "";
+    },
+    setPagination: (state, action) => {
+      state.pagination = action.payload || initialState.pagination;
     },
   },
   extraReducers: (builder) => {
@@ -78,4 +94,4 @@ export const userSlice = createSlice({
 });
 
 export const userReducer = userSlice.reducer;
-export const { setCurrentOrganizationUuid } = userSlice.actions;
+export const { setCurrentOrganizationUuid, setPagination } = userSlice.actions;

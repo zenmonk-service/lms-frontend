@@ -29,6 +29,7 @@ const persistConfig = {
   key: "root",
   storage,
   blacklist: [
+    "userSlice",
     "organizationsSlice",
     "rolesSlice",
     "leaveTypeSlice",

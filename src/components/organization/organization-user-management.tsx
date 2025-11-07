@@ -30,7 +30,7 @@ import {
 import { ColumnDef } from "@tanstack/react-table";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { listUserAction } from "@/features/user/user.action";
-import { UserInterface } from "@/features/user/user.slice";
+import { setPagination, UserInterface } from "@/features/user/user.slice";
 import { format } from "date-fns";
 import CreateUser from "@/components/user/create-user";
 import { Switch } from "@/components/ui/switch";
@@ -43,19 +43,12 @@ export default function ManageOrganizationsUser() {
     (state) => state.userSlice.currentOrganizationUuid
   );
 
-  const { users, isLoading, total } = useAppSelector(
+  const { users, isLoading, total, pagination } = useAppSelector(
     (state) => state.userSlice
   );
-  const [pagination, setPagination] = React.useState<PaginationState>({
-    page: 1,
-    limit: 10,
-    search: "",
-  });
+
   const [showStatusBar, setShowStatusBar] = React.useState<Checked>(true);
   const [showActivityBar, setShowActivityBar] = React.useState<Checked>(false);
-  const [editingUser, setEditingUser] = React.useState<UserInterface | null>(
-    null
-  );
 
   const columns: ColumnDef<UserInterface>[] = [
     {
@@ -102,31 +95,28 @@ export default function ManageOrganizationsUser() {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
-                <div>
-          
-                  <CreateUser
-                    org_uuid={currentOrgUUID}
-                    isEdited={true}
-                    userData={row.original}
-            
-                  />
+              <div>
+                <CreateUser
+                  org_uuid={currentOrgUUID}
+                  isEdited={true}
+                  userData={row.original}
+                />
+              </div>
+              <DropdownMenuSeparator />
 
-                </div>
-                <DropdownMenuSeparator />
-
-                <DropdownMenuCheckboxItem
-                  checked={showStatusBar}
-                  onCheckedChange={setShowStatusBar}
-                >
-                  Active
-                </DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem
-                  checked={showActivityBar}
-                  onCheckedChange={setShowActivityBar}
-                  disabled
-                >
-                  Inactive
-                </DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem
+                checked={showStatusBar}
+                onCheckedChange={setShowStatusBar}
+              >
+                Active
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem
+                checked={showActivityBar}
+                onCheckedChange={setShowActivityBar}
+                disabled
+              >
+                Inactive
+              </DropdownMenuCheckboxItem>
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -134,11 +124,9 @@ export default function ManageOrganizationsUser() {
     },
   ];
 
-
   const handlePaginationChange = (newPagination: Partial<PaginationState>) => {
-    setPagination((prev) => ({ ...prev, ...newPagination }));
+    dispatch(setPagination({ ...pagination, ...newPagination }));
   };
-
   React.useEffect(() => {
     dispatch(
       listUserAction({
@@ -150,7 +138,7 @@ export default function ManageOrganizationsUser() {
         },
       })
     );
-  }, [pagination, currentOrgUUID]);
+  }, [currentOrgUUID, pagination]);
 
   return (
     <div className="p-6 h-max-[calc(100vh-69px)]">

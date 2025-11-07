@@ -24,11 +24,10 @@ import {
 } from "@/components/ui/select";
 import { UserPlus, Mail, Lock, User, Users, EditIcon } from "lucide-react";
 import { createUser, updateUser } from "@/features/user/user.service";
-import { UserInterface } from "@/features/user/user.slice";
+import { setPagination, UserInterface } from "@/features/user/user.slice";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { getOrganizationRolesAction } from "@/features/role/role.action";
 import { listUserAction } from "@/features/user/user.action";
-
 
 type FormData = {
   name: string;
@@ -42,7 +41,6 @@ export default function CreateUser({
   isEdited = false,
   userData,
 }: {
-
   org_uuid: string;
   isEdited?: boolean;
   userData?: UserInterface;
@@ -68,7 +66,7 @@ export default function CreateUser({
   });
   const emailValue = watch("email");
   const isUserPresent = useAppSelector((state) => state.userSlice.total);
-  const [open , setOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const onSubmit = async (data: FormData) => {
     if (isEdited && userData) {
@@ -77,6 +75,14 @@ export default function CreateUser({
         user_uuid: userData.user_id,
         org_uuid: org_uuid,
       });
+
+      dispatch(
+        listUserAction({
+          org_uuid: org_uuid,
+          pagination: { page: 1, limit: 10 },
+        })
+      );
+      dispatch(setPagination({ page: 1, limit: 10 }));
       setOpen(false);
     } else {
       await createUser({ ...data, org_uuid: org_uuid });
@@ -94,7 +100,7 @@ export default function CreateUser({
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
-  console.log(isValidEmail(emailValue))
+  console.log(isValidEmail(emailValue));
   useEffect(() => {
     if (isValidEmail(emailValue) && emailValue !== "" && !isEdited) {
       dispatch(
@@ -108,7 +114,10 @@ export default function CreateUser({
 
   return (
     <Dialog open={open} onOpenChange={() => setOpen(!open)}>
-      <Button onClick={() => setOpen(true)} className="bg-gradient-to-r w-full from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 px-8 py-3 rounded-xl font-semibold flex items-center space-between gap-2">
+      <Button
+        onClick={() => setOpen(true)}
+        className="bg-gradient-to-r w-full from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 px-8 py-3 rounded-xl font-semibold flex items-center space-between gap-2"
+      >
         {isEdited ? (
           <EditIcon className="w-5 h-5" />
         ) : (

@@ -49,7 +49,7 @@ export default function LoginPage() {
         name: userData.name,
         uuid: userData.user_id,
       });
-      if (userData.role == "super-admin") {
+      if (userData.role == "superadmin") {
         router.push("/organizations");
       } else {
         router.push("/select-organization");

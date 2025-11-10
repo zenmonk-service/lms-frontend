@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, CircleXIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -97,6 +97,22 @@ export function DateRangePicker({
               }
             }}
           />
+          {startValue ? (
+            <button
+              type="button"
+              aria-label="Clear start date"
+              onClick={() => {
+                setStartValue("");
+                setStartDate(undefined);
+                setStartMonth(undefined);
+                if (setDateRange) setDateRange([]);
+                if (setDate) setDate("");
+              }}
+              className="absolute top-1/2 right-8 -translate-y-1/2 flex items-center justify-center p-1 text-muted-foreground cursor-pointer"
+            >
+              <CircleXIcon className="h-[14px] w-[14px]" />
+            </button>
+          ) : null}
           <Popover open={openStart} onOpenChange={setOpenStart}>
             <PopoverTrigger asChild>
               <Button
@@ -139,6 +155,7 @@ export function DateRangePicker({
             value={endValue}
             placeholder="End date"
             className="bg-background pr-10"
+            readOnly
             onChange={(e) => {
               const parsed = new Date(e.target.value);
               setEndValue(e.target.value);
@@ -154,6 +171,22 @@ export function DateRangePicker({
               }
             }}
           />
+          {endValue ? (
+            <button
+              type="button"
+              aria-label="Clear end date"
+              onClick={() => {
+                setEndValue("");
+                setEndDate(undefined);
+                setEndMonth(undefined);
+                if (setDateRange) setDateRange([]);
+                if (setDate) setDate("");
+              }}
+              className="absolute top-1/2 right-8 -translate-y-1/2 flex items-center justify-center p-1 text-muted-foreground cursor-pointer"
+            >
+              <CircleXIcon className="h-[14px] w-[14px]" />
+            </button>
+          ) : null}
           <Popover open={openEnd} onOpenChange={setOpenEnd}>
             <PopoverTrigger asChild>
               <Button

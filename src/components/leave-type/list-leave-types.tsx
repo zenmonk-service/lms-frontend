@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from "@/store";
 import { getLeaveTypesAction } from "@/features/leave-types/leave-types.action";
 import { LeaveTypes, useLeaveTypesColumns } from "./list-leave-types-columns";
 import LeaveTypeForm from "./leave-type-form";
-import DataTable, { PaginationState } from "../table";
+import DataTable, { PaginationState } from "@/shared/table";
 
 export default function ListLeaveTypes() {
   const dispatch = useAppDispatch();

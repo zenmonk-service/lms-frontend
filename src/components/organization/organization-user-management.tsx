@@ -10,22 +10,10 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 
 import { ColumnDef } from "@tanstack/react-table";
 import { useAppDispatch, useAppSelector } from "@/store";
@@ -33,8 +21,7 @@ import { listUserAction } from "@/features/user/user.action";
 import { setPagination, UserInterface } from "@/features/user/user.slice";
 import { format } from "date-fns";
 import CreateUser from "@/components/user/create-user";
-import { Switch } from "@/components/ui/switch";
-import DataTable, { PaginationState } from "../table";
+import DataTable, { PaginationState } from "@/shared/table";
 import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
 type Checked = DropdownMenuCheckboxItemProps["checked"];
 export default function ManageOrganizationsUser() {

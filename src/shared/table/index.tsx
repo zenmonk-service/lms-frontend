@@ -8,14 +8,13 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../ui/table";
+} from "@/components/ui/table";
 import {
   flexRender,
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 import { LoaderCircle } from "lucide-react";
-import { Input } from "../ui/input";
 import {
   Select,
   SelectContent,
@@ -24,7 +23,8 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
 export interface PaginationState {
   page: number;

@@ -9,11 +9,11 @@ import {
 import { useAppDispatch, useAppSelector } from "@/store";
 import { Session } from "next-auth";
 import { useEffect, useState } from "react";
-import DataTable, { PaginationState } from "../../table";
 import {
   LeaveRequest,
   useLeaveRequestsColumns,
 } from "./approve-leave-requests-columns";
+import DataTable, { PaginationState } from "@/shared/table";
 
 type Mode = "approve" | "reject" | "recommend" | null;
 

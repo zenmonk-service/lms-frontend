@@ -48,6 +48,15 @@ import {
 } from "@/features/leave-requests/leave-requests.types";
 import { listUserAction } from "@/features/user/user.action";
 import { DateRangePicker } from "@/shared/date-range-picker";
+import {
+  MultiSelect,
+  MultiSelectContent,
+  MultiSelectGroup,
+  MultiSelectItem,
+  MultiSelectTrigger,
+  MultiSelectValue,
+} from "@/components/ui/multi-select";
+import CustomSelect from "@/shared/select";
 
 interface LeaveRequestModalProps {
   open: boolean;
@@ -59,7 +68,9 @@ const leaveRequestSchema = z.object({
   leave_type_uuid: z.string().trim().nonempty(),
   range: z.enum(LeaveRange),
   type: z.enum(LeaveRequestType),
-  managers: z.array(z.string()).min(1, "Select at least one manager"),
+  managers: z
+    .array(z.string())
+    .min(1, "Atleat one manager needs to be selected."),
   reason: z
     .string()
     .trim()
@@ -88,7 +99,6 @@ export function LeaveRequestModal({
   });
 
   const [session, setSession] = useState<any>(null);
-  const [dateRange, setDateRange] = useState<string[]>([]);
 
   async function getUserUuid() {
     const session = await getSession();
@@ -160,93 +170,94 @@ export function LeaveRequestModal({
                 control={control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <Select
+                    <CustomSelect
                       value={field.value}
-                      onValueChange={(val) => field.onChange(val)}
-                    >
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Select a leave" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectLabel className="text-xs">Leaves</SelectLabel>
-                          {leaveTypes.rows.map((leave) => {
-                            return (
-                              <SelectItem key={leave.uuid} value={leave.uuid}>
-                                {leave.name}
-                              </SelectItem>
-                            );
-                          })}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
+                      onValueChange={field.onChange}
+                      data={leaveTypes.rows}
+                      label="Leaves"
+                      placeholder="Select a leave"
+                    />
                   </Field>
                 )}
               />
             </div>
 
-            <div className="grid gap-3">
-              <Controller
-                name="range"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <Select
-                      value={field.value}
-                      onValueChange={(val) => field.onChange(val)}
-                    >
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Select a leave range" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectLabel className="text-xs">Leaves</SelectLabel>
-                          {Object.entries(LeaveRange).map(([key, value]) => {
-                            return (
-                              <SelectItem key={key} value={value}>
-                                {key.replaceAll("_", " ").toLowerCase()}
-                              </SelectItem>
-                            );
-                          })}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </Field>
-                )}
-              />
-            </div>
-
-            <div className="grid gap-3">
-              <Controller
-                name="type"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <Select
-                      value={field.value}
-                      onValueChange={(val) => field.onChange(val)}
-                    >
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Select a leave type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectLabel className="text-xs">Leaves</SelectLabel>
-                          {Object.entries(LeaveRequestType).map(
-                            ([key, value]) => {
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid gap-3">
+                <Controller
+                  name="range"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <Select
+                        value={field.value}
+                        onValueChange={(val) => field.onChange(val)}
+                      >
+                        <SelectTrigger
+                          value={field.value}
+                          onReset={() => field.onChange("")}
+                          className="w-[180px]"
+                        >
+                          <SelectValue placeholder="Select a leave range" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel className="text-xs">
+                              Leaves
+                            </SelectLabel>
+                            {Object.entries(LeaveRange).map(([key, value]) => {
                               return (
                                 <SelectItem key={key} value={value}>
                                   {key.replaceAll("_", " ").toLowerCase()}
                                 </SelectItem>
                               );
-                            }
-                          )}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </Field>
-                )}
-              />
+                            })}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                  )}
+                />
+              </div>
+
+              <div className="grid gap-3">
+                <Controller
+                  name="type"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <Select
+                        value={field.value}
+                        onValueChange={(val) => field.onChange(val)}
+                      >
+                        <SelectTrigger
+                          value={field.value}
+                          onReset={() => field.onChange("")}
+                          className="w-[180px]"
+                        >
+                          <SelectValue placeholder="Select a leave type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel className="text-xs">
+                              Leaves
+                            </SelectLabel>
+                            {Object.entries(LeaveRequestType).map(
+                              ([key, value]) => {
+                                return (
+                                  <SelectItem key={key} value={value}>
+                                    {key.replaceAll("_", " ").toLowerCase()}
+                                  </SelectItem>
+                                );
+                              }
+                            )}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                  )}
+                />
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-2 w-full">
@@ -259,43 +270,43 @@ export function LeaveRequestModal({
                     className="gap-1 col-span-2"
                   >
                     <FieldLabel>Apply To</FieldLabel>
-                    <FieldDescription>
-                      Select the roles this leave request applies to.
-                    </FieldDescription>
-                    <div className="grid grid-cols-2 gap-2">
-                      {users?.map((user: any) => (
-                        <div
-                          key={user.user_id}
-                          className="flex items-center space-x-2"
-                        >
-                          <Checkbox
-                            id={user.user_id}
-                            checked={
-                              Array.isArray(field.value)
-                                ? field.value.includes(user.user_id)
-                                : false
-                            }
-                            onCheckedChange={(checked) => {
-                              const current: string[] = Array.isArray(
-                                field.value
-                              )
-                                ? field.value
-                                : [];
-                              const updated = checked
-                                ? [...current, user.user_id]
-                                : current.filter((r) => r !== user.user_id);
-                              field.onChange(updated);
-                            }}
-                          />
-                          <label htmlFor={user.user_id} className="select-none">
-                            {user.name}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
+                    <MultiSelect
+                      values={field.value}
+                      onValuesChange={field.onChange}
+                    >
+                      <MultiSelectTrigger className="w-full">
+                        <MultiSelectValue placeholder="Select managers..." />
+                      </MultiSelectTrigger>
+                      <MultiSelectContent>
+                        <MultiSelectGroup>
+                          {users.map((manager) => (
+                            <MultiSelectItem
+                              value={manager.user_id}
+                              key={manager.user_id}
+                            >
+                              {manager.name}
+                            </MultiSelectItem>
+                          ))}
+                        </MultiSelectGroup>
+                      </MultiSelectContent>
+                    </MultiSelect>
+                  </Field>
+                )}
+              />
+            </div>
+
+            <div className="grid gap-3">
+              <Controller
+                name="date_range"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid} className="gap-1">
+                    <FieldLabel>Date Range</FieldLabel>
+                    <DateRangePicker
+                      minDate={today}
+                      setDateRange={field.onChange}
+                      {...field}
+                    />
                   </Field>
                 )}
               />
@@ -331,22 +342,6 @@ export function LeaveRequestModal({
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
                     )}
-                  </Field>
-                )}
-              />
-            </div>
-
-            <div className="grid gap-3">
-              <Controller
-                name="date_range"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid} className="gap-1">
-                    <DateRangePicker
-                      minDate={today}
-                      setDateRange={field.onChange}
-                      {...field}
-                    />
                   </Field>
                 )}
               />

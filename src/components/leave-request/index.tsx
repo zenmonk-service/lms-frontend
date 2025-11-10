@@ -9,7 +9,6 @@ import MakeLeaveRequest from "./make-leave-request";
 import { useLeaveRequestColumns } from "./leave-request-columns";
 import { LeaveRequestStatus } from "@/features/leave-requests/leave-requests.types";
 import { DateRangePicker } from "@/shared/date-range-picker";
-import TableSelect from "@/shared/table/select";
 import {
   Select,
   SelectContent,
@@ -19,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import CustomSelect from "@/shared/select";
 
 const LeaveRequest = () => {
   const [session, setSession] = useState<any>(null);
@@ -105,7 +105,7 @@ const LeaveRequest = () => {
         </div>
         <div className="flex flex-wrap gap-2">
           <div>
-            <TableSelect
+            <CustomSelect
               value={leaveTypeFilter}
               onValueChange={setLeaveTypeFilter}
               data={leaveTypes.rows}
@@ -140,7 +140,7 @@ const LeaveRequest = () => {
           </div>
 
           <div>
-            <TableSelect
+            <CustomSelect
               value={statusFilter}
               onValueChange={setStatusFilter}
               data={LeaveRequestStatus}

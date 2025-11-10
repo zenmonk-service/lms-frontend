@@ -20,7 +20,7 @@ interface ArrayDataItem {
 
 type DataType = EnumData | Array<ArrayDataItem>;
 
-interface TableSelectProps {
+interface CustomSelectProps {
   value: string;
   onValueChange: (value: string) => void;
   data: DataType;
@@ -29,7 +29,7 @@ interface TableSelectProps {
   placeholder?: string;
 }
 
-const TableSelect: React.FC<TableSelectProps> = ({
+const CustomSelect: React.FC<CustomSelectProps> = ({
   value,
   onValueChange,
   data,
@@ -68,4 +68,4 @@ const TableSelect: React.FC<TableSelectProps> = ({
   );
 };
 
-export default TableSelect;
+export default CustomSelect;

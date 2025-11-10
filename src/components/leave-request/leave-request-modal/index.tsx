@@ -163,7 +163,7 @@ export function LeaveRequestModal({
               Fill in the form below to request leave.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 overflow-y-auto max-h-96 no-scrollbar p-2">
+          <div className="grid gap-4 overflow-y-auto max-h-96 no-scrollbar py-2">
             <div className="grid gap-3">
               <Controller
                 name="leave_type_uuid"
@@ -189,32 +189,14 @@ export function LeaveRequestModal({
                   control={control}
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid}>
-                      <Select
+                      <CustomSelect
                         value={field.value}
-                        onValueChange={(val) => field.onChange(val)}
-                      >
-                        <SelectTrigger
-                          value={field.value}
-                          onReset={() => field.onChange("")}
-                          className="w-[180px]"
-                        >
-                          <SelectValue placeholder="Select a leave range" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectLabel className="text-xs">
-                              Leaves
-                            </SelectLabel>
-                            {Object.entries(LeaveRange).map(([key, value]) => {
-                              return (
-                                <SelectItem key={key} value={value}>
-                                  {key.replaceAll("_", " ").toLowerCase()}
-                                </SelectItem>
-                              );
-                            })}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
+                        onValueChange={field.onChange}
+                        data={LeaveRange}
+                        isEnum={true}
+                        label="Range"
+                        placeholder="Select a leave range"
+                      />
                     </Field>
                   )}
                 />
@@ -226,34 +208,14 @@ export function LeaveRequestModal({
                   control={control}
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid}>
-                      <Select
+                      <CustomSelect
                         value={field.value}
-                        onValueChange={(val) => field.onChange(val)}
-                      >
-                        <SelectTrigger
-                          value={field.value}
-                          onReset={() => field.onChange("")}
-                          className="w-[180px]"
-                        >
-                          <SelectValue placeholder="Select a leave type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectLabel className="text-xs">
-                              Leaves
-                            </SelectLabel>
-                            {Object.entries(LeaveRequestType).map(
-                              ([key, value]) => {
-                                return (
-                                  <SelectItem key={key} value={value}>
-                                    {key.replaceAll("_", " ").toLowerCase()}
-                                  </SelectItem>
-                                );
-                              }
-                            )}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
+                        onValueChange={field.onChange}
+                        data={LeaveRequestType}
+                        isEnum={true}
+                        label="Type"
+                        placeholder="Select a leave type"
+                      />
                     </Field>
                   )}
                 />
@@ -277,7 +239,12 @@ export function LeaveRequestModal({
                       <MultiSelectTrigger className="w-full">
                         <MultiSelectValue placeholder="Select managers..." />
                       </MultiSelectTrigger>
-                      <MultiSelectContent>
+                      <MultiSelectContent
+                        search={{
+                          emptyMessage: "No manager found.",
+                          placeholder: "Search managers...",
+                        }}
+                      >
                         <MultiSelectGroup>
                           {users.map((manager) => (
                             <MultiSelectItem
@@ -351,7 +318,7 @@ export function LeaveRequestModal({
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
-            <Button type="submit">Save changes</Button>
+            <Button type="submit">Request Leave</Button>
           </DialogFooter>
         </form>
       </DialogContent>

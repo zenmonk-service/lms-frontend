@@ -9,23 +9,16 @@ import MakeLeaveRequest from "./make-leave-request";
 import { useLeaveRequestColumns } from "./leave-request-columns";
 import { LeaveRequestStatus } from "@/features/leave-requests/leave-requests.types";
 import { DateRangePicker } from "@/shared/date-range-picker";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
+
 import CustomSelect from "@/shared/select";
+import { MultiSelect, MultiSelectContent, MultiSelectGroup, MultiSelectItem, MultiSelectTrigger, MultiSelectValue } from "../ui/multi-select";
 
 const LeaveRequest = () => {
   const [session, setSession] = useState<any>(null);
   const { users } = useAppSelector((state) => state.userSlice);
 
   const [leaveTypeFilter, setLeaveTypeFilter] = useState<string>("");
-  const [managerFilter, setManagerFilter] = useState<string>("");
+  const [managerFilter, setManagerFilter] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [dateRangeFilter, setDateRangeFilter] = useState<string[]>([]);
   const [dateFilter, setDateFilter] = useState<string>("");
@@ -111,32 +104,33 @@ const LeaveRequest = () => {
               data={leaveTypes.rows}
               label="Leave Type"
               placeholder="Leave type"
+              className="w-[180px]"
             />
           </div>
 
           <div>
-            <Select
-              value={managerFilter}
-              onValueChange={(value) => setManagerFilter(value)}
-            >
-              <SelectTrigger
-                value={managerFilter}
-                onReset={() => setManagerFilter("")}
-                className="w-[180px]"
+            <MultiSelect values={managerFilter} onValuesChange={setManagerFilter}>
+              <MultiSelectTrigger className="w-[180px]">
+                <MultiSelectValue placeholder="Select managers..." />
+              </MultiSelectTrigger>
+              <MultiSelectContent
+                search={{
+                  emptyMessage: "No manager found.",
+                  placeholder: "Search managers...",
+                }}
               >
-                <SelectValue placeholder="Manager" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel className="text-xs">Manager</SelectLabel>
-                  {users.map((type) => (
-                    <SelectItem key={type.user_id} value={type.user_id}>
-                      {type.name}
-                    </SelectItem>
+                <MultiSelectGroup>
+                  {users.map((manager) => (
+                    <MultiSelectItem
+                      value={manager.user_id}
+                      key={manager.user_id}
+                    >
+                      {manager.name}
+                    </MultiSelectItem>
                   ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+                </MultiSelectGroup>
+              </MultiSelectContent>
+            </MultiSelect>
           </div>
 
           <div>
@@ -147,6 +141,7 @@ const LeaveRequest = () => {
               isEnum={true}
               label="Leave Status"
               placeholder="Status"
+              className="w-[180px]"
             />
           </div>
 

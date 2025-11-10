@@ -119,7 +119,7 @@ export function MultiSelectTrigger({
         )}
       >
         {children}
-        <ChevronsUpDownIcon className="size-4 shrink-0 opacity-50" />
+        <ChevronsUpDownIcon height={20} width={20} className="shrink-0 opacity-50" />
       </Button>
     </PopoverTrigger>
   )
@@ -313,10 +313,10 @@ export function MultiSelectItem({
         onSelect?.(value)
       }}
     >
-      <CheckIcon
-        className={cn("mr-2 size-4", isSelected ? "opacity-100" : "opacity-0")}
-      />
       {children}
+      <CheckIcon
+        className={cn("ml-2 size-4 absolute right-2", isSelected ? "opacity-100" : "opacity-0")}
+      />
     </CommandItem>
   )
 }

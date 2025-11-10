@@ -8,6 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import React from "react";
+import { cn } from "@/lib/utils";
 
 interface EnumData {
   [key: string]: string;
@@ -27,6 +28,7 @@ interface CustomSelectProps {
   isEnum?: boolean;
   label: string;
   placeholder?: string;
+  className?: string;
 }
 
 const CustomSelect: React.FC<CustomSelectProps> = ({
@@ -36,6 +38,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   isEnum = false,
   label,
   placeholder,
+  className,
 }) => {
   return (
     <div>
@@ -43,7 +46,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
         <SelectTrigger
           value={value}
           onReset={() => onValueChange("")}
-          className="w-[180px]"
+          className={cn(className)}
         >
           <SelectValue placeholder={placeholder || "Select a value"} />
         </SelectTrigger>

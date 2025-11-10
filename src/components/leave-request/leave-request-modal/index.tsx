@@ -32,12 +32,11 @@ import {
 import { getLeaveTypesAction } from "@/features/leave-types/leave-types.action";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import z from "zod";
 import { getOrganizationRolesAction } from "@/features/role/role.action";
 import { Checkbox } from "@/components/ui/checkbox";
-import { DateRangePicker } from "@/components/ui/date-range-picker";
 import {
   createUserLeaveRequestsAction,
   getUserLeaveRequestsAction,
@@ -48,6 +47,7 @@ import {
   LeaveRequestType,
 } from "@/features/leave-requests/leave-requests.types";
 import { listUserAction } from "@/features/user/user.action";
+import { DateRangePicker } from "@/shared/date-range-picker";
 
 interface LeaveRequestModalProps {
   open: boolean;
@@ -88,6 +88,7 @@ export function LeaveRequestModal({
   });
 
   const [session, setSession] = useState<any>(null);
+  const [dateRange, setDateRange] = useState<string[]>([]);
 
   async function getUserUuid() {
     const session = await getSession();
@@ -106,35 +107,28 @@ export function LeaveRequestModal({
     );
   }, []);
 
-  function transformDateRange(dateRange: { from?: Date; to?: Date }) {
-    if (!dateRange?.from || !dateRange?.to) {
-      return null;
-    }
+  const today = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, []);
 
+  function transformDateRange(dateRange: string[]) {
     return {
-      start_date: dateRange.from.toISOString(),
-      end_date: dateRange.to.toISOString(),
+      start_date: dateRange[0] || undefined,
+      end_date: dateRange[1] || undefined,
     };
   }
 
   const onSubmit = async (data: LeaveRequestFormData) => {
-    const transformedDateRange = transformDateRange(data.date_range);
-
-    if (!transformedDateRange) {
-      console.error("Invalid date range");
-      return;
-    }
-
-    const payload = {
-      ...data,
-      ...transformedDateRange,
-    };
+    const dateRangeData = transformDateRange(data.date_range || []);
+    data = { ...data, ...dateRangeData };
     if (session) {
       await dispatch(
         createUserLeaveRequestsAction({
           org_uuid: currentOrganizationUuid,
           user_uuid: session?.user?.uuid,
-          ...payload,
+          ...data,
         })
       );
 
@@ -349,12 +343,9 @@ export function LeaveRequestModal({
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid} className="gap-1">
                     <DateRangePicker
-                      onUpdate={(values) => field.onChange(values.range)}
-                      initialDateFrom={new Date()}
-                      initialDateTo={new Date()}
-                      align="start"
-                      locale="en-GB"
-                      showCompare={false}
+                      minDate={today}
+                      setDateRange={field.onChange}
+                      {...field}
                     />
                   </Field>
                 )}

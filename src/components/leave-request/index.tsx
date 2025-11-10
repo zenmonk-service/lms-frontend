@@ -110,7 +110,7 @@ const LeaveRequest = () => {
               onValueChange={setLeaveTypeFilter}
               data={leaveTypes.rows}
               label="Leave Type"
-              placeholder="Select a leave type"
+              placeholder="Leave type"
             />
           </div>
 
@@ -152,8 +152,8 @@ const LeaveRequest = () => {
 
           <div>
             <DateRangePicker
-              setDateRangeFilter={setDateRangeFilter}
-              setDateFilter={setDateFilter}
+              setDateRange={setDateRangeFilter}
+              setDate={setDateFilter}
             />
           </div>
         </div>

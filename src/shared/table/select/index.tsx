@@ -40,7 +40,11 @@ const TableSelect: React.FC<TableSelectProps> = ({
   return (
     <div>
       <Select value={value} onValueChange={(v) => onValueChange(v)}>
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger
+          value={value}
+          onReset={() => onValueChange("")}
+          className="w-[180px]"
+        >
           <SelectValue placeholder={placeholder || "Select a value"} />
         </SelectTrigger>
         <SelectContent>

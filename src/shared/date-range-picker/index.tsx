@@ -16,12 +16,15 @@ function formatDate(date: Date | undefined) {
   if (!date) {
     return "";
   }
+  var d = new Date(date),
+    month = "" + (d.getMonth() + 1),
+    day = "" + d.getDate(),
+    year = d.getFullYear();
 
-  return date.toLocaleDateString("en-US", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  });
+  if (month.length < 2) month = "0" + month;
+  if (day.length < 2) day = "0" + day;
+
+  return [year, month, day].join("-");
 }
 
 function isValidDate(date: Date | undefined) {
@@ -32,13 +35,16 @@ function isValidDate(date: Date | undefined) {
 }
 
 interface DateRangePickerProps {
-  setDateRangeFilter?: React.Dispatch<React.SetStateAction<string[]>>;
-  setDateFilter?: React.Dispatch<React.SetStateAction<string>>;
+  setDateRange?: React.Dispatch<React.SetStateAction<string[]>>;
+  setDate?: React.Dispatch<React.SetStateAction<string>>;
+  minDate?: Date;
 }
 
 export function DateRangePicker({
-  setDateRangeFilter,
-  setDateFilter,
+  setDateRange,
+  setDate,
+  minDate,
+  ...props
 }: DateRangePickerProps) {
   const [openStart, setOpenStart] = React.useState(false);
   const [startDate, setStartDate] = React.useState<Date | undefined>();
@@ -50,27 +56,18 @@ export function DateRangePicker({
   const [endMonth, setEndMonth] = React.useState<Date | undefined>(endDate);
   const [endValue, setEndValue] = React.useState(formatDate(endDate));
 
-  const today = React.useMemo(() => {
-    const d = new Date();
-    d.setHours(0, 0, 0, 0);
-    return d;
-  }, []);
-
   React.useEffect(() => {
-    if (startDate && endDate) {
-      if (setDateFilter) {
-        setDateFilter("");
+    if (startValue && endValue) {
+      if (setDate) {
+        setDate("");
       }
-      if (setDateRangeFilter) {
-        setDateRangeFilter([
-          startDate?.toISOString() || "",
-          endDate?.toISOString() || "",
-        ]);
+      if (setDateRange) {
+        setDateRange([startValue, endValue]);
       }
-    } else if (startDate || endDate) {
-      const date = startDate || endDate;
-      if (setDateFilter) {
-        setDateFilter(date?.toISOString() || "");
+    } else if (startValue || endValue) {
+      const date = startValue || endValue;
+      if (setDate) {
+        setDate(date || "");
       }
     }
   }, [startValue, endValue]);
@@ -123,7 +120,7 @@ export function DateRangePicker({
                 captionLayout="dropdown"
                 month={startMonth}
                 onMonthChange={setStartMonth}
-                disabled={(date: Date) => date < today}
+                disabled={(date: Date) => (minDate ? date < minDate : false)}
                 onSelect={(date) => {
                   setStartDate(date);
                   setStartValue(formatDate(date));
@@ -181,7 +178,7 @@ export function DateRangePicker({
                 month={endMonth}
                 onMonthChange={setEndMonth}
                 disabled={(date: Date) =>
-                  startDate ? date < startDate : date < today
+                  startDate ? date < startDate : false
                 }
                 onSelect={(date) => {
                   setEndDate(date);

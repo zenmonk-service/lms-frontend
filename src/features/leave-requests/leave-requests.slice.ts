@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import {
   createUserLeaveRequestsAction,
   getUserLeaveRequestsAction,
+  getLeaveRequestsAction, // <- add this
 } from "./leave-requests.action";
 import { LeaveRequestStatus } from "./leave-requests.types";
 
@@ -39,15 +40,26 @@ interface LeaveRequestState {
 
 const initialState: LeaveRequestState = {
   isLoading: false,
-  userLeaveRequests: {} as LeaveRequest,
+  userLeaveRequests: { rows: [], count: 0 },
 };
 
-const leaveRequestSilce = createSlice({
+const leaveRequestSlice = createSlice({
   name: "leave-requests",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
+      .addCase(getLeaveRequestsAction.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getLeaveRequestsAction.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.userLeaveRequests = action.payload ?? { rows: [], count: 0 };
+      })
+      .addCase(getLeaveRequestsAction.rejected, (state) => {
+        state.isLoading = false;
+      })
+
       .addCase(getUserLeaveRequestsAction.pending, (state) => {
         state.isLoading = true;
       })
@@ -70,4 +82,4 @@ const leaveRequestSilce = createSlice({
   },
 });
 
-export default leaveRequestSilce.reducer;
+export default leaveRequestSlice.reducer;

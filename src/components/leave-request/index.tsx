@@ -7,16 +7,35 @@ import { getUserLeaveRequestsAction } from "@/features/leave-requests/leave-requ
 import { getSession } from "@/app/auth/get-auth.action";
 import MakeLeaveRequest from "./make-leave-request";
 import { useLeaveRequestColumns } from "./leave-request-columns";
-import { Button } from "../ui/button";
-import { ListFilter } from "lucide-react";
-import { Filter } from "./filter";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { LeaveRequestStatus } from "@/features/leave-requests/leave-requests.types";
+import { DateRangePicker } from "../ui/date-range-picker";
 
 const LeaveRequest = () => {
   const [session, setSession] = useState<any>(null);
-  const [filterOpen, setFilterOpen] = useState(false);
+  const { users } = useAppSelector((state) => state.userSlice);
+
+  const [leaveTypeFilter, setLeaveTypeFilter] = useState<string>("");
+  const [managerFilter, setManagerFilter] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [dateRangeFilter, setDateRangeFilter] = useState<{
+    from: Date | null;
+    to: Date | null;
+  }>({ from: null, to: null });
+
   const { userLeaveRequests, isLoading } = useAppSelector(
     (state) => state.leaveRequestSlice
   );
+  const { leaveTypes } = useAppSelector((state) => state.leaveTypeSlice);
+
   const currentOrganizationUuid = useAppSelector(
     (state) => state.userSlice.currentOrganizationUuid
   );
@@ -31,18 +50,14 @@ const LeaveRequest = () => {
     const session = await getSession();
     setSession(session);
   }
-
-  const onOpenChange = (open: boolean) => {
-    setFilterOpen(open);
-  };
-
-  const onClose = () => {
-    setFilterOpen(false);
-  };
-
   useEffect(() => {
     async function fetchUserLeaves() {
       await getUserUuid();
+      const data = {
+        leave_type_uuid: leaveTypeFilter || undefined,
+        manager_uuid: managerFilter || undefined,
+        status: statusFilter || undefined,
+      };
       if (session)
         dispatch(
           getUserLeaveRequestsAction({
@@ -51,11 +66,21 @@ const LeaveRequest = () => {
             page: pagination.page,
             limit: pagination.limit,
             search: pagination.search,
+            ...data,
           })
         );
     }
     fetchUserLeaves();
-  }, [session?.user?.uuid, pagination, dispatch, currentOrganizationUuid]);
+  }, [
+    session?.user?.uuid,
+    pagination,
+    dispatch,
+    currentOrganizationUuid,
+    leaveTypeFilter,
+    managerFilter,
+    statusFilter,
+    dateRangeFilter,
+  ]);
 
   const columns = useLeaveRequestColumns();
 
@@ -67,23 +92,86 @@ const LeaveRequest = () => {
     <div>
       <MakeLeaveRequest />
       <div className="p-6">
-        <div className="w-full flex justify-end gap-4">
-          <Button
-            className="bg-gradient-to-r from-orange-500 to-amber-500 text-white"
-            size="sm"
-            onClick={() => onOpenChange(true)}
-          >
-            <ListFilter height={20} width={20} />
-            Filter
-          </Button>
+        <div className="flex flex-wrap gap-2">
+          <div>
+            <Select
+              value={leaveTypeFilter}
+              onValueChange={(value) => setLeaveTypeFilter(value)}
+            >
+              <SelectTrigger
+                value={leaveTypeFilter}
+                onReset={() => setLeaveTypeFilter("")}
+                className="w-[180px]"
+              >
+                <SelectValue placeholder="Select a leave type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel className="text-xs">Leave Type</SelectLabel>
+                  {leaveTypes.rows.map((type) => (
+                    <SelectItem key={type.uuid} value={type.uuid}>
+                      {type.name}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Select
+              value={managerFilter}
+              onValueChange={(value) => setManagerFilter(value)}
+            >
+              <SelectTrigger
+                value={managerFilter}
+                onReset={() => setManagerFilter("")}
+                className="w-[180px]"
+              >
+                <SelectValue placeholder="Manager" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel className="text-xs">Manager</SelectLabel>
+                  {users.map((type) => (
+                    <SelectItem key={type.user_id} value={type.user_id}>
+                      {type.name}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Select
+              value={statusFilter}
+              onValueChange={(value) => setStatusFilter(value)}
+            >
+              <SelectTrigger
+                value={statusFilter}
+                onReset={() => setStatusFilter("")}
+                className="w-[180px]"
+              >
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel className="text-xs">Leave Status</SelectLabel>
+                  {Object.entries(LeaveRequestStatus).map(([key, value]) => (
+                    <SelectItem key={key} value={value}>
+                      {value}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <DateRangePicker align="start" showCompare={false} />
+          </div>
         </div>
-
-        <Filter
-          open={filterOpen}
-          onClose={onClose}
-          onOpenChange={onOpenChange}
-        />
-
         <DataTable
           data={userLeaveRequests.rows || []}
           columns={columns}
@@ -92,10 +180,6 @@ const LeaveRequest = () => {
           totalCount={userLeaveRequests.count || 0}
           pagination={pagination}
           onPaginationChange={handlePaginationChange}
-          searchPlaceholder="Filter your leave requests..."
-          title="All Leave Requests"
-          description="List of leave requests for the organization."
-          noDataMessage="No leave requests found."
         />
       </div>
     </div>

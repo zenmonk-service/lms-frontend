@@ -41,8 +41,6 @@ interface DataTableProps {
   pagination: PaginationState;
   onPaginationChange: (newPagination: Partial<PaginationState>) => void;
   searchPlaceholder?: string;
-  title?: string;
-  description?: string;
   noDataMessage?: string;
 }
 
@@ -55,8 +53,6 @@ export default function DataTable({
   pagination,
   onPaginationChange,
   searchPlaceholder = "Search...",
-  title,
-  description,
   noDataMessage = "No data available.",
 }: DataTableProps) {
   const table = useReactTable({
@@ -82,10 +78,6 @@ export default function DataTable({
     <div className="h-[calc(100vh-120px)]">
       <div className="flex items-center justify-between mb-4 ">
         <div>
-          {title && <h2 className="text-lg font-semibold">{title}</h2>}
-          {description && (
-            <p className="text-sm text-muted-foreground">{description}</p>
-          )}
           {searchable && (
             <Input
               placeholder={searchPlaceholder}

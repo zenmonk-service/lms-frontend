@@ -128,7 +128,6 @@ export default function ManageOrganizationsUser() {
     dispatch(setPagination({ ...pagination, ...newPagination }));
   };
 
-
   React.useEffect(() => {
     dispatch(
       listUserAction({
@@ -144,6 +143,14 @@ export default function ManageOrganizationsUser() {
 
   return (
     <div className="p-6 h-max-[calc(100vh-69px)]">
+      <div className="flex items-center justify-between mb-4 ">
+        <div>
+          <h2 className="text-lg font-semibold">User Management</h2>
+          <p className="text-sm text-muted-foreground">
+            List of users in the organization.
+          </p>
+        </div>
+      </div>
       <DataTable
         data={users || []}
         columns={columns}
@@ -152,8 +159,6 @@ export default function ManageOrganizationsUser() {
         pagination={pagination}
         onPaginationChange={handlePaginationChange}
         searchPlaceholder="Filter organization users..."
-        title="User Management"
-        description="List of users in the organization."
         noDataMessage="No users found."
       />
     </div>

@@ -53,6 +53,14 @@ export default function ListLeaveTypes() {
 
   return (
     <div>
+      <div className="flex items-center justify-between mb-4 ">
+        <div>
+          <h2 className="text-lg font-semibold">All Leave Types</h2>
+          <p className="text-sm text-muted-foreground">
+            List of configured leave types for the organization.
+          </p>
+        </div>
+      </div>
       <DataTable
         data={leaveTypes?.rows || []}
         columns={columns}
@@ -61,8 +69,6 @@ export default function ListLeaveTypes() {
         pagination={pagination}
         onPaginationChange={handlePaginationChange}
         searchPlaceholder="Filter leave types..."
-        title="All Leave Types"
-        description="List of configured leave types for the organization."
         noDataMessage="No leave types found."
       />
       {selectedLeaveType && (

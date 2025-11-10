@@ -86,22 +86,22 @@ export default function ApproveLeaveRequests() {
       remark,
     };
 
-try {
-  const payloadWithOrg = {
-    ...payload,
-    org_uuid: currentOrgUUID,
-  };
+    try {
+      const payloadWithOrg = {
+        ...payload,
+        org_uuid: currentOrgUUID,
+      };
 
-  if (mode === "approve") {
-    await dispatch(approveLeaveRequestAction(payloadWithOrg)).unwrap();
-  } else if (mode === "reject") {
-    await dispatch(rejectLeaveRequestAction(payloadWithOrg)).unwrap();
-  } else if (mode === "recommend") {
-    await dispatch(recommendLeaveRequestAction(payloadWithOrg)).unwrap();
-  }
-} catch (error) {
-  console.error(error);
-} finally {
+      if (mode === "approve") {
+        await dispatch(approveLeaveRequestAction(payloadWithOrg)).unwrap();
+      } else if (mode === "reject") {
+        await dispatch(rejectLeaveRequestAction(payloadWithOrg)).unwrap();
+      } else if (mode === "recommend") {
+        await dispatch(recommendLeaveRequestAction(payloadWithOrg)).unwrap();
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
       closeModal();
     }
   };
@@ -122,6 +122,14 @@ try {
 
   return (
     <div>
+      <div className="flex items-center justify-between mb-4 ">
+        <div>
+          <h2 className="text-lg font-semibold">Pending Leave Requests</h2>
+          <p className="text-sm text-muted-foreground">
+            Approve, reject or recommend leave requests assigned to you.
+          </p>
+        </div>
+      </div>
       <DataTable
         data={userLeaveRequests?.rows ?? []}
         columns={columns}
@@ -130,8 +138,6 @@ try {
         pagination={pagination}
         onPaginationChange={handlePaginationChange}
         searchPlaceholder="Filter leave requests..."
-        title="Pending Leave Requests"
-        description="Approve, reject or recommend leave requests assigned to you."
         noDataMessage="No leave requests found."
       />
 

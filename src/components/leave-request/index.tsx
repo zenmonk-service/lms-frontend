@@ -92,6 +92,14 @@ const LeaveRequest = () => {
     <div>
       <MakeLeaveRequest />
       <div className="p-6">
+        <div className="flex items-center justify-between mb-4 ">
+          <div>
+            <h2 className="text-lg font-semibold">All Leave Requests</h2>
+            <p className="text-sm text-muted-foreground">
+              List of all leave requests made by users.
+            </p>
+          </div>
+        </div>
         <div className="flex flex-wrap gap-2">
           <div>
             <Select

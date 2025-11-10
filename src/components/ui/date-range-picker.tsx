@@ -9,9 +9,8 @@ import { DateInput } from "./date-input";
 import { Label } from "./label";
 import { Switch } from "./switch";
 import {
-  ChevronUpIcon,
-  ChevronDownIcon,
   CheckIcon,
+  CaretSortIcon,
 } from "@radix-ui/react-icons";
 import { cn } from "@/lib/utils";
 
@@ -358,12 +357,8 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
               </div>
             )}
           </div>
-          <div className="pl-1 opacity-60 -mr-2 scale-125">
-            {isOpen ? (
-              <ChevronUpIcon width={20} />
-            ) : (
-              <ChevronDownIcon width={20} />
-            )}
+          <div className="pl-1 opacity-50 -mr-2">
+            <CaretSortIcon className="h-4 w-4" />
           </div>
         </Button>
       </PopoverTrigger>

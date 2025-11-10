@@ -14,7 +14,7 @@ export const getLeaveRequestsAction = createAsyncThunk(
   async (data: any, thunkAPI) => {
     try {
       const response = await getLeaveRequests(data.org_uuid, data);
-      console.log('response: ', response.data);
+      console.log("response: ", response.data);
       return response.data;
     } catch (err) {
       const error = err as AxiosError;
@@ -60,7 +60,12 @@ export const createUserLeaveRequestsAction = createAsyncThunk(
 export const approveLeaveRequestAction = createAsyncThunk(
   "leave-requests/approve",
   async (
-    data: { org_uuid: string,leave_request_uuid: string; manager_uuid: string; remark?: string },
+    data: {
+      org_uuid: string;
+      leave_request_uuid: string;
+      manager_uuid: string;
+      remark?: string;
+    },
     thunkAPI
   ) => {
     try {
@@ -97,11 +102,12 @@ export const approveLeaveRequestAction = createAsyncThunk(
 export const recommendLeaveRequestAction = createAsyncThunk(
   "leave-requests/recommend",
   async (
-    data: { leave_request_uuid: string; manager_uuid: string; remark?: string },
+    data: {org_uuid:string, leave_request_uuid: string; manager_uuid: string; remark?: string },
     thunkAPI
   ) => {
     try {
       const response = await recommendLeaveRequest(
+        data.org_uuid,
         data.leave_request_uuid,
         data.manager_uuid,
         data.remark
@@ -132,11 +138,12 @@ export const recommendLeaveRequestAction = createAsyncThunk(
 export const rejectLeaveRequestAction = createAsyncThunk(
   "leave-requests/reject",
   async (
-    data: { leave_request_uuid: string; manager_uuid: string; remark?: string },
+    data: { org_uuid: string,leave_request_uuid: string; manager_uuid: string; remark?: string },
     thunkAPI
   ) => {
     try {
       const response = await rejectLeaveRequest(
+        data.org_uuid,
         data.leave_request_uuid,
         data.manager_uuid,
         data.remark

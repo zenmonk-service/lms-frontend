@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import {
   createUserLeaveRequestsAction,
   getUserLeaveRequestsAction,
-  getLeaveRequestsAction, // <- add this
+  getLeaveRequestsAction,
 } from "./leave-requests.action";
 import { LeaveRequestStatus } from "./leave-requests.types";
 

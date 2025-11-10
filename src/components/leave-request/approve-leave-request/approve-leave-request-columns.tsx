@@ -5,15 +5,19 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Check, X, ThumbsUp, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
-
+import {
+  HoverCard,
+  HoverCardTrigger,
+  HoverCardContent,
+} from "@/components/ui/hover-card";
+import { LeaveRequestStatus } from "@/features/leave-requests/leave-requests.types";
 
 export type LeaveRequest = {
   uuid: string;
   id?: number;
   user?: {
     uuid?: string;
-    full_name?: string;
+    name?: string;
     email?: string;
   };
   leave_type?: {
@@ -32,9 +36,7 @@ export type LeaveRequest = {
   updated_at?: string;
 };
 
-/**
- * Small hover card for long reasons
- */
+
 const ReasonCell = ({ value }: { value?: string | null }) => {
   if (!value) return <span>-</span>;
   return (
@@ -51,10 +53,7 @@ const ReasonCell = ({ value }: { value?: string | null }) => {
   );
 };
 
-/**
- * Hook that returns column definitions for leave requests table.
- * You can pass callbacks for actions (approve/reject/recommend).
- */
+
 export const useLeaveRequestsColumns = (opts?: {
   onApprove?: (lr: LeaveRequest) => void;
   onReject?: (lr: LeaveRequest) => void;
@@ -69,12 +68,14 @@ export const useLeaveRequestsColumns = (opts?: {
       cell: ({ row }) => <span>{row.original.leave_type?.name ?? "-"}</span>,
     },
     {
-      accessorKey: "user.full_name",
+      accessorKey: "user.name",
       header: "Employee",
       cell: ({ row }) => (
         <div>
-          <div>{row.original.user?.full_name ?? "—"}</div>
-          <div className="text-xs opacity-70">{row.original.user?.email ?? ""}</div>
+          <div>{row.original.user?.name ?? "—"}</div>
+          <div className="text-xs opacity-70">
+            {row.original.user?.email ?? ""}
+          </div>
         </div>
       ),
     },
@@ -102,7 +103,9 @@ export const useLeaveRequestsColumns = (opts?: {
     {
       accessorKey: "type",
       header: "Type",
-      cell: ({ row }) => <Badge variant="outline">{row.original.type ?? "-"}</Badge>,
+      cell: ({ row }) => (
+        <Badge variant="outline">{row.original.type ?? "-"}</Badge>
+      ),
     },
     {
       accessorKey: "status",
@@ -129,14 +132,17 @@ export const useLeaveRequestsColumns = (opts?: {
       enableHiding: false,
       cell: ({ row }) => {
         const lr = row.original;
-        return (
+        const isPending = lr.status === LeaveRequestStatus.PENDING;
+
+        return isPending ? (
           <div className="flex gap-2 items-center">
             <Button
               size="sm"
-              onClick={() => {
-                if (onApprove) onApprove(lr);
-                else console.log("Approve clicked", lr.uuid);
-              }}
+              onClick={() =>
+                onApprove
+                  ? onApprove(lr)
+                  : console.log("Approve clicked", lr.uuid)
+              }
               title="Approve"
             >
               <Check className="mr-1" size={14} /> Approve
@@ -145,10 +151,9 @@ export const useLeaveRequestsColumns = (opts?: {
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => {
-                if (onReject) onReject(lr);
-                else console.log("Reject clicked", lr.uuid);
-              }}
+              onClick={() =>
+                onReject ? onReject(lr) : console.log("Reject clicked", lr.uuid)
+              }
               title="Reject"
             >
               <X className="mr-1" size={14} /> Reject
@@ -157,15 +162,18 @@ export const useLeaveRequestsColumns = (opts?: {
             <Button
               size="sm"
               variant="secondary"
-              onClick={() => {
-                if (onRecommend) onRecommend(lr);
-                else console.log("Recommend clicked", lr.uuid);
-              }}
+              onClick={() =>
+                onRecommend
+                  ? onRecommend(lr)
+                  : console.log("Recommend clicked", lr.uuid)
+              }
               title="Recommend"
             >
               <ThumbsUp className="mr-1" size={14} /> Recommend
             </Button>
           </div>
+        ) : (
+          <span>-</span>
         );
       },
     },

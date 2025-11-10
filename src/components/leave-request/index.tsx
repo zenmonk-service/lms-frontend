@@ -11,7 +11,14 @@ import { LeaveRequestStatus } from "@/features/leave-requests/leave-requests.typ
 import { DateRangePicker } from "@/shared/date-range-picker";
 
 import CustomSelect from "@/shared/select";
-import { MultiSelect, MultiSelectContent, MultiSelectGroup, MultiSelectItem, MultiSelectTrigger, MultiSelectValue } from "../ui/multi-select";
+import {
+  MultiSelect,
+  MultiSelectContent,
+  MultiSelectGroup,
+  MultiSelectItem,
+  MultiSelectTrigger,
+  MultiSelectValue,
+} from "../ui/multi-select";
 
 const LeaveRequest = () => {
   const [session, setSession] = useState<any>(null);
@@ -20,8 +27,13 @@ const LeaveRequest = () => {
   const [leaveTypeFilter, setLeaveTypeFilter] = useState<string>("");
   const [managerFilter, setManagerFilter] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>("");
-  const [dateRangeFilter, setDateRangeFilter] = useState<string[]>([]);
-  const [dateFilter, setDateFilter] = useState<string>("");
+  const [dateRangeFilter, setDateRangeFilter] = useState<{
+    start_date?: string;
+    end_date?: string;
+  }>({
+    start_date: undefined,
+    end_date: undefined,
+  });
 
   const { userLeaveRequests, isLoading } = useAppSelector(
     (state) => state.leaveRequestSlice
@@ -45,12 +57,19 @@ const LeaveRequest = () => {
   useEffect(() => {
     async function fetchUserLeaves() {
       await getUserUuid();
+      let date_range = undefined;
+      if (dateRangeFilter.start_date && dateRangeFilter.end_date) {
+        date_range = [dateRangeFilter.start_date, dateRangeFilter.end_date];
+      }
+
       const data = {
         leave_type_uuid: leaveTypeFilter || undefined,
         manager_uuid: managerFilter || undefined,
         status: statusFilter || undefined,
-        date_range: dateRangeFilter || undefined,
-        date: dateFilter || undefined,
+        date_range: date_range,
+        date: date_range
+          ? undefined
+          : dateRangeFilter.start_date || dateRangeFilter.end_date,
       };
       console.log("Fetching leaves with data:", data);
       if (session)
@@ -75,7 +94,6 @@ const LeaveRequest = () => {
     managerFilter,
     statusFilter,
     dateRangeFilter,
-    dateFilter,
   ]);
 
   const columns = useLeaveRequestColumns();
@@ -109,9 +127,15 @@ const LeaveRequest = () => {
           </div>
 
           <div>
-            <MultiSelect values={managerFilter} onValuesChange={setManagerFilter}>
-              <MultiSelectTrigger className="w-[180px]">
-                <MultiSelectValue placeholder="Select managers..." />
+            <MultiSelect
+              values={managerFilter}
+              onValuesChange={setManagerFilter}
+            >
+              <MultiSelectTrigger className="w-[180px] hover:bg-transparent">
+                <MultiSelectValue
+                  overflowBehavior="cutoff"
+                  placeholder="Select managers"
+                />
               </MultiSelectTrigger>
               <MultiSelectContent
                 search={{
@@ -148,7 +172,7 @@ const LeaveRequest = () => {
           <div>
             <DateRangePicker
               setDateRange={setDateRangeFilter}
-              setDate={setDateFilter}
+              isDependant={false}
             />
           </div>
         </div>

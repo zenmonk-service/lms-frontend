@@ -26,7 +26,7 @@ const SelectTrigger = React.forwardRef<
       )}>
   <SelectPrimitive.Trigger
     ref={ref}
-    className={cn("w-full text-left pl-3 pr-10 py-2")}
+    className={cn("w-full text-left pl-3 pr-10 py-2 data-[placeholder]:text-muted-foreground")}
     {...props}
   >
     {children}

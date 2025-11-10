@@ -9,15 +9,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   InputGroup,
   InputGroupAddon,
   InputGroupText,
@@ -36,7 +27,6 @@ import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import z from "zod";
 import { getOrganizationRolesAction } from "@/features/role/role.action";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   createUserLeaveRequestsAction,
   getUserLeaveRequestsAction,
@@ -57,6 +47,7 @@ import {
   MultiSelectValue,
 } from "@/components/ui/multi-select";
 import CustomSelect from "@/shared/select";
+import { LoaderCircle } from "lucide-react";
 
 interface LeaveRequestModalProps {
   open: boolean;
@@ -64,20 +55,51 @@ interface LeaveRequestModalProps {
   onClose: () => void;
 }
 
-const leaveRequestSchema = z.object({
-  leave_type_uuid: z.string().trim().nonempty(),
-  range: z.enum(LeaveRange),
-  type: z.enum(LeaveRequestType),
-  managers: z
-    .array(z.string())
-    .min(1, "Atleat one manager needs to be selected."),
-  reason: z
-    .string()
-    .trim()
-    .min(10, "Reason must be at least 10 characters long")
-    .max(500, "Reason must be at most 500 characters long"),
-  date_range: z.any(),
-});
+const allowedRanges: Record<string, string[]> = {
+  [LeaveRequestType.FULL_DAY]: [LeaveRange.FULL_DAY],
+  [LeaveRequestType.HALF_DAY]: [LeaveRange.FIRST_HALF, LeaveRange.SECOND_HALF],
+  [LeaveRequestType.SHORT_LEAVE]: [
+    LeaveRange.FIRST_QUARTER,
+    LeaveRange.SECOND_QUARTER,
+    LeaveRange.THIRD_QUARTER,
+    LeaveRange.FOURTH_QUARTER,
+  ],
+};
+
+const leaveRequestSchema = z
+  .object({
+    leave_type_uuid: z
+      .string()
+      .trim()
+      .nonempty({ error: "Please select a leave." }),
+    range: z.enum(LeaveRange, { error: "Please select a valid leave range." }),
+    type: z.enum(LeaveRequestType, {
+      error: "Please select a valid leave type.",
+    }),
+    managers: z
+      .array(z.string())
+      .min(1, "Atleast one manager needs to be selected."),
+    reason: z
+      .string()
+      .trim()
+      .min(10, "Reason must be at least 10 characters long")
+      .max(500, "Reason must be at most 500 characters long"),
+    date_range: z.object({
+      start_date: z.string().nonempty({ error: "Start date is required." }),
+      end_date: z.string().optional(),
+    }),
+  })
+  .refine(
+    (data) => {
+      const allowed = allowedRanges[data.type];
+      const isAllowed = allowed.includes(data.range);
+      return isAllowed;
+    },
+    {
+      message: "Selected range is not valid for the chosen leave type.",
+      path: ["range"],
+    }
+  );
 
 type LeaveRequestFormData = z.infer<typeof leaveRequestSchema>;
 
@@ -91,6 +113,7 @@ export function LeaveRequestModal({
     (state) => state.userSlice.currentOrganizationUuid
   );
   const { users } = useAppSelector((state) => state.userSlice);
+  const { isLoading } = useAppSelector((state) => state.leaveRequestSlice);
   const dispatch = useAppDispatch();
 
   const { control, handleSubmit, reset } = useForm<LeaveRequestFormData>({
@@ -123,16 +146,9 @@ export function LeaveRequestModal({
     return d;
   }, []);
 
-  function transformDateRange(dateRange: string[]) {
-    return {
-      start_date: dateRange[0] || undefined,
-      end_date: dateRange[1] || undefined,
-    };
-  }
-
   const onSubmit = async (data: LeaveRequestFormData) => {
-    const dateRangeData = transformDateRange(data.date_range || []);
-    data = { ...data, ...dateRangeData };
+    const dateRange = data.date_range;
+    data = { ...data, ...dateRange };
     if (session) {
       await dispatch(
         createUserLeaveRequestsAction({
@@ -169,14 +185,26 @@ export function LeaveRequestModal({
                 name="leave_type_uuid"
                 control={control}
                 render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
+                  <Field data-invalid={fieldState.invalid} className="gap-1">
+                    <FieldLabel>Leave Type</FieldLabel>
                     <CustomSelect
                       value={field.value}
                       onValueChange={field.onChange}
                       data={leaveTypes.rows}
                       label="Leaves"
                       placeholder="Select a leave"
+                      className={
+                        fieldState.invalid
+                          ? "border-destructive ring-destructive focus-visible:ring-destructive text-destructive"
+                          : ""
+                      }
                     />
+                    {fieldState.invalid && (
+                      <FieldError
+                        errors={[fieldState.error]}
+                        className="text-xs"
+                      />
+                    )}
                   </Field>
                 )}
               />
@@ -185,29 +213,11 @@ export function LeaveRequestModal({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="grid gap-3">
                 <Controller
-                  name="range"
-                  control={control}
-                  render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                      <CustomSelect
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        data={LeaveRange}
-                        isEnum={true}
-                        label="Range"
-                        placeholder="Select a leave range"
-                      />
-                    </Field>
-                  )}
-                />
-              </div>
-
-              <div className="grid gap-3">
-                <Controller
                   name="type"
                   control={control}
                   render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
+                    <Field data-invalid={fieldState.invalid} className="gap-1">
+                      <FieldLabel>Type</FieldLabel>
                       <CustomSelect
                         value={field.value}
                         onValueChange={field.onChange}
@@ -215,7 +225,49 @@ export function LeaveRequestModal({
                         isEnum={true}
                         label="Type"
                         placeholder="Select a leave type"
+                        className={
+                          fieldState.invalid
+                            ? "border-destructive ring-destructive focus-visible:ring-destructive text-destructive"
+                            : ""
+                        }
                       />
+                      {fieldState.invalid && (
+                        <FieldError
+                          errors={[fieldState.error]}
+                          className="text-xs"
+                        />
+                      )}
+                    </Field>
+                  )}
+                />
+              </div>
+
+              <div className="grid gap-3">
+                <Controller
+                  name="range"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid} className="gap-1">
+                      <FieldLabel>Range</FieldLabel>
+                      <CustomSelect
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        data={LeaveRange}
+                        isEnum={true}
+                        label="Range"
+                        placeholder="Select a leave range"
+                        className={
+                          fieldState.invalid
+                            ? "border-destructive ring-destructive focus-visible:ring-destructive text-destructive"
+                            : ""
+                        }
+                      />
+                      {fieldState.invalid && (
+                        <FieldError
+                          errors={[fieldState.error]}
+                          className="text-xs"
+                        />
+                      )}
                     </Field>
                   )}
                 />
@@ -236,8 +288,17 @@ export function LeaveRequestModal({
                       values={field.value}
                       onValuesChange={field.onChange}
                     >
-                      <MultiSelectTrigger className="w-full">
-                        <MultiSelectValue placeholder="Select managers..." />
+                      <MultiSelectTrigger
+                        className={`w-full hover:bg-transparent ${
+                          fieldState.invalid
+                            ? "border-destructive ring-destructive focus-visible:ring-destructive text-destructive"
+                            : ""
+                        }`}
+                      >
+                        <MultiSelectValue
+                          overflowBehavior="cutoff"
+                          placeholder="Select managers..."
+                        />
                       </MultiSelectTrigger>
                       <MultiSelectContent
                         search={{
@@ -257,6 +318,12 @@ export function LeaveRequestModal({
                         </MultiSelectGroup>
                       </MultiSelectContent>
                     </MultiSelect>
+                    {fieldState.invalid && (
+                      <FieldError
+                        errors={[fieldState.error]}
+                        className="text-xs"
+                      />
+                    )}
                   </Field>
                 )}
               />
@@ -272,8 +339,18 @@ export function LeaveRequestModal({
                     <DateRangePicker
                       minDate={today}
                       setDateRange={field.onChange}
-                      {...field}
+                      className={
+                        fieldState.invalid
+                          ? "border-destructive ring-destructive focus-visible:ring-destructive text-destructive"
+                          : ""
+                      }
                     />
+                    {fieldState.invalid && (
+                      <FieldError
+                        errors={[fieldState.error]}
+                        className="text-xs"
+                      />
+                    )}
                   </Field>
                 )}
               />
@@ -318,7 +395,13 @@ export function LeaveRequestModal({
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
-            <Button type="submit">Request Leave</Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? (
+                <LoaderCircle className="animate-spin" />
+              ) : (
+                "Request Leave"
+              )}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

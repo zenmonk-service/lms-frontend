@@ -54,11 +54,15 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
           <SelectGroup>
             <SelectLabel className="text-xs">{label}</SelectLabel>
             {isEnum
-              ? Object.entries(data as EnumData).map(([key, val]) => (
-                  <SelectItem key={key} value={val}>
-                    {val}
-                  </SelectItem>
-                ))
+              ? Object.entries(data as EnumData).map(([key, val]) => {
+                  return (
+                    <SelectItem key={key} value={val}>
+                      {val
+                        .replace(/_/g, " ")
+                        .replace(/\b\w/g, (c) => c.toUpperCase())}
+                    </SelectItem>
+                  );
+                })
               : (data as Array<ArrayDataItem>).map((type) => (
                   <SelectItem key={type.uuid} value={type.uuid}>
                     {type.name}

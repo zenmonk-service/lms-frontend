@@ -11,6 +11,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 function formatDate(date: Date | undefined) {
   if (!date) {
@@ -35,15 +36,19 @@ function isValidDate(date: Date | undefined) {
 }
 
 interface DateRangePickerProps {
-  setDateRange?: React.Dispatch<React.SetStateAction<string[]>>;
-  setDate?: React.Dispatch<React.SetStateAction<string>>;
+  setDateRange?: React.Dispatch<
+    React.SetStateAction<{ start_date?: string; end_date?: string }>
+  >;
   minDate?: Date;
+  isDependant?: boolean;
+  className?: string;
 }
 
 export function DateRangePicker({
   setDateRange,
-  setDate,
   minDate,
+  isDependant = true,
+  className,
   ...props
 }: DateRangePickerProps) {
   const [openStart, setOpenStart] = React.useState(false);
@@ -57,20 +62,13 @@ export function DateRangePicker({
   const [endValue, setEndValue] = React.useState(formatDate(endDate));
 
   React.useEffect(() => {
-    if (startValue && endValue) {
-      if (setDate) {
-        setDate("");
-      }
-      if (setDateRange) {
-        setDateRange([startValue, endValue]);
-      }
-    } else if (startValue || endValue) {
-      const date = startValue || endValue;
-      if (setDate) {
-        setDate(date || "");
-      }
+    if (setDateRange) {
+      setDateRange({
+        start_date: startValue || undefined,
+        end_date: endValue || undefined,
+      });
     }
-  }, [startValue, endValue]);
+  }, [startValue, endValue, setDateRange]);
 
   return (
     <div className="flex gap-2">
@@ -80,7 +78,7 @@ export function DateRangePicker({
             id="start-date"
             value={startValue}
             placeholder="Start date"
-            className="bg-background pr-10"
+            className={cn("bg-background pr-10", className)}
             readOnly
             onChange={(e) => {
               const parsed = new Date(e.target.value);
@@ -105,8 +103,8 @@ export function DateRangePicker({
                 setStartValue("");
                 setStartDate(undefined);
                 setStartMonth(undefined);
-                if (setDateRange) setDateRange([]);
-                if (setDate) setDate("");
+                if (setDateRange)
+                  setDateRange({ start_date: undefined, end_date: undefined });
               }}
               className="absolute top-1/2 right-8 -translate-y-1/2 flex items-center justify-center p-1 text-muted-foreground cursor-pointer"
             >
@@ -154,8 +152,9 @@ export function DateRangePicker({
             id="end-date"
             value={endValue}
             placeholder="End date"
-            className="bg-background pr-10"
+            className={cn("bg-background pr-10", className)}
             readOnly
+            disabled={isDependant && !startDate}
             onChange={(e) => {
               const parsed = new Date(e.target.value);
               setEndValue(e.target.value);
@@ -179,8 +178,8 @@ export function DateRangePicker({
                 setEndValue("");
                 setEndDate(undefined);
                 setEndMonth(undefined);
-                if (setDateRange) setDateRange([]);
-                if (setDate) setDate("");
+                if (setDateRange)
+                  setDateRange({ start_date: undefined, end_date: undefined });
               }}
               className="absolute top-1/2 right-8 -translate-y-1/2 flex items-center justify-center p-1 text-muted-foreground cursor-pointer"
             >
@@ -188,7 +187,7 @@ export function DateRangePicker({
             </button>
           ) : null}
           <Popover open={openEnd} onOpenChange={setOpenEnd}>
-            <PopoverTrigger asChild>
+            <PopoverTrigger asChild disabled={isDependant && !startDate}>
               <Button
                 id="end-date-picker"
                 variant="ghost"
@@ -211,7 +210,11 @@ export function DateRangePicker({
                 month={endMonth}
                 onMonthChange={setEndMonth}
                 disabled={(date: Date) =>
-                  startDate ? date < startDate : false
+                  startDate
+                    ? date < startDate
+                    : minDate
+                    ? date < minDate
+                    : false
                 }
                 onSelect={(date) => {
                   setEndDate(date);

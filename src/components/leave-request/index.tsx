@@ -184,6 +184,7 @@ const LeaveRequest = () => {
           totalCount={userLeaveRequests.count || 0}
           pagination={pagination}
           onPaginationChange={handlePaginationChange}
+          noDataMessage="No leave request found."
         />
       </div>
     </div>

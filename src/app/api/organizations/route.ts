@@ -18,8 +18,8 @@ export const POST = async (request: Request) => {
     console.error("Login API error:", error.message || error);
 
     return NextResponse.json(
-      { error: error?.response.data.description || "Internal Server Error" },
-      { status: error.status || 500 }
+      { error: error?.response.data.description },
+      { status: error.status }
     );
   }
 };
@@ -44,8 +44,8 @@ export const GET = async (request: Request) => {
     console.error("Organizations API error:", error.message || error);
 
     return NextResponse.json(
-      { error: error?.response?.data?.description || "Internal Server Error" },
-      { status: error?.response?.status || 500 }
+      { error: error?.response?.data?.description },
+      { status: error?.response?.status }
     );
   }
 };

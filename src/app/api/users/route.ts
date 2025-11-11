@@ -16,8 +16,8 @@ export const POST = async (request: Request) => {
   } catch (error: any) {
     console.log("error: ", error);
     return NextResponse.json(
-      { error: error?.response.data.description || "Internal Server Error" },
-      { status: error.status || 500 }
+      { error: error?.response.data.description },
+      { status: error.status }
     );
   }
 };
@@ -35,8 +35,8 @@ export const GET = async (request: Request) => {
   } catch (error: any) {
     console.log("error: ", error);
     return NextResponse.json(
-      { error: error?.response.data.description || "Internal Server Error" },
-      { status: error.status || 500 }
+      { error: error?.response.data.description },
+      { status: error.status }
     );
   }
 };
@@ -57,8 +57,8 @@ export const PUT = async (request: Request) => {
   } catch (error: any) {
     console.log("error: ", error);
     return NextResponse.json(
-      { error: error?.response.data.description || "Internal Server Error" },
-      { status: error.status || 500 }
+      { error: error?.response.data.description },
+      { status: error.status }
     );
   }
 };

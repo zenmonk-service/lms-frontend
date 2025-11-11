@@ -9,8 +9,8 @@ export const POST = async (request: Request) => {
     return NextResponse.json(response.data);
   } catch (error :any) {
     return NextResponse.json(
-      { error: error?.response.data.description || "Internal Server Error" },
-      { status: error.status ||500 }
+      { error: error?.response.data.description },
+      { status: error.status }
     );
   }
 };

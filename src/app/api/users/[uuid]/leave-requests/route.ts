@@ -27,7 +27,7 @@ export async function GET(
     return NextResponse.json(response.data, { status: response.status });
   } catch (err: any) {
     const axiosResp = err?.response;
-    const status = axiosResp?.status ?? 500;
+    const status = axiosResp?.status;
     const data = axiosResp?.data ?? {
       message: err?.message ?? "Unknown error",
     };
@@ -65,8 +65,8 @@ export async function POST(
   } catch (error: any) {
     console.log("error: ", error);
     return NextResponse.json(
-      { error: error?.response.data.description || "Internal Server Error" },
-      { status: error.status || 500 }
+      { error: error?.response.data.description },
+      { status: error.status}
     );
   }
 }

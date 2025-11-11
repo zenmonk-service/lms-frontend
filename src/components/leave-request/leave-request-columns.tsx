@@ -68,21 +68,55 @@ export const useLeaveRequestColumns = (): ColumnDef<LeaveRequest>[] => {
     },
     {
       accessorKey: "type",
-      header: "Type",
+      header: () => {
+        return (
+          <div className="text-center">
+            <span>Type</span>
+          </div>
+        );
+      },
       cell: ({ row }) => {
-        return <Badge variant={"outline"}>{row.getValue("type")}</Badge>;
+        const type = row.getValue("type") as string;
+        return (
+          <div className="flex justify-center">
+            <Badge variant={"outline"}>
+              {type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
+            </Badge>
+          </div>
+        );
       },
     },
     {
       accessorKey: "range",
-      header: "Range",
+      header: () => {
+        return (
+          <div className="text-center">
+            <span>Range</span>
+          </div>
+        );
+      },
       cell: ({ row }) => {
-        return <Badge variant={"outline"}>{row.getValue("range")}</Badge>;
+        const range = row.getValue("range") as string;
+        return (
+          <div className="flex justify-center">
+            <Badge variant={"outline"}>
+              {range
+                .replace(/_/g, " ")
+                .replace(/\b\w/g, (c) => c.toUpperCase())}
+            </Badge>
+          </div>
+        );
       },
     },
     {
       accessorKey: "status",
-      header: "Status",
+      header: () => {
+        return (
+          <div className="text-center">
+            <span>Status</span>
+          </div>
+        );
+      },
       cell: ({ row }) => {
         const value = row.getValue("status") as LeaveRequestStatus;
         let variant:
@@ -104,10 +138,17 @@ export const useLeaveRequestColumns = (): ColumnDef<LeaveRequest>[] => {
           case LeaveRequestStatus.CANCELLED:
             variant = "destructive";
             break;
+          case LeaveRequestStatus.RECOMMENDED:
+            variant = "default";
+            break;
           default:
             variant = "outline";
         }
-        return <Badge variant={variant}>{value}</Badge>;
+        return (
+          <div className="flex justify-center">
+            <Badge variant={variant}>{value}</Badge>
+          </div>
+        );
       },
     },
     {

@@ -27,8 +27,8 @@ export async function GET(
   } catch (error: any) {
     console.error("Error fetching organizations:", error.message);
     return NextResponse.json(
-      { error: error?.response.data.description || "Internal Server Error" },
-      { status: error.status || 500 }
+      { error: error?.response.data.description },
+      { status: error.status }
     );
   }
 }

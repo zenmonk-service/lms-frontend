@@ -28,8 +28,8 @@ export async function PATCH(
   } catch (error: any) {
     console.log("error: ", error);
     return NextResponse.json(
-      { error: error?.response.data.description || "Internal Server Error" },
-      { status: error.status || 500 }
+      { error: error?.response.data.description },
+      { status: error.status }
     );
   }
 }

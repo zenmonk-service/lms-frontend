@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     return NextResponse.json(resp.data, { status: resp.status });
   } catch (err: any) {
     const axiosResp = err?.response;
-    const status = axiosResp?.status ?? 500;
+    const status = axiosResp?.status;
     const data = axiosResp?.data ?? { message: err?.message ?? "Unknown error" };
     return NextResponse.json(data, { status });
   }
@@ -45,7 +45,7 @@ export async function PUT(request: Request) {
     return NextResponse.json(resp.data, { status: resp.status });
   } catch (err: any) {
     const axiosResp = err?.response;
-    const status = axiosResp?.status ?? 500;
+    const status = axiosResp?.status;
     const data = axiosResp?.data ?? { message: err?.message ?? "Unknown error" };
     return NextResponse.json(data, { status });
   }
@@ -75,7 +75,7 @@ export async function GET(request: Request) {
     return NextResponse.json(resp.data, { status: resp.status });
   } catch (err: any) {
     const axiosResp = err?.response;
-    const status = axiosResp?.status ?? 500;
+    const status = axiosResp?.status;
     const data = axiosResp?.data ?? { message: err?.message ?? "Unknown error" };
     return NextResponse.json(data, { status });
   }

@@ -218,17 +218,12 @@ export default function LeaveTypeForm({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[650px] bg-gradient-to-br from-white to-orange-50 border-2 border-orange-200">
+      <DialogContent className="sm:max-w-[650px]">
         <form onSubmit={handleSubmit(onSubmit)}>
-          <DialogHeader className="space-y-4 pb-2">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl">
-                <Calendar className="w-6 h-6 text-white" />
-              </div>
-              <DialogTitle className="text-2xl font-bold">
-                {label === "create" ? "Create Leave Type" : "Edit Leave Type"}
-              </DialogTitle>
-            </div>
+          <DialogHeader>
+            <DialogTitle>
+              {label === "create" ? "Create Leave Type" : "Edit Leave Type"}
+            </DialogTitle>
             <DialogDescription>
               {label === "create"
                 ? "Configure a new leave type with custom rules and settings."
@@ -236,9 +231,9 @@ export default function LeaveTypeForm({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="grid gap-6 py-4 max-h-96 overflow-y-auto pr-2">
+          <div className="grid gap-4 overflow-y-auto max-h-96 no-scrollbar py-2">
             {/* Name */}
-            <div>
+            <div className="grid grid-cols-1 gap-1">
               <Label htmlFor="name">Leave Type Name *</Label>
               <Input {...register("name")} placeholder="Annual Leave" />
               {errors.name && (
@@ -247,7 +242,7 @@ export default function LeaveTypeForm({
             </div>
 
             {/* Code */}
-            <div>
+            <div className="grid grid-cols-1 gap-1">
               <Label htmlFor="code">Unique Code *</Label>
               <Input {...register("code")} placeholder="AL" />
               {errors.code && (
@@ -256,7 +251,7 @@ export default function LeaveTypeForm({
             </div>
 
             {/* Description */}
-            <div>
+            <div className="grid grid-cols-1 gap-1">
               <Label htmlFor="description">Description</Label>
               <Textarea
                 {...register("description")}
@@ -265,7 +260,7 @@ export default function LeaveTypeForm({
             </div>
 
             {/* Roles */}
-            <div>
+            <div className="grid grid-cols-1 gap-1">
               <div className="flex items-center justify-between">
                 <Label>Select Applicable Roles</Label>
                 <Button

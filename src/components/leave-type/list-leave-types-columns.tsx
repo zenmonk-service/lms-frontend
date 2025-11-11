@@ -26,7 +26,7 @@ import {
   deactivateLeaveTypeAction,
   getLeaveTypesAction,
 } from "@/features/leave-types/leave-types.action";
-import { getSession } from "next-auth/react";
+import { getSession } from "@/app/auth/get-auth.action";
 
 type Checked = DropdownMenuCheckboxItemProps["checked"];
 

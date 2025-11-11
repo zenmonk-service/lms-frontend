@@ -31,7 +31,6 @@ import {
   createUserLeaveRequestsAction,
   getUserLeaveRequestsAction,
 } from "@/features/leave-requests/leave-requests.action";
-import { getSession } from "next-auth/react";
 import {
   LeaveRange,
   LeaveRequestType,
@@ -48,6 +47,7 @@ import {
 } from "@/components/ui/multi-select";
 import CustomSelect from "@/shared/select";
 import { LoaderCircle } from "lucide-react";
+import { getSession } from "@/app/auth/get-auth.action";
 
 interface LeaveRequestModalProps {
   open: boolean;

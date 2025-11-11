@@ -83,7 +83,9 @@ export default function ApproveLeaveRequests() {
       status: statusFilter || undefined,
       leave_type_uuid: leaveTypeFilter || undefined,
       date_range: date_range,
-      date: date_range ? undefined : (dateRangeFilter.start_date || dateRangeFilter.end_date) || undefined,
+      date: date_range
+        ? undefined
+        : dateRangeFilter.start_date || dateRangeFilter.end_date || undefined,
     };
 
     // console.log("Fetching leave requests with params:", params);
@@ -159,7 +161,7 @@ export default function ApproveLeaveRequests() {
   });
 
   return (
-    <div>
+    <div className="p-6">
       <div className="flex items-center justify-between mb-4 ">
         <div>
           <h2 className="text-lg font-semibold">Pending Leave Requests</h2>
@@ -170,7 +172,7 @@ export default function ApproveLeaveRequests() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-2 mb-4">
+      <div className="flex flex-wrap gap-2">
         <div>
           <CustomSelect
             value={leaveTypeFilter}

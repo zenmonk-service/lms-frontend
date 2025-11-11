@@ -453,7 +453,11 @@ export function LeaveRequestModal({
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
-            <Button type="submit" disabled={isLoading}>
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="bg-gradient-to-r from-orange-500 to-amber-500 text-white"
+            >
               {isLoading ? (
                 <LoaderCircle className="animate-spin" />
               ) : (

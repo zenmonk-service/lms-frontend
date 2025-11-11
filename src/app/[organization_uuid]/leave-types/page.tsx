@@ -18,25 +18,32 @@ export default function LeaveTypes() {
   };
 
   return (
-    <>
-      <div className="pt-4 px-6">
-        <Button
-          className="bg-gradient-to-r from-orange-500 to-amber-500 text-white"
-          onClick={() => onOpenChange(true)}
-        >
-          <Plus className="w-5 h-5" /> Create Leave Type
-        </Button>
-        <LeaveTypeForm
-          label="create"
-          isOpen={isOpen}
-          onOpenChange={onOpenChange}
-          onClose={onClose}
-        />
+    <div className="p-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold">All Leave Types</h2>
+          <p className="text-sm text-muted-foreground">
+            List of configured leave types for the organization.
+          </p>
+        </div>
+        <div>
+          <Button
+            className="bg-gradient-to-r from-orange-500 to-amber-500 text-white"
+            size="sm"
+            onClick={() => onOpenChange(true)}
+          >
+            <Plus className="w-5 h-5" /> Create Leave Type
+          </Button>
+          <LeaveTypeForm
+            label="create"
+            isOpen={isOpen}
+            onOpenChange={onOpenChange}
+            onClose={onClose}
+          />
+        </div>
       </div>
 
-      <div className="p-6">
-        <ListLeaveTypes />
-      </div>
-    </>
+      <ListLeaveTypes />
+    </div>
   );
 }

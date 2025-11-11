@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Home, Users, Calendar, ClipboardList, Plane, ChevronDown } from "lucide-react";
+import { Home, Users, Calendar, ClipboardList, Plane, ChevronDown, BookCheck } from "lucide-react";
 
 import {
   Sidebar,
@@ -13,6 +13,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import Link from "next/link";
 
 export function AppSidebar({uuid} : {uuid :string}) {
 
@@ -40,6 +41,11 @@ export function AppSidebar({uuid} : {uuid :string}) {
         title: "My Leaves",
         url: `/${uuid}/my-leaves`,
         icon: Plane,
+      },
+      {
+        title: "Approvals",
+        url: `/${uuid}/approvals`,
+        icon: BookCheck,
       },
     ],
   },
@@ -75,10 +81,10 @@ function SidebarNestedItem({ item }: { item: any }) {
             {item.items.map((child: any) => (
               <SidebarMenuItem key={child.title}>
                 <SidebarMenuButton asChild>
-                  <a href={child.url}>
+                  <Link href={child.url}>
                     <child.icon className="w-4 h-4" />
                     <span>{child.title}</span>
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
@@ -91,10 +97,10 @@ function SidebarNestedItem({ item }: { item: any }) {
   return (
     <SidebarMenuItem>
       <SidebarMenuButton asChild>
-        <a href={item.url}>
+        <Link href={item.url}>
           <item.icon className="w-4 h-4" />
           <span>{item.title}</span>
-        </a>
+        </Link>
       </SidebarMenuButton>
     </SidebarMenuItem>
   );

@@ -44,7 +44,7 @@ const ReasonCell = ({ value }: { value?: string | null }) => {
       <HoverCardTrigger asChild>
         <Info className="cursor-pointer" height={18} width={18} />
       </HoverCardTrigger>
-      <HoverCardContent align="start" className="w-80">
+      <HoverCardContent align="start" className="w-full max-w-80">
         <div>
           <p className="text-sm break-words">{value}</p>
         </div>

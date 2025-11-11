@@ -81,7 +81,7 @@ export function DateRangePicker({
             id="start-date"
             value={startValue}
             placeholder="Start date"
-            className={cn("bg-background pr-10", className)}
+            className={cn("bg-background pr-10 shadow-sm", className)}
             readOnly
             onChange={(e) => {
               const parsed = new Date(e.target.value);
@@ -160,7 +160,7 @@ export function DateRangePicker({
             id="end-date"
             value={endValue}
             placeholder="End date"
-            className={cn("bg-background pr-10", className)}
+            className={cn("bg-background pr-10 shadow-sm", className)}
             readOnly
             disabled={isDependant && !startDate}
             onChange={(e) => {

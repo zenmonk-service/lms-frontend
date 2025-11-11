@@ -15,9 +15,10 @@ const MakeLeaveRequest = () => {
   }
 
   return (
-    <div className="pt-4 px-6">
+    <div>
       <Button
         className="bg-gradient-to-r from-orange-500 to-amber-500 text-white"
+        size="sm"
         onClick={() => onOpenChange(true)}
       >
         <Plus className="w-5 h-5" /> Request Leave

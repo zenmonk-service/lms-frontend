@@ -11,7 +11,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -21,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar, LoaderCircle } from "lucide-react";
+import { LoaderCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/store";
 
@@ -35,16 +34,43 @@ import {
   updateLeaveTypeAction,
 } from "@/features/leave-types/leave-types.action";
 
-const leaveTypeSchema = z.object({
-  name: z.string().min(2, "Leave Type name is required"),
-  code: z.string().min(1, "Code is required"),
-  description: z.string().optional(),
-  applicableRoles: z
-    .array(z.string())
-    .min(1, "At least one role must be selected"),
-  accrualFrequency: z.enum(["none", "monthly", "yearly"]),
-  leaveCount: z.number().min(0, "Leave count must be a positive number"),
-});
+import {
+  Field,
+  FieldLabel,
+  FieldDescription,
+  FieldError,
+} from "@/components/ui/field";
+
+const leaveTypeSchema = z
+  .object({
+    name: z.string().min(2, "Leave Type name is required"),
+    code: z.string().min(1, "Code is required"),
+    description: z.string().optional(),
+    applicableRoles: z
+      .array(z.string())
+      .min(1, "At least one role must be selected"),
+    accrualFrequency: z.enum(["none", "monthly", "yearly"]),
+    leaveCount: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.accrualFrequency === "none") return true;
+
+      if (
+        data.leaveCount === "" ||
+        data.leaveCount === undefined ||
+        data.leaveCount === null
+      ) {
+        return false;
+      }
+      const leaveCountNum = Number(data.leaveCount);
+      return !isNaN(leaveCountNum) && leaveCountNum > 0;
+    },
+    {
+      message: "Leave count must be set when accrual frequency is set.",
+      path: ["leaveCount"],
+    }
+  );
 
 type LeaveTypeFormData = z.infer<typeof leaveTypeSchema>;
 
@@ -79,6 +105,14 @@ export default function LeaveTypeForm({
     formState: { errors },
   } = useForm<LeaveTypeFormData>({
     resolver: zodResolver(leaveTypeSchema),
+    defaultValues: {
+      name: "",
+      code: "",
+      description: "",
+      applicableRoles: [],
+      accrualFrequency: "none",
+      leaveCount: "",
+    },
   });
 
   const organizationRoles = selector.roles || [];
@@ -95,7 +129,7 @@ export default function LeaveTypeForm({
         description: data.description || "",
         applicableRoles: data.applicableRoles || [],
         accrualFrequency: data.accrualFrequency || "none",
-        leaveCount: data.leaveCount ? Number(data.leaveCount) : 0,
+        leaveCount: data.leaveCount || "",
       });
 
       setSelectedRoles(data.applicableRoles);
@@ -106,7 +140,7 @@ export default function LeaveTypeForm({
         description: "",
         applicableRoles: [],
         accrualFrequency: "none",
-        leaveCount: 0,
+        leaveCount: "",
       });
       setSelectedRoles([]);
     }
@@ -114,7 +148,7 @@ export default function LeaveTypeForm({
 
   useEffect(() => {
     dispatch(getOrganizationRolesAction(currentOrgUUID));
-  }, [currentOrgUUID]);
+  }, [currentOrgUUID, dispatch]);
 
   function cleanObject<T extends Record<string, any>>(
     obj: T,
@@ -233,36 +267,50 @@ export default function LeaveTypeForm({
 
           <div className="grid gap-4 overflow-y-auto max-h-96 no-scrollbar py-2">
             {/* Name */}
-            <div className="grid grid-cols-1 gap-1">
-              <Label htmlFor="name">Leave Type Name *</Label>
-              <Input {...register("name")} placeholder="Annual Leave" />
+            <Field className="gap-1">
+              <FieldLabel htmlFor="name">Leave Type Name *</FieldLabel>
+              <Input
+                {...register("name")}
+                id="name"
+                placeholder="Annual Leave"
+                aria-invalid={!!errors.name}
+              />
               {errors.name && (
-                <p className="text-red-500 text-sm">{errors.name.message}</p>
+                <FieldError errors={[errors.name]} className="text-xs" />
               )}
-            </div>
+            </Field>
 
             {/* Code */}
-            <div className="grid grid-cols-1 gap-1">
-              <Label htmlFor="code">Unique Code *</Label>
-              <Input {...register("code")} placeholder="AL" />
+            <Field className="gap-1">
+              <FieldLabel htmlFor="code">Unique Code *</FieldLabel>
+              <Input
+                {...register("code")}
+                id="code"
+                placeholder="AL"
+                aria-invalid={!!errors.code}
+              />
               {errors.code && (
-                <p className="text-red-500 text-sm">{errors.code.message}</p>
+                <FieldError errors={[errors.code]} className="text-xs" />
               )}
-            </div>
+            </Field>
 
             {/* Description */}
-            <div className="grid grid-cols-1 gap-1">
-              <Label htmlFor="description">Description</Label>
+            <Field className="gap-1">
+              <FieldLabel htmlFor="description">Description</FieldLabel>
               <Textarea
                 {...register("description")}
+                id="description"
                 placeholder="Describe leave type..."
               />
-            </div>
+              <FieldDescription>
+                Optional: provide a short description for this leave type.
+              </FieldDescription>
+            </Field>
 
             {/* Roles */}
-            <div className="grid grid-cols-1 gap-1">
+            <Field className="gap-1">
               <div className="flex items-center justify-between">
-                <Label>Select Applicable Roles</Label>
+                <FieldLabel>Select Applicable Roles</FieldLabel>
                 <Button
                   size="sm"
                   variant="ghost"
@@ -296,58 +344,84 @@ export default function LeaveTypeForm({
                     </label>
                   </div>
                 ))}
-                {errors.applicableRoles && (
-                  <p className="text-red-500 text-sm col-span-2">
-                    {errors.applicableRoles.message}
-                  </p>
-                )}
               </div>
-            </div>
+
+              {errors.applicableRoles && (
+                <FieldError
+                  errors={[errors.applicableRoles]}
+                  className="text-xs"
+                />
+              )}
+            </Field>
 
             {/* Simplified Accrual */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-              <Controller
-                control={control}
-                name="accrualFrequency"
-                render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Accrual" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">No Accrual</SelectItem>
-                      <SelectItem value="monthly">Monthly</SelectItem>
-                      <SelectItem value="yearly">Yearly</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Field className="gap-1">
+                <Controller
+                  control={control}
+                  name="accrualFrequency"
+                  render={({ field }) => (
+                    <>
+                      <FieldLabel>Accrual</FieldLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Accrual" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">No Accrual</SelectItem>
+                          <SelectItem value="monthly">Monthly</SelectItem>
+                          <SelectItem value="yearly">Yearly</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </>
+                  )}
+                />
+              </Field>
 
-              <Input
-                {...register("leaveCount", {
-                  valueAsNumber: true,
-                  setValueAs: (v) => (v === "" ? 0 : Number(v)),
-                })}
-                type="number"
-                step="0.5"
-                min="0"
-                placeholder="Leave count (e.g. 2.5)"
-              />
-              {errors.leaveCount && (
-                <p className="text-red-500 text-sm">
-                  {errors.leaveCount.message}
-                </p>
-              )}
+              <Field className="gap-1">
+                <FieldLabel htmlFor="leaveCount">Leave count</FieldLabel>
+                <Input
+                  disabled={accrualFrequency === "none"}
+                  {...register("leaveCount")}
+                  id="leaveCount"
+                  type="number"
+                  step="0.5"
+                  min="0"
+                  placeholder="Leave count (e.g. 2.5)"
+                  aria-invalid={!!errors.leaveCount}
+                />
+                {errors.leaveCount && (
+                  <FieldError
+                    errors={[errors.leaveCount]}
+                    className="text-xs"
+                  />
+                )}
+              </Field>
 
               <div>
                 {/* Preview */}
                 {(accrualFrequency && accrualFrequency !== "none") ||
                 leaveCount ? (
-                  <div className="p-3 border border-orange-200 rounded">
-                    Preview: {leaveCount && `${leaveCount} days`}{" "}
-                    {accrualFrequency &&
-                      accrualFrequency !== "none" &&
-                      `accrued ${accrualFrequency}`}
+                  <div
+                    className="
+                 h-full 
+                p-2 text-sm 
+                rounded-md 
+                bg-accent 
+                text-accent-foreground 
+                border border-border 
+            "
+                  >
+                    <p className="font-semibold">Preview:</p>
+                    <p className="text-sm">
+                      {leaveCount && `${leaveCount} days`}{" "}
+                      {accrualFrequency &&
+                        accrualFrequency !== "none" &&
+                        `accrued ${accrualFrequency}`}
+                    </p>
                   </div>
                 ) : null}
               </div>
@@ -363,7 +437,7 @@ export default function LeaveTypeForm({
             <Button
               type="submit"
               disabled={isLoading}
-              className="cursor-pointer min-w-[150px]"
+              className="cursor-pointer bg-gradient-to-r from-orange-500 to-amber-500 text-white"
             >
               {isLoading ? (
                 <LoaderCircle className="animate-spin" />

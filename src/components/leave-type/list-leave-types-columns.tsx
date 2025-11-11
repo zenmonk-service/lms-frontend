@@ -43,7 +43,7 @@ export type LeaveTypes = {
   allow_negative_leaves: boolean;
   accrual: {
     period: string;
-    leave_count: number;
+    leave_count: string;
     applicable_on: string;
   };
   is_active: boolean;
@@ -57,7 +57,7 @@ const DescriptionCell = ({ value }: { value: string }) => (
     <HoverCardTrigger asChild>
       <Info className="cursor-pointer" height={20} width={20} />
     </HoverCardTrigger>
-    <HoverCardContent align="start" className="w-80">
+    <HoverCardContent align="start" className="w-full max-w-80">
       <div className="flex space-y-1">
         <p className="text-sm break-words">{value}</p>
       </div>
@@ -69,7 +69,6 @@ const renderApplicableFor = (
   applicableFor: LeaveTypes["applicable_for"],
   getRole: (roleUuid: string) => any
 ) => {
-  console.log('applicableFor: ', applicableFor);
   const roles = applicableFor.value.map((roleUuid) => getRole(roleUuid).name);
   return <span>{roles.join(", ")}</span>;
 };

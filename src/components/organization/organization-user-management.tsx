@@ -130,7 +130,7 @@ export default function ManageOrganizationsUser() {
 
   return (
     <div className="p-6 h-max-[calc(100vh-69px)]">
-      <div className="flex items-center justify-between mb-4 ">
+      <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">User Management</h2>
           <p className="text-sm text-muted-foreground">

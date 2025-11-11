@@ -36,7 +36,7 @@ const RemarkCell = ({ value }: { value: string }) => (
     <HoverCardTrigger asChild>
       <NotepadText className="cursor-pointer" height={20} width={20} />
     </HoverCardTrigger>
-    <HoverCardContent align="start" className="w-auto">
+    <HoverCardContent align="start" className="w-full max-w-80">
       <div className="flex space-y-1">
         <p className="text-sm break-words">{value}</p>
       </div>

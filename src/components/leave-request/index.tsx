@@ -64,12 +64,12 @@ const LeaveRequest = () => {
 
       const data = {
         leave_type_uuid: leaveTypeFilter || undefined,
-        manager_uuid: managerFilter || undefined,
+        managers: managerFilter || undefined,
         status: statusFilter || undefined,
         date_range: date_range,
         date: date_range
           ? undefined
-          : dateRangeFilter.start_date || dateRangeFilter.end_date,
+          : dateRangeFilter.start_date
       };
       console.log("Fetching leaves with data:", data);
       if (session)

@@ -9,8 +9,13 @@ export async function GET(
   try {
     const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
     const url = new URL(request.url);
-    const params: Record<string, string> = {};
-    url.searchParams.forEach((v, k) => (params[k] = v));
+    const params: Record<string, string | string[]> = {};
+    const keys = new Set(Array.from(url.searchParams.keys()));
+
+    for (const k of keys) {
+      const all = url.searchParams.getAll(k);
+      params[k] = all.length > 1 ? all : all[0];
+    }
 
     const org_uuid = request.headers.get("org_uuid") ?? undefined;
     const authorization = request.headers.get("authorization") ?? undefined;
@@ -66,7 +71,7 @@ export async function POST(
     console.log("error: ", error);
     return NextResponse.json(
       { error: error?.response.data.description },
-      { status: error.status}
+      { status: error.status }
     );
   }
 }

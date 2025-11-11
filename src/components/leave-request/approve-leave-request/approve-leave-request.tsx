@@ -68,7 +68,6 @@ export default function ApproveLeaveRequests() {
   useEffect(() => {
     if (!currentOrgUUID || !session?.user?.uuid) return;
 
-    // prepare date_range param same as other component
     let date_range = undefined;
     if (dateRangeFilter.start_date && dateRangeFilter.end_date) {
       date_range = [dateRangeFilter.start_date, dateRangeFilter.end_date];
@@ -80,7 +79,7 @@ export default function ApproveLeaveRequests() {
       page: pagination.page,
       limit: pagination.limit,
       search: pagination.search,
-      status: statusFilter || undefined,
+      status: statusFilter || LeaveRequestStatus.PENDING,
       leave_type_uuid: leaveTypeFilter || undefined,
       date_range: date_range,
       date: date_range
@@ -88,7 +87,6 @@ export default function ApproveLeaveRequests() {
         : dateRangeFilter.start_date || dateRangeFilter.end_date || undefined,
     };
 
-    // console.log("Fetching leave requests with params:", params);
     dispatch(getLeaveRequestsAction(params));
   }, [
     dispatch,
@@ -211,7 +209,7 @@ export default function ApproveLeaveRequests() {
         totalCount={userLeaveRequests?.count ?? 0}
         pagination={pagination}
         onPaginationChange={handlePaginationChange}
-        searchPlaceholder="Filter leave requests..."
+        searchable={false}
         noDataMessage="No leave requests found."
       />
 

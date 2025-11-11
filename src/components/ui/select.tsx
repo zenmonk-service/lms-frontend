@@ -19,23 +19,41 @@ const SelectValue = SelectPrimitive.Value;
 const SelectTrigger = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger> & { onReset?: () => void }
->(({ className, children, onReset, ...props }, ref) => (
-  <div className={cn(
-          "relative z-0 flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
-          className
-      )}>
-  <SelectPrimitive.Trigger
-    ref={ref}
-    className={cn("w-full text-left pl-3 pr-10 py-2 data-[placeholder]:text-muted-foreground")}
-    {...props}
-  >
-    {children}
-  </SelectPrimitive.Trigger>
-  <SelectPrimitive.Icon asChild className={cn(`absolute right-2 cursor-pointer`, !props.value && "pointer-events-none")}>
-    {props.value ? <CircleXIcon className="h-4 w-4 opacity-50" onClick={onReset}/> :<CaretSortIcon className="h-4 w-4 opacity-50" />}
-  </SelectPrimitive.Icon>
-  </div>
-));
+>(({ className, children, onReset, ...props }, ref) => {
+  const isDisabled = !!(props as any).disabled;
+
+  return (
+    <div
+      className={cn(
+        "relative z-0 flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border bg-transparent py-2 text-sm shadow-sm ring-offset-background focus:outline-none [&>span]:line-clamp-1",
+        isDisabled ? "opacity-50 cursor-not-allowed text-muted-foreground" : "",
+        className
+      )}
+    >
+      <SelectPrimitive.Trigger
+        ref={ref}
+        className={cn("w-full text-left pl-3 pr-10 py-2 data-[placeholder]:text-muted-foreground")}
+        {...(props as any)}
+      >
+        {children}
+      </SelectPrimitive.Trigger>
+
+      <SelectPrimitive.Icon
+        asChild
+        className={cn(
+          `absolute right-2 cursor-pointer`,
+          !(props as any).value && "pointer-events-none"
+        )}
+      >
+        {(props as any).value ? (
+          <CircleXIcon className="h-4 w-4 opacity-50" onClick={onReset} />
+        ) : (
+          <CaretSortIcon className="h-4 w-4 opacity-50" />
+        )}
+      </SelectPrimitive.Icon>
+    </div>
+  );
+});
 SelectTrigger.displayName = SelectPrimitive.Trigger.displayName;
 
 const SelectScrollUpButton = React.forwardRef<

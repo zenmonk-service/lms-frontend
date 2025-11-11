@@ -22,6 +22,7 @@ interface ArrayDataItem {
 type DataType = EnumData | Array<ArrayDataItem>;
 
 interface CustomSelectProps {
+  ref?: React.Ref<any>;
   value: string;
   onValueChange: (value: string) => void;
   data: DataType;
@@ -32,6 +33,7 @@ interface CustomSelectProps {
 }
 
 const CustomSelect: React.FC<CustomSelectProps> = ({
+  ref,
   value,
   onValueChange,
   data,
@@ -44,6 +46,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
     <div>
       <Select value={value} onValueChange={(v) => onValueChange(v)}>
         <SelectTrigger
+          ref={ref}
           value={value}
           onReset={() => onValueChange("")}
           className={cn(className)}

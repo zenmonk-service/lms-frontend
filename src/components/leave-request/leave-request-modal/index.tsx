@@ -47,6 +47,15 @@ import {
 } from "@/components/ui/multi-select";
 import CustomSelect from "@/shared/select";
 import { LoaderCircle } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { getSession } from "@/app/auth/get-auth.action";
 
 interface LeaveRequestModalProps {
@@ -72,10 +81,8 @@ const leaveRequestSchema = z
       .string()
       .trim()
       .nonempty({ error: "Please select a leave." }),
-    range: z.enum(LeaveRange, { error: "Please select a valid leave range." }),
-    type: z.enum(LeaveRequestType, {
-      error: "Please select a valid leave type.",
-    }),
+    type: z.string().nonempty({ error: "Please select a leave type." }),
+    range: z.string().nonempty({ error: "Please select a leave range." }),
     managers: z
       .array(z.string())
       .min(1, "Atleast one manager needs to be selected."),
@@ -84,20 +91,24 @@ const leaveRequestSchema = z
       .trim()
       .min(10, "Reason must be at least 10 characters long")
       .max(500, "Reason must be at most 500 characters long"),
-    date_range: z.object({
-      start_date: z.string().nonempty({ error: "Start date is required." }),
-      end_date: z.string().optional(),
-    }),
+    date_range: z
+      .object({
+        start_date: z.string().nonempty("Start date is required."),
+        end_date: z.string().nonempty("End date is required."),
+      })
+      .refine((r) => !!(r && r.start_date && r.end_date), {
+        message: "Please select a date range.",
+      }),
   })
   .refine(
     (data) => {
-      const allowed = allowedRanges[data.type];
-      const isAllowed = allowed.includes(data.range);
-      return isAllowed;
+      const startDate = new Date(data.date_range.start_date);
+      const endDate = new Date(data.date_range.end_date);
+      return startDate <= endDate;
     },
     {
-      message: "Selected range is not valid for the chosen leave type.",
-      path: ["range"],
+      message: "End date must be after or equal to start date.",
+      path: ["date_range"],
     }
   );
 
@@ -116,11 +127,21 @@ export function LeaveRequestModal({
   const { isLoading } = useAppSelector((state) => state.leaveRequestSlice);
   const dispatch = useAppDispatch();
 
-  const { control, handleSubmit, reset } = useForm<LeaveRequestFormData>({
-    resolver: zodResolver(leaveRequestSchema),
-    defaultValues: { leave_type_uuid: "", reason: "", managers: [] },
-  });
+  const { control, handleSubmit, reset, setValue } =
+    useForm<LeaveRequestFormData>({
+      resolver: zodResolver(leaveRequestSchema),
+      defaultValues: {
+        leave_type_uuid: "",
+        reason: "",
+        managers: [],
+        date_range: { start_date: "", end_date: "" },
+        type: "",
+        range: "",
+      },
+    });
 
+  const [type, setType] = useState<LeaveRequestType | "">("");
+  const [range, setRange] = useState<LeaveRange | "">("");
   const [session, setSession] = useState<any>(null);
 
   async function getUserUuid() {
@@ -139,6 +160,14 @@ export function LeaveRequestModal({
       })
     );
   }, []);
+
+  useEffect(() => {
+    if (type === "") {
+      setRange("");
+    }
+    setValue("type", type as LeaveRequestType);
+    setValue("range", range as LeaveRange);
+  }, [type, range]);
 
   const today = useMemo(() => {
     const d = new Date();
@@ -188,6 +217,7 @@ export function LeaveRequestModal({
                   <Field data-invalid={fieldState.invalid} className="gap-1">
                     <FieldLabel>Leave Type</FieldLabel>
                     <CustomSelect
+                      ref={field.ref}
                       value={field.value}
                       onValueChange={field.onChange}
                       data={leaveTypes.rows}
@@ -219,12 +249,15 @@ export function LeaveRequestModal({
                     <Field data-invalid={fieldState.invalid} className="gap-1">
                       <FieldLabel>Type</FieldLabel>
                       <CustomSelect
-                        value={field.value}
-                        onValueChange={field.onChange}
+                        ref={field.ref}
+                        value={type}
+                        onValueChange={(val) =>
+                          setType(val as LeaveRequestType)
+                        }
                         data={LeaveRequestType}
                         isEnum={true}
-                        label="Type"
-                        placeholder="Select a leave type"
+                        label="Leave Type"
+                        placeholder="Select leave type"
                         className={
                           fieldState.invalid
                             ? "border-destructive ring-destructive focus-visible:ring-destructive text-destructive"
@@ -249,19 +282,42 @@ export function LeaveRequestModal({
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid} className="gap-1">
                       <FieldLabel>Range</FieldLabel>
-                      <CustomSelect
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        data={LeaveRange}
-                        isEnum={true}
-                        label="Range"
-                        placeholder="Select a leave range"
-                        className={
-                          fieldState.invalid
-                            ? "border-destructive ring-destructive focus-visible:ring-destructive text-destructive"
-                            : ""
-                        }
-                      />
+                      <Select
+                        value={range}
+                        onValueChange={(val) => setRange(val as LeaveRange)}
+                      >
+                        <SelectTrigger
+                          ref={field.ref}
+                          disabled={type === ""}
+                          value={range}
+                          onReset={() => setRange("")}
+                          className={
+                            fieldState.invalid
+                              ? "border-destructive ring-destructive focus-visible:ring-destructive text-destructive"
+                              : ""
+                          }
+                        >
+                          <SelectValue placeholder={"Select leave range"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel className="text-xs">
+                              Leave Range
+                            </SelectLabel>
+                            {(
+                              allowedRanges[type as LeaveRequestType] ?? []
+                            ).map((val, index) => {
+                              return (
+                                <SelectItem key={index} value={val}>
+                                  {val
+                                    .replace(/_/g, " ")
+                                    .replace(/\b\w/g, (c) => c.toUpperCase())}
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
                       {fieldState.invalid && (
                         <FieldError
                           errors={[fieldState.error]}
@@ -289,6 +345,7 @@ export function LeaveRequestModal({
                       onValuesChange={field.onChange}
                     >
                       <MultiSelectTrigger
+                        ref={field.ref}
                         className={`w-full hover:bg-transparent ${
                           fieldState.invalid
                             ? "border-destructive ring-destructive focus-visible:ring-destructive text-destructive"
@@ -337,6 +394,7 @@ export function LeaveRequestModal({
                   <Field data-invalid={fieldState.invalid} className="gap-1">
                     <FieldLabel>Date Range</FieldLabel>
                     <DateRangePicker
+                      ref={field.ref}
                       minDate={today}
                       setDateRange={field.onChange}
                       className={

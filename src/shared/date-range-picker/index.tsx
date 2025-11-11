@@ -36,6 +36,7 @@ function isValidDate(date: Date | undefined) {
 }
 
 interface DateRangePickerProps {
+  ref?: React.Ref<any>;
   setDateRange?: React.Dispatch<
     React.SetStateAction<{ start_date?: string; end_date?: string }>
   >;
@@ -45,6 +46,7 @@ interface DateRangePickerProps {
 }
 
 export function DateRangePicker({
+  ref,
   setDateRange,
   minDate,
   isDependant = true,
@@ -64,8 +66,8 @@ export function DateRangePicker({
   React.useEffect(() => {
     if (setDateRange) {
       setDateRange({
-        start_date: startValue || undefined,
-        end_date: endValue || undefined,
+        start_date: startValue ?? "",
+        end_date: endValue ?? "",
       });
     }
   }, [startValue, endValue, setDateRange]);
@@ -75,6 +77,7 @@ export function DateRangePicker({
       <div className="flex flex-col gap-3">
         <div className="relative flex gap-2">
           <Input
+            ref={ref}
             id="start-date"
             value={startValue}
             placeholder="Start date"
@@ -105,6 +108,11 @@ export function DateRangePicker({
                 setStartMonth(undefined);
                 if (setDateRange)
                   setDateRange({ start_date: undefined, end_date: undefined });
+                if(isDependant && endDate) {
+                  setEndDate(undefined);
+                  setEndValue("");
+                  setEndMonth(undefined);
+                }
               }}
               className="absolute top-1/2 right-8 -translate-y-1/2 flex items-center justify-center p-1 text-muted-foreground cursor-pointer"
             >

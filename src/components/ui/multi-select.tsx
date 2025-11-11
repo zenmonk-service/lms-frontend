@@ -17,8 +17,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import {
+import React, {
   createContext,
+  forwardRef,
   useCallback,
   useContext,
   useEffect,
@@ -97,19 +98,21 @@ export function MultiSelect({
   )
 }
 
-export function MultiSelectTrigger({
+export const MultiSelectTrigger = forwardRef<
+HTMLButtonElement,{
+  className?: string
+  children?: ReactNode
+} & ComponentPropsWithoutRef<typeof Button>>(({
   className,
   children,
   ...props
-}: {
-  className?: string
-  children?: ReactNode
-} & ComponentPropsWithoutRef<typeof Button>) {
+}, ref) => {
   const { open } = useMultiSelectContext()
 
   return (
     <PopoverTrigger asChild>
       <Button
+        ref={ref}
         {...props}
         variant={props.variant ?? "outline"}
         role={props.role ?? "combobox"}
@@ -124,7 +127,9 @@ export function MultiSelectTrigger({
       </Button>
     </PopoverTrigger>
   )
-}
+});
+
+MultiSelectTrigger.displayName = "MultiSelectTrigger";
 
 export function MultiSelectValue({
   placeholder,

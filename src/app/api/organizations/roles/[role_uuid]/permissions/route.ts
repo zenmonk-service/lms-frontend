@@ -1,19 +1,27 @@
 import axios from "axios";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export const GET = async (
-  request: Request,
-  { params }: { params: { role_uuid: string } }
+  request: NextRequest,
+  context: { params: Promise<{ role_uuid: string }> }
 ) => {
-  const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-  const org_uuid = request.headers.get("org_uuid");
-  const { role_uuid } = params;
+  try {
+    const { role_uuid } = await context.params;
+    const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+    const org_uuid = request.headers.get("org_uuid") ?? undefined;
 
-  const response = await axios.get(`${BASE_URL}/roles/${role_uuid}`, {
-    headers: {
-      org_uuid: org_uuid,
-    },
-  });
+    const response = await axios.get(`${BASE_URL}/roles/${role_uuid}`, {
+      headers: {
+        ...(org_uuid ? { org_uuid } : {}),
+      },
+    });
 
-  return NextResponse.json(response.data);
+    return NextResponse.json(response.data, { status: response.status });
+  } catch (err: any) {
+    // mirror axios error shape safely
+    const axiosResp = err?.response;
+    const status = axiosResp?.status ?? 500;
+    const data = axiosResp?.data ?? { message: err?.message ?? "Unknown error" };
+    return NextResponse.json(data, { status });
+  }
 };

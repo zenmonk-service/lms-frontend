@@ -10,22 +10,10 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 
 import { ColumnDef } from "@tanstack/react-table";
 import { useAppDispatch, useAppSelector } from "@/store";
@@ -33,8 +21,7 @@ import { listUserAction } from "@/features/user/user.action";
 import { setPagination, UserInterface } from "@/features/user/user.slice";
 import { format } from "date-fns";
 import CreateUser from "@/components/user/create-user";
-import { Switch } from "@/components/ui/switch";
-import DataTable, { PaginationState } from "../table";
+import DataTable, { PaginationState } from "@/shared/table";
 import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
 type Checked = DropdownMenuCheckboxItemProps["checked"];
 export default function ManageOrganizationsUser() {
@@ -128,7 +115,6 @@ export default function ManageOrganizationsUser() {
     dispatch(setPagination({ ...pagination, ...newPagination }));
   };
 
-
   React.useEffect(() => {
     dispatch(
       listUserAction({
@@ -144,6 +130,14 @@ export default function ManageOrganizationsUser() {
 
   return (
     <div className="p-6 h-max-[calc(100vh-69px)]">
+      <div className="flex items-center justify-between mb-4 ">
+        <div>
+          <h2 className="text-lg font-semibold">User Management</h2>
+          <p className="text-sm text-muted-foreground">
+            List of users in the organization.
+          </p>
+        </div>
+      </div>
       <DataTable
         data={users || []}
         columns={columns}
@@ -152,8 +146,6 @@ export default function ManageOrganizationsUser() {
         pagination={pagination}
         onPaginationChange={handlePaginationChange}
         searchPlaceholder="Filter organization users..."
-        title="User Management"
-        description="List of users in the organization."
         noDataMessage="No users found."
       />
     </div>

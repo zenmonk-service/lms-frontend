@@ -8,14 +8,13 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../ui/table";
+} from "@/components/ui/table";
 import {
   flexRender,
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 import { LoaderCircle } from "lucide-react";
-import { Input } from "../ui/input";
 import {
   Select,
   SelectContent,
@@ -24,7 +23,8 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
 export interface PaginationState {
   page: number;
@@ -41,8 +41,6 @@ interface DataTableProps {
   pagination: PaginationState;
   onPaginationChange: (newPagination: Partial<PaginationState>) => void;
   searchPlaceholder?: string;
-  title?: string;
-  description?: string;
   noDataMessage?: string;
 }
 
@@ -55,9 +53,7 @@ export default function DataTable({
   pagination,
   onPaginationChange,
   searchPlaceholder = "Search...",
-  title = "Data Table",
-  description = "List of items",
-  noDataMessage = "No data found.",
+  noDataMessage = "No data available.",
 }: DataTableProps) {
   const table = useReactTable({
     data,
@@ -66,7 +62,7 @@ export default function DataTable({
   });
 
   const handleSearchChange = (value: string) => {
-    if(value?.trim() === pagination.search) return;
+    if (value?.trim() === pagination.search) return;
     onPaginationChange({ search: value, page: 1 });
   };
 
@@ -82,8 +78,6 @@ export default function DataTable({
     <div className="h-[calc(100vh-120px)]">
       <div className="flex items-center justify-between mb-4 ">
         <div>
-          <h2 className="text-lg font-semibold">{title}</h2>
-          <p className="text-sm text-muted-foreground">{description}</p>
           {searchable && (
             <Input
               placeholder={searchPlaceholder}

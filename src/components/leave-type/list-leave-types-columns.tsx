@@ -69,6 +69,7 @@ const renderApplicableFor = (
   applicableFor: LeaveTypes["applicable_for"],
   getRole: (roleUuid: string) => any
 ) => {
+  console.log('applicableFor: ', applicableFor);
   const roles = applicableFor.value.map((roleUuid) => getRole(roleUuid).name);
   return <span>{roles.join(", ")}</span>;
 };

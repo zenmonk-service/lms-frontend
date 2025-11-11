@@ -37,3 +37,64 @@ export const createUserLeaveRequests = (
   });
 };
 
+export const approveLeaveRequest = (
+  org_uuid: string,
+  leaveRequestUuid: string,
+  managerUuid: string,
+  remark?: string
+) => {
+  return axiosInterceptorInstance.patch(
+    `/organizations/leave-requests/${leaveRequestUuid}/approve`,
+    {
+      manager_uuid: managerUuid,
+      remark,
+    },
+    {
+      headers: {
+        org_uuid,
+      },
+    }
+  );
+};
+
+export const recommendLeaveRequest = (
+  org_uuid: string,
+  leaveRequestUuid: string,
+  managerUuid: string,
+  remark?: string
+) => {
+  return axiosInterceptorInstance.patch(
+    `/organizations/leave-requests/${leaveRequestUuid}/recommend`,
+    {
+      manager_uuid: managerUuid,
+      remark,
+    },
+    {
+      headers: {
+        org_uuid,
+      },
+    }
+  );
+};
+
+export const rejectLeaveRequest = (
+  org_uuid: string,
+  leaveRequestUuid: string,
+  managerUuid: string,
+  remark?: string
+) => {
+  return axiosInterceptorInstance.patch(
+    `/organizations/leave-requests/${leaveRequestUuid}/reject`,
+    {
+      manager_uuid: managerUuid,
+      remark,
+    },
+    {
+      headers: {
+        org_uuid,
+      },
+    }
+  );
+};
+
+

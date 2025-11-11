@@ -105,7 +105,7 @@ export const useLeaveRequestColumns = (): ColumnDef<LeaveRequest>[] => {
             variant = "destructive";
             break;
           default:
-            variant = "default";
+            variant = "outline";
         }
         return <Badge variant={variant}>{value}</Badge>;
       },

@@ -1,7 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { listUserAction, updateUserAction } from "./user.action";
-import { Search } from "lucide-react";
-import { is } from "date-fns/locale";
 
 export interface SignInInterface {
   email: string;

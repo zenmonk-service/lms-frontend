@@ -147,8 +147,8 @@ export default function LeaveTypeForm({
   }, [data, isOpen, reset, organizationRoles]);
 
   useEffect(() => {
-    dispatch(getOrganizationRolesAction(currentOrgUUID));
-  }, [currentOrgUUID, dispatch]);
+    dispatch(getOrganizationRolesAction({ org_uuid: currentOrgUUID }));
+  }, [currentOrgUUID]);
 
   function cleanObject<T extends Record<string, any>>(
     obj: T,

@@ -70,7 +70,6 @@ export default function OrganizationCard({
             <Users className="mr-2 h-4 w-4" /> Manage Organization
           </Button>
         </div>
-        <CreateUser org_uuid={org.uuid} />
       </CardContent>
     </Card>
   );

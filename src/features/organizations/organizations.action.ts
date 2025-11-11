@@ -19,8 +19,7 @@ import { OrganizationFetchPayload } from "./organizations.type";
 // Get all organizations
 export const getOrganizationsAction = createAsyncThunk(
   "user/organizations/getAll",
-  async (payload : OrganizationFetchPayload, thunkAPI) => {
-
+  async (payload: OrganizationFetchPayload, thunkAPI) => {
     try {
       const response = await getOrganizations(payload);
       return response.data;
@@ -31,10 +30,9 @@ export const getOrganizationsAction = createAsyncThunk(
   }
 );
 
-
 export const getAllOrganizationsAction = createAsyncThunk(
   "organizations/getAll",
-  async (payload : OrganizationFetchPayload, thunkAPI) => {
+  async (payload: OrganizationFetchPayload, thunkAPI) => {
     try {
       const response = await getAllOrganizations(payload);
       return response.data;
@@ -175,4 +173,3 @@ export const deleteUserAction = createAsyncThunk(
     }
   }
 );
-

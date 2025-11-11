@@ -137,6 +137,9 @@ export default function ManageOrganizationsUser() {
             List of users in the organization.
           </p>
         </div>
+        <div>
+          <CreateUser org_uuid={currentOrgUUID} isEdited={false} />
+        </div>
       </div>
       <DataTable
         data={users || []}

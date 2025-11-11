@@ -2,13 +2,14 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { AxiosError } from "axios";
 import { getOrganizationRoles } from "./role.service";
+import { listRolePayload } from "./role.type";
 
 
 export const getOrganizationRolesAction = createAsyncThunk(
   "roles/get",
-  async (org_uuid: string, thunkAPI ) => {
+  async (payload: listRolePayload , thunkAPI ) => {
     try {
-      const response = await getOrganizationRoles(org_uuid);
+      const response = await getOrganizationRoles(payload);
       return response.data;
 
     } catch (err) {

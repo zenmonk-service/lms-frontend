@@ -20,7 +20,7 @@ export interface UserInterface {
   created_at: string;
 }
 
-interface PaginationState {
+export interface PaginationState {
   page: number;
   limit: number;
   search: string;

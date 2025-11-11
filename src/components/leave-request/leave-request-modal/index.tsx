@@ -57,6 +57,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { getSession } from "@/app/auth/get-auth.action";
+import { UserInterface } from "@/features/user/user.slice";
 
 interface LeaveRequestModalProps {
   open: boolean;
@@ -152,7 +153,7 @@ export function LeaveRequestModal({
   useEffect(() => {
     getUserUuid();
     dispatch(getLeaveTypesAction({ org_uuid: currentOrganizationUuid }));
-    dispatch(getOrganizationRolesAction(currentOrganizationUuid));
+    dispatch(getOrganizationRolesAction({ org_uuid: currentOrganizationUuid }));
     dispatch(
       listUserAction({
         pagination: { page: 1, limit: 10 },
@@ -364,7 +365,7 @@ export function LeaveRequestModal({
                         }}
                       >
                         <MultiSelectGroup>
-                          {users.map((manager) => (
+                          {users.map((manager: UserInterface) => (
                             <MultiSelectItem
                               value={manager.user_id}
                               key={manager.user_id}

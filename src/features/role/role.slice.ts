@@ -1,7 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { getOrganizationRolesAction } from "./role.action";
+import { PaginationState } from "../user/user.slice";
 
-interface Role {
+export interface Role {
   uuid: string;
   name: string;
   description: string;
@@ -13,18 +14,32 @@ interface RoleState {
   isLoading: boolean;
   error: string | null;
   roles: Role[];
+  total: number;
+  currentPage: number;
+  pagination: PaginationState;
 }
 
 const initialState: RoleState = {
   isLoading: false,
   error: null,
   roles: [],
+  total: 0,
+  currentPage: 1,
+  pagination: {
+    page: 1,
+    limit: 10,
+    search: "",
+  },
 };
 
 export const roleSlice = createSlice({
   name: "role",
   initialState,
-  reducers: {},
+  reducers: {
+    setPagination: (state, action) => {
+      state.pagination = action.payload || initialState.pagination;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(getOrganizationRolesAction.pending, (state) => {
@@ -33,7 +48,9 @@ export const roleSlice = createSlice({
       })
       .addCase(getOrganizationRolesAction.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.roles = action.payload || [];
+        state.roles = action.payload.rows || [];
+        state.total = action.payload.count || 0;
+        state.currentPage = action.payload.currentPage || 0;
       })
       .addCase(getOrganizationRolesAction.rejected, (state, action: any) => {
         state.isLoading = false;
@@ -44,4 +61,4 @@ export const roleSlice = createSlice({
 });
 
 export const rolesReducer = roleSlice.reducer;
-export const {} = roleSlice.actions;
+export const { setPagination } = roleSlice.actions;

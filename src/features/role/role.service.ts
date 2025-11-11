@@ -1,9 +1,15 @@
 import axiosInterceptorInstance from "@/config/axios";
+import { listRolePayload } from "./role.type";
 
-export const getOrganizationRoles = (org_uuid: string) => {
-  return axiosInterceptorInstance.get(`/organizations/roles` ,  {
+export const getOrganizationRoles = (payload: listRolePayload) => {
+  return axiosInterceptorInstance.get(`/organizations/roles`, {
     headers: {
-      org_uuid: org_uuid,
-    }
-   })
+      org_uuid: payload.org_uuid,
+    },
+    params: {
+      page: payload?.pagination?.page,
+      limit: payload?.pagination?.limit,
+      search: payload?.pagination?.search,
+    },
+  });
 };

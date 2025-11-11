@@ -69,8 +69,9 @@ const renderApplicableFor = (
   applicableFor: LeaveTypes["applicable_for"],
   getRole: (roleUuid: string) => any
 ) => {
-  const roles = applicableFor.value.map((roleUuid) => getRole(roleUuid).name);
-  return <span>{roles.join(", ")}</span>;
+  console.log('applicableFor: ', applicableFor);
+  const roles = applicableFor.value.map((roleUuid) => getRole(roleUuid)?.name);
+  return <span>{roles?.join(", ")}</span>;
 };
 
 export const useLeaveTypesColumns = (

@@ -16,6 +16,8 @@ import {
 } from "redux-persist";
 import persistReducer from "redux-persist/es/persistReducer";
 import createWebStorage from "redux-persist/es/storage/createWebStorage";
+import { permission } from "process";
+import { permissionsReducer } from "@/features/permissions/permission.slice";
 
 const storage = createWebStorage("local");
 
@@ -41,6 +43,7 @@ const combinedReducer = combineSlices({
   userSlice: persistReducer(userPersistConfig, userReducer),
   organizationsSlice: organizationsReducer,
   rolesSlice: rolesReducer,
+  permissionSlice: permissionsReducer,
   leaveTypeSlice: leaveTypeReducer,
   leaveRequestSlice: leaveRequestReducer,
 });

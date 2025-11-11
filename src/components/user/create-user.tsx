@@ -99,7 +99,7 @@ export default function CreateUser({
   };
 
   useEffect(() => {
-    dispatch(getOrganizationRolesAction(org_uuid));
+    dispatch(getOrganizationRolesAction({org_uuid: org_uuid}));
   }, []);
 
   const isValidEmail = (email: string) => {

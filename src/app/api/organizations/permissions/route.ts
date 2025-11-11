@@ -10,7 +10,7 @@ export const GET = async (request: Request) => {
   const limit = searchParams.get("limit");
   const search = searchParams.get("search");
 
-  const response = await axios.get(`${BASE_URL}/roles`, {
+  const response = await axios.get(`${BASE_URL}/permissions`, {
     headers: {
       org_uuid: org_uuid,
     },

@@ -1,7 +1,11 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { AxiosError } from "axios";
 import { listPermissionPayload, listRolePermission } from "./permission.type";
-import { listOrganizationPermissions, listRolePermissions } from "./permission.service";
+import {
+  listOrganizationPermissions,
+  listRolePermissions,
+} from "./permission.service";
+import { toast } from "sonner";
 
 export const listOrganizationPermissionsAction = createAsyncThunk(
   "permissions/list",
@@ -10,12 +14,12 @@ export const listOrganizationPermissionsAction = createAsyncThunk(
       const response = await listOrganizationPermissions(payload);
       return response.data;
     } catch (err) {
+      toast.error("Something went wrong.");
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error?.response?.data);
     }
   }
 );
-
 
 export const listRolePermissionsAction = createAsyncThunk(
   "/role-permissions/list",
@@ -24,6 +28,7 @@ export const listRolePermissionsAction = createAsyncThunk(
       const response = await listRolePermissions(payload);
       return response.data;
     } catch (err) {
+      toast.error("Something went wrong.");
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error?.response?.data);
     }

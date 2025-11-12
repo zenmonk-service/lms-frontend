@@ -82,7 +82,7 @@ export default function DataTable({
             <Input
               placeholder={searchPlaceholder}
               onChange={(event) => handleSearchChange(event.target.value)}
-              className="max-w-sm mt-4"
+              className="max-w-sm mt-4 shadow-sm"
             />
           )}
         </div>

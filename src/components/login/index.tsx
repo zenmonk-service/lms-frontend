@@ -16,6 +16,7 @@ import { LoginCredentials, User } from "@/types/user";
 import { authenticate } from "@/app/auth/authenticate.action";
 import { signIn } from "@/features/user/user.service";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function LoginPage() {
   const [credentials, setCredentials] = useState<LoginCredentials>({
@@ -24,7 +25,6 @@ export default function LoginPage() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   const router = useRouter();
   const handleChange = (field: keyof LoginCredentials, value: string) => {
@@ -39,7 +39,6 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
 
     try {
       const user: any = await signIn(credentials);
@@ -55,9 +54,7 @@ export default function LoginPage() {
         router.push("/select-organization");
       }
     } catch (err: any) {
-      setError(
-        err.response.data.error || "Something went wrong. Please try again."
-      );
+      toast.error("Something went wrong.");
     } finally {
       setLoading(false);
     }
@@ -150,12 +147,6 @@ export default function LoginPage() {
                 </button>
               </div>
             </div>
-
-            {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600 animate-in fade-in">
-                {error}
-              </div>
-            )}
 
             <Button
               type="submit"

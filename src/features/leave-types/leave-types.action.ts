@@ -1,6 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { activateLeaveType, createLeaveType, deactivateLeaveType, getLeaveTypes, updateLeaveType } from "./leave-types.service";
 import { AxiosError } from "axios";
+import { toast } from "sonner";
 
 export const getLeaveTypesAction = createAsyncThunk(
   "organizations/getLeaveTypes",
@@ -18,6 +19,7 @@ export const getLeaveTypesAction = createAsyncThunk(
       const response = await getLeaveTypes(org_uuid, { page, limit, search });
       return response.data;
     } catch (err) {
+      toast.error("Something went wrong.")
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(
         error.response?.data ?? { message: error.message }
@@ -33,6 +35,7 @@ export const createLeaveTypeAction = createAsyncThunk(
       const response = await createLeaveType(data, data.org_uuid);
       return response.data;
     } catch (err) {
+      toast.error("Something went wrong.")
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error.response?.data);
     }
@@ -46,6 +49,7 @@ export const updateLeaveTypeAction = createAsyncThunk(
       const response = await updateLeaveType(data, data.org_uuid);
       return response.data;
     } catch (err) {
+      toast.error("Something went wrong.")
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error.response?.data);
     }
@@ -60,6 +64,7 @@ export const activateLeaveTypeAction = createAsyncThunk(
       const response = await activateLeaveType(data.org_uuid, data.leave_type_uuid);
       return response.data;
     } catch (err) {
+      toast.error("Something went wrong.")
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error.response?.data);
     }
@@ -73,6 +78,7 @@ export const deactivateLeaveTypeAction = createAsyncThunk(
       const response = await deactivateLeaveType(data.org_uuid, data.leave_type_uuid);
       return response.data;
     } catch (err) {
+      toast.error("Something went wrong.")
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error.response?.data);
     }

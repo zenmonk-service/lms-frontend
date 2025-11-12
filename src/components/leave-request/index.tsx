@@ -24,6 +24,7 @@ import {
 } from "../ui/multi-select";
 import { LeaveRequestModal } from "./leave-request-modal";
 import { ConfirmationDialog } from "@/shared/confirmation-dialog";
+import { type LeaveRequest } from "./approve-leave-request/approve-leave-request-columns";
 
 const LeaveRequest = () => {
   const [session, setSession] = useState<any>(null);
@@ -40,7 +41,7 @@ const LeaveRequest = () => {
     end_date: undefined,
   });
 
-  const [data, setData] = useState();
+  const [data, setData] = useState<LeaveRequest>();
   const [modalOpen, setModalOpen] = useState(false);
   const [confirmationOpen, setConfirmationOpen] = useState(false);
   const [selectedLeaveRequestUuid, setSelectedLeaveRequestUuid] = useState<

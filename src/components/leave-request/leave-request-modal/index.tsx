@@ -229,6 +229,8 @@ export function LeaveRequestModal({
         })
       );
       reset();
+      setRange("");
+      setType("");
       onClose();
     }
   };
@@ -258,6 +260,36 @@ export function LeaveRequestModal({
                       data={leaveTypes.rows.filter((lt) => lt.is_active)}
                       label="Leaves"
                       placeholder="Select a leave"
+                      className={
+                        fieldState.invalid
+                          ? "border-destructive ring-destructive focus-visible:ring-destructive text-destructive"
+                          : ""
+                      }
+                    />
+                    {fieldState.invalid && (
+                      <FieldError
+                        errors={[fieldState.error]}
+                        className="text-xs"
+                      />
+                    )}
+                  </Field>
+                )}
+              />
+            </div>
+
+            <div className="grid gap-3">
+              <Controller
+                name="date_range"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid} className="gap-1">
+                    <FieldLabel>Date Range</FieldLabel>
+                    <DateRangePicker
+                      ref={field.ref}
+                      minDate={today}
+                      setDateRange={field.onChange}
+                      initialStartDate={data?.start_date}
+                      initialEndDate={data?.end_date}
                       className={
                         fieldState.invalid
                           ? "border-destructive ring-destructive focus-visible:ring-destructive text-destructive"
@@ -399,47 +431,22 @@ export function LeaveRequestModal({
                         }}
                       >
                         <MultiSelectGroup>
-                          {users.filter((manager) => manager.user_id !== session?.user?.uuid).map((manager: UserInterface) => (
-                            <MultiSelectItem
-                              value={manager.user_id}
-                              key={manager.user_id}
-                            >
-                              {manager.name}
-                            </MultiSelectItem>
-                          ))}
+                          {users
+                            .filter(
+                              (manager) =>
+                                manager.user_id !== session?.user?.uuid
+                            )
+                            .map((manager: UserInterface) => (
+                              <MultiSelectItem
+                                value={manager.user_id}
+                                key={manager.user_id}
+                              >
+                                {manager.name}
+                              </MultiSelectItem>
+                            ))}
                         </MultiSelectGroup>
                       </MultiSelectContent>
                     </MultiSelect>
-                    {fieldState.invalid && (
-                      <FieldError
-                        errors={[fieldState.error]}
-                        className="text-xs"
-                      />
-                    )}
-                  </Field>
-                )}
-              />
-            </div>
-
-            <div className="grid gap-3">
-              <Controller
-                name="date_range"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid} className="gap-1">
-                    <FieldLabel>Date Range</FieldLabel>
-                    <DateRangePicker
-                      ref={field.ref}
-                      minDate={today}
-                      setDateRange={field.onChange}
-                      initialStartDate={data?.start_date}
-                      initialEndDate={data?.end_date}
-                      className={
-                        fieldState.invalid
-                          ? "border-destructive ring-destructive focus-visible:ring-destructive text-destructive"
-                          : ""
-                      }
-                    />
                     {fieldState.invalid && (
                       <FieldError
                         errors={[fieldState.error]}

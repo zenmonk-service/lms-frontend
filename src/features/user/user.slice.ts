@@ -41,6 +41,7 @@ type UserState = {
   currentPage: number;
   error?: string | null;
   isUserExist: boolean;
+  currentUser: UserInterface | null;
 };
 
 const initialState: UserState = {
@@ -48,6 +49,7 @@ const initialState: UserState = {
   organizations: [],
   isUserExist: false,
   currentOrganizationUuid: "",
+  currentUser: null,
   users: [],
   total: 0,
   currentPage: 0,
@@ -81,9 +83,17 @@ export const userSlice = createSlice({
       })
       .addCase(listUserAction.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.users = action.payload.rows || [];
-        state.total = action.payload.count || 0;
-        state.currentPage = action.payload.current_page || 0;
+        if (action.payload.isCurrentUser && action.payload.email) {
+          action.payload?.rows?.map((user: UserInterface) => {
+            if (user.email === action.payload.email) {
+              state.currentUser = user;
+            }
+          });
+        } else {
+          state.users = action.payload.rows || [];
+          state.total = action.payload.count || 0;
+          state.currentPage = action.payload.current_page || 0;
+        }
       })
       .addCase(listUserAction.rejected, (state, action: any) => {
         state.isLoading = false;

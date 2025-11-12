@@ -41,6 +41,8 @@ export default function RoleManagement() {
     (state) => state.rolesSlice
   );
 
+  const { currentUser } = useAppSelector((state) => state.userSlice);
+
   const { rolePermissions, permissions, isLoading: isLoadingPermissions } = useAppSelector(
     (state) => state.permissionSlice
   );
@@ -101,8 +103,17 @@ export default function RoleManagement() {
     },
   ];
 
-  const handleSave = (ids: string[]) => {
-    dispatch(updateRolePermissionsAction({ org_uuid: currentOrgUUID, role_uuid: selectedRoleId, permission_uuids: ids }));
+  const handleSave = async(ids: string[]) => {
+   const data = await  dispatch(updateRolePermissionsAction({ org_uuid: currentOrgUUID, role_uuid: selectedRoleId, permission_uuids: ids }));
+    if (currentUser && data.meta.requestStatus === "fulfilled") {
+      dispatch(
+        listRolePermissionsAction({
+          org_uuid: currentOrgUUID,
+          role_uuid: currentUser.role.uuid,
+          isCurrentUserRolePermissions: true,
+        })
+      );
+    }
     setAssignDialogOpen(false);
   };
 

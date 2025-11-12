@@ -14,12 +14,15 @@ import {
 import { useRouter } from "next/navigation";
 import { setCurrentOrganizationUuid } from "@/features/user/user.slice";
 import { getSession } from "../auth/get-auth.action";
+import { listUserAction } from "@/features/user/user.action";
 
 
 function App() {
   const { isLoading, organizations } = useAppSelector(
     (state) => state.organizationsSlice
   );
+  
+  
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [sessionData, setSessionData] = useState<any>(null);
@@ -52,6 +55,7 @@ function App() {
       );
 
       dispatch(setCurrentOrganizationUuid(uuid));
+      dispatch(listUserAction({ org_uuid: uuid, pagination: { page: 1, limit: 10, search: sessionData?.user?.email }, isCurrentUser: true }));
       router.push(`/${uuid}/dashboard`);
     } catch (err) {
       console.log(err);

@@ -17,6 +17,7 @@ interface PermissionState {
   error: string | null;
   permissions: Permission[];
   rolePermissions: { role_permissions: Permission[] };
+  currentUserRolePermissions: Permission[];
   total: number;
   currentPage: number;
   pagination: PaginationState;
@@ -27,6 +28,7 @@ const initialState: PermissionState = {
   error: null,
   permissions: [],
   rolePermissions: { role_permissions: [] },
+  currentUserRolePermissions: [],
   total: 0,
   currentPage: 1,
   pagination: {
@@ -70,7 +72,11 @@ export const permissionSlice = createSlice({
       })
       .addCase(listRolePermissionsAction.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.rolePermissions = action.payload || [];
+        if (action.payload.currentUserRolePermissions) {
+          state.currentUserRolePermissions = action.payload.role_permissions;
+        } else {
+          state.rolePermissions = action.payload || [];
+        }
       })
       .addCase(listRolePermissionsAction.rejected, (state, action: any) => {
         state.isLoading = false;

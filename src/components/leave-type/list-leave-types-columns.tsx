@@ -1,22 +1,11 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Info, MoreHorizontal, Pencil } from "lucide-react";
+import { Info, LoaderCircle, MoreHorizontal, Pencil } from "lucide-react";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "../ui/hover-card";
 import { useAppDispatch, useAppSelector } from "@/store";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
@@ -27,6 +16,8 @@ import {
   getLeaveTypesAction,
 } from "@/features/leave-types/leave-types.action";
 import { getSession } from "@/app/auth/get-auth.action";
+import { Switch } from "../ui/switch";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 type Checked = DropdownMenuCheckboxItemProps["checked"];
 
@@ -69,7 +60,6 @@ const renderApplicableFor = (
   applicableFor: LeaveTypes["applicable_for"],
   getRole: (roleUuid: string) => any
 ) => {
-  console.log('applicableFor: ', applicableFor);
   const roles = applicableFor.value.map((roleUuid) => getRole(roleUuid)?.name);
   return <span>{roles?.join(", ")}</span>;
 };
@@ -80,6 +70,7 @@ export const useLeaveTypesColumns = (
 ): ColumnDef<LeaveTypes>[] => {
   const [session, setSession] = useState<any>(null);
 
+  const { isLoading } = useAppSelector((state) => state.leaveTypeSlice);
   const { roles } = useAppSelector((state) => state.rolesSlice);
   const dispatch = useAppDispatch();
 
@@ -102,6 +93,28 @@ export const useLeaveTypesColumns = (
     }
   }
 
+  const handleActiveToggle = async (
+    isActive: boolean,
+    leave_type_uuid: string
+  ) => {
+    if (isActive) {
+      await dispatch(
+        deactivateLeaveTypeAction({
+          org_uuid,
+          leave_type_uuid,
+        })
+      );
+    } else {
+      await dispatch(
+        activateLeaveTypeAction({
+          org_uuid,
+          leave_type_uuid,
+        })
+      );
+    }
+    await handleUpdateLeaveType();
+  };
+
   useEffect(() => {
     async function fetchUserLeaves() {
       await getUserUuid();
@@ -110,6 +123,29 @@ export const useLeaveTypesColumns = (
   }, [session?.user?.uuid]);
 
   return [
+    {
+      id: "active_inactive",
+      enableHiding: false,
+      cell: ({ row }) => {
+        const leaveType = row.original;
+        const isActive: boolean = leaveType.is_active;
+        const leave_type_uuid = leaveType.uuid;
+        return (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span>
+                <Switch
+                  checked={isActive}
+                  className="data-[state=checked]:bg-orange-500"
+                  onClick={() => handleActiveToggle(isActive, leave_type_uuid)}
+                />
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>{isActive ? "Active" : "Inactive"}</TooltipContent>
+          </Tooltip>
+        );
+      },
+    },
     {
       accessorKey: "code",
       header: "Code",
@@ -163,61 +199,33 @@ export const useLeaveTypesColumns = (
     },
     {
       id: "actions",
-      enableHiding: false,
-      cell: ({ row }) => {
-        const leaveType = row.original;
+      header: () => {
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <MoreHorizontal />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <DropdownMenuItem onClick={() => onEdit?.(leaveType)}>
-                  Edit
-                  <DropdownMenuShortcut>
-                    <Pencil height={14} width={14} />
-                  </DropdownMenuShortcut>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-
-                <DropdownMenuCheckboxItem
-                  checked={leaveType.is_active}
-                  onCheckedChange={async () => {
-                    await dispatch(
-                      activateLeaveTypeAction({
-                        org_uuid,
-                        leave_type_uuid: leaveType.uuid,
-                      })
-                    );
-                    await handleUpdateLeaveType();
-                  }}
-                  disabled={leaveType.is_active}
+          <div className="text-center hidden">
+            <span>Actions</span>
+          </div>
+        );
+      },
+      cell: ({ row }) => {
+        return (
+          <div className="flex justify-center">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onEdit?.(row.original)}
                 >
-                  Active
-                </DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem
-                  checked={!leaveType.is_active}
-                  onCheckedChange={async () => {
-                    await dispatch(
-                      deactivateLeaveTypeAction({
-                        org_uuid,
-                        leave_type_uuid: leaveType.uuid,
-                      })
-                    );
-                    await handleUpdateLeaveType();
-                  }}
-                  disabled={!leaveType.is_active}
-                >
-                  Inactive
-                </DropdownMenuCheckboxItem>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                  {isLoading ? (
+                    <LoaderCircle className="animate-spin" />
+                  ) : (
+                    <Pencil height={16} width={16} />
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Edit Leave Request</TooltipContent>
+            </Tooltip>
+          </div>
         );
       },
     },

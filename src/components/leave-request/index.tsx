@@ -19,6 +19,7 @@ import {
   MultiSelectTrigger,
   MultiSelectValue,
 } from "../ui/multi-select";
+import { LeaveRequestModal } from "./leave-request-modal";
 
 const LeaveRequest = () => {
   const [session, setSession] = useState<any>(null);
@@ -34,6 +35,9 @@ const LeaveRequest = () => {
     start_date: undefined,
     end_date: undefined,
   });
+
+  const [data, setData] = useState();
+  const [modalOpen, setModalOpen] = useState(false);
 
   const { userLeaveRequests, isLoading } = useAppSelector(
     (state) => state.leaveRequestSlice
@@ -67,11 +71,8 @@ const LeaveRequest = () => {
         managers: managerFilter || undefined,
         status: statusFilter || undefined,
         date_range: date_range,
-        date: date_range
-          ? undefined
-          : dateRangeFilter.start_date
+        date: date_range ? undefined : dateRangeFilter.start_date,
       };
-      console.log("Fetching leaves with data:", data);
       if (session)
         dispatch(
           getUserLeaveRequestsAction({
@@ -96,7 +97,16 @@ const LeaveRequest = () => {
     dateRangeFilter,
   ]);
 
-  const columns = useLeaveRequestColumns();
+  const onEdit = (row: any) => {
+    setData(row);
+    setModalOpen(true);
+  };
+
+  const columns = useLeaveRequestColumns({
+    user_uuid: session?.user?.uuid,
+    org_uuid: currentOrganizationUuid,
+    onEdit,
+  });
 
   const handlePaginationChange = (newPagination: Partial<PaginationState>) => {
     setPagination((prev) => ({ ...prev, ...newPagination }));
@@ -119,7 +129,7 @@ const LeaveRequest = () => {
             <CustomSelect
               value={leaveTypeFilter}
               onValueChange={setLeaveTypeFilter}
-              data={leaveTypes.rows}
+              data={leaveTypes.rows.filter((lt) => lt.is_active)}
               label="Leave Type"
               placeholder="Leave type"
               className="w-[180px]"
@@ -144,14 +154,16 @@ const LeaveRequest = () => {
                 }}
               >
                 <MultiSelectGroup>
-                  {users.map((manager) => (
-                    <MultiSelectItem
-                      value={manager.user_id}
-                      key={manager.user_id}
-                    >
-                      {manager.name}
-                    </MultiSelectItem>
-                  ))}
+                  {users
+                    .filter((manager) => manager.user_id !== session?.user?.uuid)
+                    .map((manager) => (
+                      <MultiSelectItem
+                        value={manager.user_id}
+                        key={manager.user_id}
+                      >
+                        {manager.name}
+                      </MultiSelectItem>
+                    ))}
                 </MultiSelectGroup>
               </MultiSelectContent>
             </MultiSelect>
@@ -185,6 +197,14 @@ const LeaveRequest = () => {
           pagination={pagination}
           onPaginationChange={handlePaginationChange}
           noDataMessage="No leave request found."
+        />
+
+        <LeaveRequestModal
+          open={modalOpen}
+          onOpenChange={setModalOpen}
+          onClose={() => setModalOpen(false)}
+          data={data}
+          leave_request_uuid={data?.uuid}
         />
       </div>
     </div>

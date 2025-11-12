@@ -25,7 +25,7 @@ const SelectTrigger = React.forwardRef<
   return (
     <div
       className={cn(
-        "relative z-0 flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border bg-transparent py-2 text-sm shadow-sm ring-offset-background focus:outline-none [&>span]:line-clamp-1",
+        "relative z-0 flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border bg-transparent py-2 text-sm ring-offset-background focus:outline-none [&>span]:line-clamp-1",
         isDisabled ? "opacity-50 cursor-not-allowed text-muted-foreground" : "",
         className
       )}

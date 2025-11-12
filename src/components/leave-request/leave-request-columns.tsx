@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { NotepadText } from "lucide-react";
+import { LoaderCircle, NotepadText, Pencil, Trash2 } from "lucide-react";
 import {
   HoverCard,
   HoverCardContent,
@@ -7,6 +7,10 @@ import {
 } from "../ui/hover-card";
 import { Badge } from "../ui/badge";
 import { LeaveRequestStatus } from "@/features/leave-requests/leave-requests.types";
+import { Button } from "../ui/button";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { deleteLeaveRequestOfUserAction } from "@/features/leave-requests/leave-requests.action";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 interface LeaveRequest {
   uuid: string;
@@ -44,7 +48,30 @@ const RemarkCell = ({ value }: { value: string }) => (
   </HoverCard>
 );
 
-export const useLeaveRequestColumns = (): ColumnDef<LeaveRequest>[] => {
+interface LeaveRequestProps {
+  user_uuid: string;
+  org_uuid: string;
+  onEdit: (row: LeaveRequest) => void;
+}
+
+export const useLeaveRequestColumns = ({
+  user_uuid,
+  org_uuid,
+  onEdit,
+}: LeaveRequestProps): ColumnDef<LeaveRequest>[] => {
+  const { isLoading } = useAppSelector((state) => state.leaveRequestSlice);
+  const dispatch = useAppDispatch();
+
+  const handleDelete = async (leave_request_uuid: string) => {
+    await dispatch(
+      deleteLeaveRequestOfUserAction({
+        org_uuid,
+        user_uuid,
+        leave_request_uuid,
+      })
+    );
+  };
+
   return [
     {
       accessorKey: "leave_type",
@@ -166,7 +193,68 @@ export const useLeaveRequestColumns = (): ColumnDef<LeaveRequest>[] => {
       cell: ({ row }) => {
         const managers = row.getValue("managers") as LeaveRequest["managers"];
         const remark = managers.find((manager) => manager.remarks);
-        return <RemarkCell value={remark?.remarks || "No Remark"} />;
+        return remark?.remarks ? (
+          <RemarkCell value={remark.remarks} />
+        ) : (
+          <span>-</span>
+        );
+      },
+    },
+    {
+      id: "actions",
+      header: () => {
+        return (
+          <div className="text-center">
+            <span>Actions</span>
+          </div>
+        );
+      },
+      cell: ({ row }) => {
+        const status = row.getValue("status") as LeaveRequestStatus;
+        const uuid = row.original.uuid;
+
+        return (
+          <div className="flex justify-center">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  disabled={status !== LeaveRequestStatus.PENDING}
+                  onClick={() => onEdit?.(row.original)}
+                >
+                  {isLoading ? (
+                    <LoaderCircle className="animate-spin" />
+                  ) : (
+                    <Pencil height={16} width={16} />
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Edit Leave Request</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  disabled={status !== LeaveRequestStatus.PENDING}
+                  onClick={() => handleDelete(uuid)}
+                >
+                  {isLoading ? (
+                    <LoaderCircle className="animate-spin" />
+                  ) : (
+                    <Trash2
+                      height={16}
+                      width={16}
+                      className="text-orange-500"
+                    />
+                  )}
+                </Button>
+              </TooltipTrigger>{" "}
+              <TooltipContent>Delete Leave Request</TooltipContent>
+            </Tooltip>
+          </div>
+        );
       },
     },
   ];

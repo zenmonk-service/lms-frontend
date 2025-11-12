@@ -43,6 +43,9 @@ interface DateRangePickerProps {
   minDate?: Date;
   isDependant?: boolean;
   className?: string;
+  // Add initial values
+  initialStartDate?: string;
+  initialEndDate?: string;
 }
 
 export function DateRangePicker({
@@ -51,17 +54,50 @@ export function DateRangePicker({
   minDate,
   isDependant = true,
   className,
+  initialStartDate,
+  initialEndDate,
   ...props
 }: DateRangePickerProps) {
   const [openStart, setOpenStart] = React.useState(false);
   const [startDate, setStartDate] = React.useState<Date | undefined>();
   const [startMonth, setStartMonth] = React.useState<Date | undefined>();
-  const [startValue, setStartValue] = React.useState(formatDate(startDate));
+  const [startValue, setStartValue] = React.useState("");
 
   const [openEnd, setOpenEnd] = React.useState(false);
-  const [endDate, setEndDate] = React.useState<Date | undefined>(startDate);
-  const [endMonth, setEndMonth] = React.useState<Date | undefined>(endDate);
-  const [endValue, setEndValue] = React.useState(formatDate(endDate));
+  const [endDate, setEndDate] = React.useState<Date | undefined>();
+  const [endMonth, setEndMonth] = React.useState<Date | undefined>();
+  const [endValue, setEndValue] = React.useState("");
+
+  // Handle initial values
+  React.useEffect(() => {
+    if (initialStartDate) {
+      const date = new Date(initialStartDate);
+      if (isValidDate(date)) {
+        setStartDate(date);
+        setStartMonth(date);
+        setStartValue(formatDate(date));
+      }
+    } else {
+      setStartDate(undefined);
+      setStartMonth(undefined);
+      setStartValue("");
+    }
+  }, [initialStartDate]);
+
+  React.useEffect(() => {
+    if (initialEndDate) {
+      const date = new Date(initialEndDate);
+      if (isValidDate(date)) {
+        setEndDate(date);
+        setEndMonth(date);
+        setEndValue(formatDate(date));
+      }
+    } else {
+      setEndDate(undefined);
+      setEndMonth(undefined);
+      setEndValue("");
+    }
+  }, [initialEndDate]);
 
   React.useEffect(() => {
     if (setDateRange) {
@@ -81,22 +117,8 @@ export function DateRangePicker({
             id="start-date"
             value={startValue}
             placeholder="Start date"
-            className={cn("bg-background pr-10 shadow-sm", className)}
+            className={cn("bg-background pr-10 ", className)}
             readOnly
-            onChange={(e) => {
-              const parsed = new Date(e.target.value);
-              setStartValue(e.target.value);
-              if (isValidDate(parsed)) {
-                setStartDate(parsed);
-                setStartMonth(parsed);
-              }
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "ArrowDown") {
-                e.preventDefault();
-                setOpenStart(true);
-              }
-            }}
           />
           {startValue ? (
             <button
@@ -107,7 +129,7 @@ export function DateRangePicker({
                 setStartDate(undefined);
                 setStartMonth(undefined);
                 if (setDateRange)
-                  setDateRange({ start_date: undefined, end_date: undefined });
+                  setDateRange({ start_date: "", end_date: "" });
                 if(isDependant && endDate) {
                   setEndDate(undefined);
                   setEndValue("");
@@ -160,23 +182,9 @@ export function DateRangePicker({
             id="end-date"
             value={endValue}
             placeholder="End date"
-            className={cn("bg-background pr-10 shadow-sm", className)}
+            className={cn("bg-background pr-10", className)}
             readOnly
             disabled={isDependant && !startDate}
-            onChange={(e) => {
-              const parsed = new Date(e.target.value);
-              setEndValue(e.target.value);
-              if (isValidDate(parsed)) {
-                setEndDate(parsed);
-                setEndMonth(parsed);
-              }
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "ArrowDown") {
-                e.preventDefault();
-                setOpenEnd(true);
-              }
-            }}
           />
           {endValue ? (
             <button
@@ -187,7 +195,7 @@ export function DateRangePicker({
                 setEndDate(undefined);
                 setEndMonth(undefined);
                 if (setDateRange)
-                  setDateRange({ start_date: undefined, end_date: undefined });
+                  setDateRange({ start_date: startValue, end_date: "" });
               }}
               className="absolute top-1/2 right-8 -translate-y-1/2 flex items-center justify-center p-1 text-muted-foreground cursor-pointer"
             >

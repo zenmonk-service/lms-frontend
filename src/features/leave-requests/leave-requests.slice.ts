@@ -3,6 +3,8 @@ import {
   createUserLeaveRequestsAction,
   getUserLeaveRequestsAction,
   getLeaveRequestsAction,
+  deleteLeaveRequestOfUserAction,
+  updateLeaveRequestOfUserAction,
 } from "./leave-requests.action";
 import { LeaveRequestStatus } from "./leave-requests.types";
 
@@ -77,6 +79,24 @@ const leaveRequestSlice = createSlice({
         state.isLoading = false;
       })
       .addCase(createUserLeaveRequestsAction.rejected, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(deleteLeaveRequestOfUserAction.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(deleteLeaveRequestOfUserAction.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(deleteLeaveRequestOfUserAction.rejected, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(updateLeaveRequestOfUserAction.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(updateLeaveRequestOfUserAction.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(updateLeaveRequestOfUserAction.rejected, (state) => {
         state.isLoading = false;
       });
   },

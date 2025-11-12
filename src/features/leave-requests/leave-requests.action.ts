@@ -3,10 +3,12 @@ import { AxiosError } from "axios";
 import {
   approveLeaveRequest,
   createUserLeaveRequests,
+  deleteLeaveRequest,
   getLeaveRequests,
   getUserLeaveRequests,
   recommendLeaveRequest,
   rejectLeaveRequest,
+  updateLeaveRequest,
 } from "./leave-requests.service";
 import { toast } from "sonner";
 
@@ -18,7 +20,7 @@ export const getLeaveRequestsAction = createAsyncThunk(
       console.log("response: ", response.data);
       return response.data;
     } catch (err) {
-      toast.error("Something went wrong.")
+      toast.error("Something went wrong.");
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error.response?.data);
     }
@@ -36,7 +38,7 @@ export const getUserLeaveRequestsAction = createAsyncThunk(
       );
       return response.data;
     } catch (err) {
-      toast.error("Something went wrong.")
+      toast.error("Something went wrong.");
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error.response?.data);
     }
@@ -54,7 +56,7 @@ export const createUserLeaveRequestsAction = createAsyncThunk(
       );
       return response.data;
     } catch (err) {
-      toast.error("Something went wrong.")
+      toast.error("Something went wrong.");
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error.response?.data);
     }
@@ -97,7 +99,7 @@ export const approveLeaveRequestAction = createAsyncThunk(
       }
       return response.data;
     } catch (err) {
-      toast.error("Something went wrong.")
+      toast.error("Something went wrong.");
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error.response?.data);
     }
@@ -107,7 +109,12 @@ export const approveLeaveRequestAction = createAsyncThunk(
 export const recommendLeaveRequestAction = createAsyncThunk(
   "leave-requests/recommend",
   async (
-    data: {org_uuid:string, leave_request_uuid: string; manager_uuid: string; remark?: string },
+    data: {
+      org_uuid: string;
+      leave_request_uuid: string;
+      manager_uuid: string;
+      remark?: string;
+    },
     thunkAPI
   ) => {
     try {
@@ -134,7 +141,7 @@ export const recommendLeaveRequestAction = createAsyncThunk(
       } catch (e) {}
       return response.data;
     } catch (err) {
-      toast.error("Something went wrong.")
+      toast.error("Something went wrong.");
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error.response?.data);
     }
@@ -144,7 +151,12 @@ export const recommendLeaveRequestAction = createAsyncThunk(
 export const rejectLeaveRequestAction = createAsyncThunk(
   "leave-requests/reject",
   async (
-    data: { org_uuid: string,leave_request_uuid: string; manager_uuid: string; remark?: string },
+    data: {
+      org_uuid: string;
+      leave_request_uuid: string;
+      manager_uuid: string;
+      remark?: string;
+    },
     thunkAPI
   ) => {
     try {
@@ -171,7 +183,44 @@ export const rejectLeaveRequestAction = createAsyncThunk(
       } catch (e) {}
       return response.data;
     } catch (err) {
-      toast.error("Something went wrong.")
+      toast.error("Something went wrong.");
+      const error = err as AxiosError;
+      return thunkAPI.rejectWithValue(error.response?.data);
+    }
+  }
+);
+
+export const updateLeaveRequestOfUserAction = createAsyncThunk(
+  "user/update-user-leave-requests",
+  async (data: any, thunkAPI) => {
+    try {
+      const response = await updateLeaveRequest(
+        data.org_uuid,
+        data.user_uuid,
+        data.leave_request_uuid,
+        data
+      );
+      return response.data;
+    } catch (err) {
+      toast.error("Something went wrong.");
+      const error = err as AxiosError;
+      return thunkAPI.rejectWithValue(error.response?.data);
+    }
+  }
+);
+
+export const deleteLeaveRequestOfUserAction = createAsyncThunk(
+  "user/delete-user-leave-requests",
+  async (data: any, thunkAPI) => {
+    try {
+      const response = await deleteLeaveRequest(
+        data.org_uuid,
+        data.user_uuid,
+        data.leave_request_uuid
+      );
+      return response.data;
+    } catch (err) {
+      toast.error("Something went wrong.");
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error.response?.data);
     }

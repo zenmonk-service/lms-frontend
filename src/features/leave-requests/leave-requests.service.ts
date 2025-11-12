@@ -2,7 +2,12 @@ import axiosInterceptorInstance from "@/config/axios";
 
 export const getLeaveRequests = (
   org_uuid: string,
-  params?: { user_uuid?: string; page?: number; limit?: number; search?: string }
+  params?: {
+    user_uuid?: string;
+    page?: number;
+    limit?: number;
+    search?: string;
+  }
 ) => {
   return axiosInterceptorInstance.get(`/organizations/leave-requests`, {
     params,
@@ -15,7 +20,7 @@ export const getLeaveRequests = (
 export const getUserLeaveRequests = (
   org_uuid: string,
   user_uuid: string,
-  params?: { page?: number; limit?: number; search?: string },
+  params?: { page?: number; limit?: number; search?: string }
 ) => {
   return axiosInterceptorInstance.get(`/users/${user_uuid}/leave-requests`, {
     params,
@@ -28,13 +33,17 @@ export const getUserLeaveRequests = (
 export const createUserLeaveRequests = (
   org_uuid: string,
   user_uuid: string,
-  data: any,
+  data: any
 ) => {
-  return axiosInterceptorInstance.post(`/users/${user_uuid}/leave-requests`, data, {
-    headers: {
-      org_uuid,
-    },
-  });
+  return axiosInterceptorInstance.post(
+    `/users/${user_uuid}/leave-requests`,
+    data,
+    {
+      headers: {
+        org_uuid,
+      },
+    }
+  );
 };
 
 export const approveLeaveRequest = (
@@ -97,4 +106,34 @@ export const rejectLeaveRequest = (
   );
 };
 
+export const updateLeaveRequest = (
+  org_uuid: string,
+  user_uuid: string,
+  leave_request_uuid: string,
+  data: any
+) => {
+  return axiosInterceptorInstance.put(
+    `/users/${user_uuid}/leave-requests/${leave_request_uuid}`,
+    data,
+    {
+      headers: {
+        org_uuid,
+      },
+    }
+  );
+};
 
+export const deleteLeaveRequest = (
+  org_uuid: string,
+  user_uuid: string,
+  leave_request_uuid: string
+) => {
+  return axiosInterceptorInstance.delete(
+    `/users/${user_uuid}/leave-requests/${leave_request_uuid}`,
+    {
+      headers: {
+        org_uuid,
+      },
+    }
+  );
+};

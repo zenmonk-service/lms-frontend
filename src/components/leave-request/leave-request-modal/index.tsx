@@ -30,6 +30,7 @@ import { getOrganizationRolesAction } from "@/features/role/role.action";
 import {
   createUserLeaveRequestsAction,
   getUserLeaveRequestsAction,
+  updateLeaveRequestOfUserAction,
 } from "@/features/leave-requests/leave-requests.action";
 import {
   LeaveRange,
@@ -63,6 +64,8 @@ interface LeaveRequestModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onClose: () => void;
+  data?: any;
+  leave_request_uuid?: string;
 }
 
 const allowedRanges: Record<string, string[]> = {
@@ -119,6 +122,8 @@ export function LeaveRequestModal({
   open,
   onOpenChange,
   onClose,
+  data,
+  leave_request_uuid,
 }: LeaveRequestModalProps) {
   const { leaveTypes } = useAppSelector((state) => state.leaveTypeSlice);
   const currentOrganizationUuid = useAppSelector(
@@ -170,6 +175,24 @@ export function LeaveRequestModal({
     setValue("range", range as LeaveRange);
   }, [type, range]);
 
+  useEffect(() => {
+    if (!open || !data) return;
+
+    reset({
+      leave_type_uuid: data.leave_type?.uuid ?? "",
+      type: data.type ?? "",
+      range: data.range ?? "",
+      managers: (data.managers || []).map((m: any) => m.user.user_id),
+      reason: data.reason ?? "",
+      date_range: {
+        start_date: data.start_date ?? "",
+        end_date: data.end_date ?? "",
+      },
+    });
+    setType(data.type);
+    setRange(data.range);
+  }, [open, data, reset]);
+
   const today = useMemo(() => {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
@@ -180,13 +203,24 @@ export function LeaveRequestModal({
     const dateRange = data.date_range;
     data = { ...data, ...dateRange };
     if (session) {
-      await dispatch(
-        createUserLeaveRequestsAction({
-          org_uuid: currentOrganizationUuid,
-          user_uuid: session?.user?.uuid,
-          ...data,
-        })
-      );
+      if (leave_request_uuid) {
+        await dispatch(
+          updateLeaveRequestOfUserAction({
+            org_uuid: currentOrganizationUuid,
+            user_uuid: session.user.uuid,
+            leave_request_uuid,
+            ...data,
+          })
+        );
+      } else {
+        await dispatch(
+          createUserLeaveRequestsAction({
+            org_uuid: currentOrganizationUuid,
+            user_uuid: session?.user?.uuid,
+            ...data,
+          })
+        );
+      }
 
       await dispatch(
         getUserLeaveRequestsAction({
@@ -221,7 +255,7 @@ export function LeaveRequestModal({
                       ref={field.ref}
                       value={field.value}
                       onValueChange={field.onChange}
-                      data={leaveTypes.rows}
+                      data={leaveTypes.rows.filter((lt) => lt.is_active)}
                       label="Leaves"
                       placeholder="Select a leave"
                       className={
@@ -365,7 +399,7 @@ export function LeaveRequestModal({
                         }}
                       >
                         <MultiSelectGroup>
-                          {users.map((manager: UserInterface) => (
+                          {users.filter((manager) => manager.user_id !== session?.user?.uuid).map((manager: UserInterface) => (
                             <MultiSelectItem
                               value={manager.user_id}
                               key={manager.user_id}
@@ -398,6 +432,8 @@ export function LeaveRequestModal({
                       ref={field.ref}
                       minDate={today}
                       setDateRange={field.onChange}
+                      initialStartDate={data?.start_date}
+                      initialEndDate={data?.end_date}
                       className={
                         fieldState.invalid
                           ? "border-destructive ring-destructive focus-visible:ring-destructive text-destructive"

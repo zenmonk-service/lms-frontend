@@ -1,9 +1,9 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { AxiosError } from "axios";
-import { listPermissionPayload, listRolePermission } from "./permission.type";
+import { listPermissionPayload, listRolePermission, updateRolePermission } from "./permission.type";
 import {
   listOrganizationPermissions,
-  listRolePermissions,
+  listRolePermissions, updateRolePermissions,
 } from "./permission.service";
 import { toast } from "sonner";
 
@@ -34,3 +34,19 @@ export const listRolePermissionsAction = createAsyncThunk(
     }
   }
 );
+
+
+export const updateRolePermissionsAction = createAsyncThunk(
+  "/role-permissions/update",
+  async (payload: updateRolePermission, thunkAPI) => {
+    try {
+      const response = await updateRolePermissions(payload);
+      return response.data;
+    } catch (err) {
+      toast.error("Something went wrong.");
+      const error = err as AxiosError;
+      return thunkAPI.rejectWithValue(error?.response?.data);
+    }
+  }
+);
+

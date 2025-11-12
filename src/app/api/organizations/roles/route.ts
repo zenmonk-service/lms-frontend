@@ -23,3 +23,18 @@ export const GET = async (request: Request) => {
 
   return NextResponse.json(response.data);
 };
+
+export const POST = async (request: Request) => {
+  const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const org_uuid = request.headers.get("org_uuid");
+
+  const body = await request.json();
+
+  const response = await axios.post(`${BASE_URL}/roles`, body, {
+    headers: {
+      org_uuid: org_uuid,
+    },
+  });
+
+  return NextResponse.json(response.data);
+};

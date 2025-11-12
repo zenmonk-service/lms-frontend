@@ -24,14 +24,15 @@ import { getOrganizationRolesAction } from "@/features/role/role.action";
 import { Role, setPagination } from "@/features/role/role.slice";
 import AssignPermission from "@/components/permission/assign-permission";
 import { listRolePermissions } from "@/features/permissions/permission.service";
-import { listOrganizationPermissionsAction, listRolePermissionsAction } from "@/features/permissions/permission.action";
+import { listOrganizationPermissionsAction, listRolePermissionsAction, updateRolePermissionsAction } from "@/features/permissions/permission.action";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import CreateRole from "@/components/role/create-role";
 
 type Checked = DropdownMenuCheckboxItemProps["checked"];
 export default function RoleManagement() {
   const dispatch = useAppDispatch();
   const [assignDialogOpen, setAssignDialogOpen] = React.useState(false);
-  const [selectedRoleId, setSelectedRoleId] = React.useState<string | null>(null);
+  const [selectedRoleId, setSelectedRoleId] = React.useState<string>("");
 
   const currentOrgUUID = useAppSelector(
     (state) => state.userSlice.currentOrganizationUuid
@@ -43,9 +44,6 @@ export default function RoleManagement() {
   const { rolePermissions, permissions, isLoading: isLoadingPermissions } = useAppSelector(
     (state) => state.permissionSlice
   );
-
-  console.log('✌️permissions --->', permissions);
-  console.log('✌️rolePermissions --->', rolePermissions);
 
   const columns: ColumnDef<Role>[] = [
     {
@@ -104,8 +102,8 @@ export default function RoleManagement() {
   ];
 
   const handleSave = (ids: string[]) => {
-    console.log("Submit these permission IDs:", ids);
-    // call your backend: /roles/:role_id/permissions
+    dispatch(updateRolePermissionsAction({ org_uuid: currentOrgUUID, role_uuid: selectedRoleId, permission_uuids: ids }));
+    setAssignDialogOpen(false);
   };
 
   const getRolePermissions = async (role_uuid: string) => {
@@ -142,6 +140,10 @@ export default function RoleManagement() {
             List of roles in the organization.
           </p>
         </div>
+        <div>
+          <CreateRole org_uuid={currentOrgUUID!} />
+        </div>
+
       </div>
       <DataTable
         data={roles || []}

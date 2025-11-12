@@ -1,7 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { AxiosError } from "axios";
 import { SignInInterface } from "./user.slice";
-import { createUser, listUser, signIn, updateUser } from "./user.service";
+import { createUser, isUserExist, listUser, signIn, updateUser } from "./user.service";
 import {
   CreateUserPayload,
   listUserPayload,
@@ -58,6 +58,19 @@ export const listUserAction = createAsyncThunk(
       return response.data;
     } catch (err) {
       toast.error("Something went wrong.");
+      const error = err as AxiosError;
+      return thunkAPI.rejectWithValue(error?.response?.data);
+    }
+  }
+);
+
+export const isUserExistAction = createAsyncThunk(
+  "auth/exists",
+  async (payload:string, thunkAPI) => {
+    try {
+      const response = await isUserExist( payload );
+      return response.data;
+    } catch (err) {
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error?.response?.data);
     }

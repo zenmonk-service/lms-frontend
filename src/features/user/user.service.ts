@@ -29,3 +29,10 @@ export const listUser = (
     },
   });
 };
+
+
+export const isUserExist = (email: string) => {
+  return axiosInterceptorInstance.get(`/users/exists`, {
+    params: { email },
+  });
+}

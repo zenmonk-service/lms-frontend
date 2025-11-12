@@ -2,8 +2,8 @@ export const userSignInType = "user/signIn";
 
 export interface CreateUserPayload {
   name: string;
-  email: string;
-  password: string;
+  email?: string;
+  password?: string;
   role_uuid: string;
   role:string
   org_uuid: string;
@@ -14,7 +14,6 @@ export interface CreateUserPayload {
 export interface UpdateUserPayload {
   user_uuid: string;
   name?: string;
-  email?: string;
   role?: string;
   org_uuid: string;
 }

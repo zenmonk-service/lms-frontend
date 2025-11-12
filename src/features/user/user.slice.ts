@@ -1,5 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { listUserAction, updateUserAction } from "./user.action";
+import {
+  isUserExistAction,
+  listUserAction,
+  updateUserAction,
+} from "./user.action";
+import { set } from "date-fns";
 
 export interface SignInInterface {
   email: string;
@@ -35,11 +40,13 @@ type UserState = {
   total: number;
   currentPage: number;
   error?: string | null;
+  isUserExist: boolean;
 };
 
 const initialState: UserState = {
   isLoading: false,
   organizations: [],
+  isUserExist: false,
   currentOrganizationUuid: "",
   users: [],
   total: 0,
@@ -61,6 +68,9 @@ export const userSlice = createSlice({
     },
     setPagination: (state, action) => {
       state.pagination = action.payload || initialState.pagination;
+    },
+    setIsUserExist: (state, action) => {
+      state.isUserExist = action.payload || false;
     },
   },
   extraReducers: (builder) => {
@@ -89,9 +99,20 @@ export const userSlice = createSlice({
       .addCase(updateUserAction.rejected, (state, action: any) => {
         state.isLoading = false;
         state.error = action.payload?.message || "Failed to update user";
+      })
+      .addCase(isUserExistAction.pending, (state) => {
+        state.error = null;
+      })
+      .addCase(isUserExistAction.fulfilled, (state, action) => {
+        state.isUserExist = action.payload;
+      })
+      .addCase(isUserExistAction.rejected, (state, action: any) => {
+        state.error =
+          action.payload?.message || "Failed to check user existence";
       });
   },
 });
 
 export const userReducer = userSlice.reducer;
-export const { setCurrentOrganizationUuid, setPagination } = userSlice.actions;
+export const { setCurrentOrganizationUuid, setPagination, setIsUserExist } =
+  userSlice.actions;

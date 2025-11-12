@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { email, z } from "zod";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,7 +13,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,18 +25,14 @@ import {
 } from "@/components/ui/select";
 import { UserPlus, Mail, Lock, User, Users, EditIcon } from "lucide-react";
 import { createUser, updateUser } from "@/features/user/user.service";
-import { setPagination, UserInterface } from "@/features/user/user.slice";
+import {
+  setIsUserExist,
+  setPagination,
+  UserInterface,
+} from "@/features/user/user.slice";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { getOrganizationRolesAction } from "@/features/role/role.action";
-import { listUserAction } from "@/features/user/user.action";
-import { da } from "date-fns/locale";
-
-type FormData = {
-  name: string;
-  email: string;
-  password: string;
-  role: string;
-};
+import { isUserExistAction, listUserAction } from "@/features/user/user.action";
 
 export default function CreateUser({
   org_uuid,
@@ -48,9 +45,27 @@ export default function CreateUser({
 }) {
   const dispatch = useAppDispatch();
   const roles = useAppSelector((state) => state.rolesSlice.roles);
+  const isUserPresent = useAppSelector((state) => state.userSlice.isUserExist);
   const [selectedRole, setSelectedRole] = useState(
     isEdited ? (userData ? userData.role.uuid : "") : ""
   );
+  const [open, setOpen] = useState(false);
+
+  // Dynamically build schema based on isUserPresent
+  const userSchema = z.object({
+    name: z.string().min(1, "Name is required"),
+    email: isEdited
+      ? z.string().optional()
+      : z.string().email("Enter a valid email address"),
+    password:
+      isUserPresent || isEdited
+        ? z.string().optional()
+        : z.string().min(1, "Password is required"),
+    role: z.string().min(1, "Role is required"),
+  });
+
+  type FormData = z.infer<typeof userSchema>;
+
   const {
     register,
     handleSubmit,
@@ -58,40 +73,46 @@ export default function CreateUser({
     reset,
     watch,
     formState: { errors },
+    trigger,
   } = useForm<FormData>({
+    resolver: zodResolver(userSchema),
     defaultValues: {
       name: isEdited && userData ? userData.name : "",
       email: isEdited && userData ? userData.email : "",
+      password: "",
       role: isEdited && userData ? userData.role.uuid : "",
     },
   });
+
   const emailValue = watch("email");
-  const isUserPresent = useAppSelector((state) => state.userSlice.total);
-  const [open, setOpen] = useState(false);
 
   const onSubmit = async (data: FormData) => {
+ 
     if (isEdited && userData) {
       await updateUser({
-        ...data,
+        name: data.name,
+        role: data.role,
         user_uuid: userData.user_id,
         org_uuid: org_uuid,
       });
-
       dispatch(
-        listUserAction({
-          org_uuid: org_uuid,
-          pagination: { page: 1, limit: 10 },
-        })
+        listUserAction({ org_uuid, pagination: { page: 1, limit: 10 } })
       );
       dispatch(setPagination({ page: 1, limit: 10 }));
       setOpen(false);
     } else {
       await createUser({
-        ...data,
-        org_uuid: org_uuid,
+        name: data.name,
+        email: data.email?.trim() || "",
+        ...(!isUserPresent && { password: data.password ?? "" }),
+        org_uuid,
         role_uuid: data.role,
         role: "user",
       });
+      dispatch(
+        listUserAction({ org_uuid, pagination: { page: 1, limit: 10 } })
+      );
+      dispatch(setPagination({ page: 1, limit: 10 }));
       setOpen(false);
     }
     reset();
@@ -99,27 +120,28 @@ export default function CreateUser({
   };
 
   useEffect(() => {
-    dispatch(getOrganizationRolesAction({org_uuid: org_uuid}));
-  }, []);
+    dispatch(getOrganizationRolesAction({ org_uuid }));
+  }, [org_uuid, dispatch]);
 
-  const isValidEmail = (email: string) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  };
-
-  console.log(isValidEmail(emailValue));
   useEffect(() => {
-    if (isValidEmail(emailValue) && emailValue !== "" && !isEdited) {
-      dispatch(
-        listUserAction({
-          org_uuid: "",
-          pagination: { page: 1, limit: 10, search: emailValue?.trim() },
-        })
-      );
+    if (
+      emailValue &&
+      !isEdited &&
+      userSchema.shape.email.safeParse(emailValue).success
+    ) {
+      dispatch(isUserExistAction(emailValue.trim()));
     }
-  }, [emailValue]);
+  }, [emailValue, isEdited, dispatch]);
 
   return (
-    <Dialog open={open} onOpenChange={() => setOpen(!open)}>
+    <Dialog
+      open={open}
+      onOpenChange={() => {
+        setOpen(!open);
+        reset();
+        dispatch(setIsUserExist(false));
+      }}
+    >
       <Button
         onClick={() => setOpen(true)}
         className="bg-gradient-to-r w-full from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 px-8 py-3 rounded-xl font-semibold flex items-center space-between gap-2"
@@ -131,7 +153,6 @@ export default function CreateUser({
         )}
         {isEdited ? "Edit User" : "Create User"}
       </Button>
-
       <DialogContent className="sm:max-w-[600px] bg-gradient-to-br from-white to-orange-50 border-2 border-orange-200 shadow-2xl rounded-2xl">
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader className="space-y-3 pb-2">
@@ -149,7 +170,6 @@ export default function CreateUser({
                 : "Add a new user by providing their details and assigning a role."}
             </DialogDescription>
           </DialogHeader>
-
           <div className="grid gap-6 py-4 max-h-96 overflow-y-auto pr-2">
             {/* Name */}
             <div className="space-y-2">
@@ -162,36 +182,36 @@ export default function CreateUser({
               <Input
                 id="name"
                 placeholder="Enter user's full name"
-                {...register("name", { required: true })}
+                {...register("name")}
                 className="border-2 border-orange-200 focus:border-orange-400 focus:ring-orange-200 rounded-xl bg-white/70 backdrop-blur-sm hover:shadow-md"
               />
               {errors.name && (
-                <p className="text-xs text-red-500">Name is required</p>
+                <p className="text-xs text-red-500">{errors.name.message}</p>
               )}
             </div>
-
             {/* Email */}
-            <div className="space-y-2">
-              <Label
-                htmlFor="email"
-                className="text-sm font-semibold text-gray-700 flex items-center gap-2"
-              >
-                <Mail className="w-4 h-4 text-orange-500" /> Email *
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="user@example.com"
-                {...register("email", { required: true })}
-                className="border-2 border-orange-200 focus:border-orange-400 focus:ring-orange-200 rounded-xl bg-white/70 backdrop-blur-sm hover:shadow-md"
-              />
-              {errors.email && (
-                <p className="text-xs text-red-500">Email is required</p>
-              )}
-            </div>
-
-            {/* Password */}
             {!isEdited && (
+              <div className="space-y-2">
+                <Label
+                  htmlFor="email"
+                  className="text-sm font-semibold text-gray-700 flex items-center gap-2"
+                >
+                  <Mail className="w-4 h-4 text-orange-500" /> Email *
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="user@example.com"
+                  {...register("email")}
+                  className="border-2 border-orange-200 focus:border-orange-400 focus:ring-orange-200 rounded-xl bg-white/70 backdrop-blur-sm hover:shadow-md"
+                />
+                {errors.email && (
+                  <p className="text-xs text-red-500">{errors.email.message}</p>
+                )}
+              </div>
+            )}
+            {/* Password */}
+            {!isEdited && !isUserPresent && (
               <div className="space-y-2">
                 <Label
                   htmlFor="password"
@@ -203,15 +223,16 @@ export default function CreateUser({
                   id="password"
                   type="password"
                   placeholder="Enter password"
-                  {...register("password", { required: true })}
+                  {...register("password")}
                   className="border-2 border-orange-200 focus:border-orange-400 focus:ring-orange-200 rounded-xl bg-white/70 backdrop-blur-sm hover:shadow-md"
                 />
                 {errors.password && (
-                  <p className="text-xs text-red-500">Password is required</p>
+                  <p className="text-xs text-red-500">
+                    {errors.password.message}
+                  </p>
                 )}
               </div>
             )}
-
             {/* Role Selection */}
             <div className="space-y-2">
               <Label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
@@ -221,7 +242,8 @@ export default function CreateUser({
                 value={selectedRole}
                 onValueChange={(val) => {
                   setSelectedRole(val);
-                  setValue("role", val);
+                  setValue("role", val, { shouldValidate: true });
+                  trigger("role");
                 }}
               >
                 <SelectTrigger className="w-full border-2 border-orange-200 focus:border-orange-400 focus:ring-orange-200 rounded-xl bg-white/70 backdrop-blur-sm hover:shadow-md p-3">
@@ -236,7 +258,7 @@ export default function CreateUser({
                 </SelectContent>
               </Select>
               {errors.role && (
-                <p className="text-xs text-red-500">Role is required</p>
+                <p className="text-xs text-red-500">{errors.role.message}</p>
               )}
               {selectedRole && (
                 <p className="text-xs text-orange-600 mt-1">
@@ -245,7 +267,6 @@ export default function CreateUser({
               )}
             </div>
           </div>
-
           <DialogFooter className="pt-6 border-t border-orange-200/50">
             <DialogClose asChild>
               <Button

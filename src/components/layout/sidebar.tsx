@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import {
   Home,
   Users,
   Calendar,
   ClipboardList,
   Plane,
-  ChevronDown, BookCheck,
+  ChevronDown,
+  BookCheck,
 } from "lucide-react";
 
 import {
@@ -23,6 +25,7 @@ import {
 import Link from "next/link";
 
 export function AppSidebar({ uuid }: { uuid: string }) {
+  const pathname = usePathname();
   const items = [
     {
       title: "Home",
@@ -54,16 +57,17 @@ export function AppSidebar({ uuid }: { uuid: string }) {
           icon: Plane,
         },
         {
-        title: "Approvals",
-        url: `/${uuid}/approvals`,
-        icon: BookCheck,
-      },
-    ],
+          title: "Approvals",
+          url: `/${uuid}/approvals`,
+          icon: BookCheck,
+        },
+      ],
     },
   ];
 
   function SidebarNestedItem({ item }: { item: any }) {
-    const [open, setOpen] = useState(false);
+    // Open Leave Management by default
+    const [open, setOpen] = useState(item.title === "Leave Management");
 
     if (item.items) {
       return (
@@ -94,7 +98,14 @@ export function AppSidebar({ uuid }: { uuid: string }) {
               {item.items.map((child: any) => (
                 <SidebarMenuItem key={child.title}>
                   <SidebarMenuButton asChild>
-                    <Link href={child.url}>
+                    <Link
+                      href={child.url}
+                      className={
+                        pathname === child.url
+                          ? "bg-orange-100 text-orange-600 font-semibold rounded-md"
+                          : ""
+                      }
+                    >
                       <child.icon className="w-4 h-4" />
                       <span>{child.title}</span>
                     </Link>
@@ -110,7 +121,14 @@ export function AppSidebar({ uuid }: { uuid: string }) {
     return (
       <SidebarMenuItem>
         <SidebarMenuButton asChild>
-          <Link href={item.url}>
+          <Link
+            href={item.url}
+            className={
+              pathname === item.url
+                ? "bg-orange-100 text-orange-600 font-semibold rounded-md"
+                : ""
+            }
+          >
             <item.icon className="w-4 h-4" />
             <span>{item.title}</span>
           </Link>

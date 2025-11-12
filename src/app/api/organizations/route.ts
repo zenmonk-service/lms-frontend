@@ -42,7 +42,6 @@ export const GET = async (request: Request) => {
     return NextResponse.json(response.data);
   } catch (error: any) {
     console.error("Organizations API error:", error.message || error);
-
     return NextResponse.json(
       { error: error?.response?.data?.description },
       { status: error?.response?.status }

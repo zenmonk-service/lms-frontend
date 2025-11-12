@@ -3,7 +3,10 @@
 import React, { useEffect, useState } from "react";
 import DataTable, { PaginationState } from "@/shared/table";
 import { useAppDispatch, useAppSelector } from "@/store";
-import { getUserLeaveRequestsAction } from "@/features/leave-requests/leave-requests.action";
+import {
+  deleteLeaveRequestOfUserAction,
+  getUserLeaveRequestsAction,
+} from "@/features/leave-requests/leave-requests.action";
 import { getSession } from "@/app/auth/get-auth.action";
 import MakeLeaveRequest from "./make-leave-request";
 import { useLeaveRequestColumns } from "./leave-request-columns";
@@ -20,10 +23,11 @@ import {
   MultiSelectValue,
 } from "../ui/multi-select";
 import { LeaveRequestModal } from "./leave-request-modal";
+import { ConfirmationDialog } from "@/shared/confirmation-dialog";
 
 const LeaveRequest = () => {
   const [session, setSession] = useState<any>(null);
-  const { users } = useAppSelector((state) => state.userSlice);
+  const { users, currentUser } = useAppSelector((state) => state.userSlice);
 
   const [leaveTypeFilter, setLeaveTypeFilter] = useState<string>("");
   const [managerFilter, setManagerFilter] = useState<string[]>([]);
@@ -38,6 +42,10 @@ const LeaveRequest = () => {
 
   const [data, setData] = useState();
   const [modalOpen, setModalOpen] = useState(false);
+  const [confirmationOpen, setConfirmationOpen] = useState(false);
+  const [selectedLeaveRequestUuid, setSelectedLeaveRequestUuid] = useState<
+    string | null
+  >(null);
 
   const { userLeaveRequests, isLoading } = useAppSelector(
     (state) => state.leaveRequestSlice
@@ -102,10 +110,14 @@ const LeaveRequest = () => {
     setModalOpen(true);
   };
 
+  const onDelete = async (leave_request_uuid: string) => {
+    setSelectedLeaveRequestUuid(leave_request_uuid);
+    setConfirmationOpen(true);
+  };
+
   const columns = useLeaveRequestColumns({
-    user_uuid: session?.user?.uuid,
-    org_uuid: currentOrganizationUuid,
     onEdit,
+    onDelete,
   });
 
   const handlePaginationChange = (newPagination: Partial<PaginationState>) => {
@@ -155,7 +167,9 @@ const LeaveRequest = () => {
               >
                 <MultiSelectGroup>
                   {users
-                    .filter((manager) => manager.user_id !== session?.user?.uuid)
+                    .filter(
+                      (manager) => manager.user_id !== currentUser?.user_id
+                    )
                     .map((manager) => (
                       <MultiSelectItem
                         value={manager.user_id}
@@ -197,6 +211,26 @@ const LeaveRequest = () => {
           pagination={pagination}
           onPaginationChange={handlePaginationChange}
           noDataMessage="No leave request found."
+        />
+
+        <ConfirmationDialog
+          open={confirmationOpen}
+          onOpenChange={setConfirmationOpen}
+          description="This action cannot be undone. This will permanently delete this leave request."
+          handleConfirm={async () => {
+            await dispatch(
+              deleteLeaveRequestOfUserAction({
+                user_uuid: currentUser?.user_id,
+                leave_request_uuid: selectedLeaveRequestUuid,
+              })
+            );
+            await dispatch(
+              getUserLeaveRequestsAction({
+                org_uuid: currentOrganizationUuid,
+                user_uuid: session?.user?.uuid,
+              })
+            );
+          }}
         />
 
         <LeaveRequestModal

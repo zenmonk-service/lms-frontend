@@ -8,8 +8,7 @@ import {
 import { Badge } from "../ui/badge";
 import { LeaveRequestStatus } from "@/features/leave-requests/leave-requests.types";
 import { Button } from "../ui/button";
-import { useAppDispatch, useAppSelector } from "@/store";
-import { deleteLeaveRequestOfUserAction } from "@/features/leave-requests/leave-requests.action";
+import { useAppSelector } from "@/store";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 interface LeaveRequest {
@@ -49,28 +48,15 @@ const RemarkCell = ({ value }: { value: string }) => (
 );
 
 interface LeaveRequestProps {
-  user_uuid: string;
-  org_uuid: string;
-  onEdit: (row: LeaveRequest) => void;
+  onEdit?: (row: LeaveRequest) => void;
+  onDelete?: (uuid: string) => void;
 }
 
 export const useLeaveRequestColumns = ({
-  user_uuid,
-  org_uuid,
   onEdit,
+  onDelete,
 }: LeaveRequestProps): ColumnDef<LeaveRequest>[] => {
   const { isLoading } = useAppSelector((state) => state.leaveRequestSlice);
-  const dispatch = useAppDispatch();
-
-  const handleDelete = async (leave_request_uuid: string) => {
-    await dispatch(
-      deleteLeaveRequestOfUserAction({
-        org_uuid,
-        user_uuid,
-        leave_request_uuid,
-      })
-    );
-  };
 
   return [
     {
@@ -238,7 +224,7 @@ export const useLeaveRequestColumns = ({
                   variant="ghost"
                   size="icon"
                   disabled={status !== LeaveRequestStatus.PENDING}
-                  onClick={() => handleDelete(uuid)}
+                  onClick={() => onDelete?.(uuid)}
                 >
                   {isLoading ? (
                     <LoaderCircle className="animate-spin" />
@@ -250,7 +236,7 @@ export const useLeaveRequestColumns = ({
                     />
                   )}
                 </Button>
-              </TooltipTrigger>{" "}
+              </TooltipTrigger>
               <TooltipContent>Delete Leave Request</TooltipContent>
             </Tooltip>
           </div>

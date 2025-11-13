@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "./app/auth/auth";
+import { getSession } from "./app/auth/get-auth.action";
 
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
-  const  loggedInUser = await auth();
+  const  loggedInUser = await getSession();
+
 
   if (!loggedInUser) {
     return NextResponse.redirect(new URL("/login", request.url));

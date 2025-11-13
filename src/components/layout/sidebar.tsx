@@ -31,6 +31,7 @@ import { useSession } from "next-auth/react";
 
 export function AppSidebar({ uuid }: { uuid: string }) {
   const pathname = usePathname();
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const { currentUser } = useAppSelector((state) => state.userSlice);
   const { currentUserRolePermissions } = useAppSelector(
@@ -200,7 +201,7 @@ export function AppSidebar({ uuid }: { uuid: string }) {
   }, [currentUser, uuid]);
 
   useEffect(() => {
-    if (data?.user.email) {
+    if (data?.user.email && currentUserRolePermissions?.length > 0) {
       update({
         ...data,
         user: {

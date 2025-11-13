@@ -43,9 +43,9 @@ interface DateRangePickerProps {
   minDate?: Date;
   isDependant?: boolean;
   className?: string;
-  // Add initial values
   initialStartDate?: string;
   initialEndDate?: string;
+  onReset?: () => void;
 }
 
 export function DateRangePicker({
@@ -56,7 +56,7 @@ export function DateRangePicker({
   className,
   initialStartDate,
   initialEndDate,
-  ...props
+  onReset,
 }: DateRangePickerProps) {
   const [openStart, setOpenStart] = React.useState(false);
   const [startDate, setStartDate] = React.useState<Date | undefined>();
@@ -68,7 +68,6 @@ export function DateRangePicker({
   const [endMonth, setEndMonth] = React.useState<Date | undefined>();
   const [endValue, setEndValue] = React.useState("");
 
-  // Handle initial values
   React.useEffect(() => {
     if (initialStartDate) {
       const date = new Date(initialStartDate);
@@ -109,7 +108,7 @@ export function DateRangePicker({
   }, [startValue, endValue, setDateRange]);
 
   return (
-    <div className="flex gap-2">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
       <div className="flex flex-col gap-3">
         <div className="relative flex gap-2">
           <Input
@@ -117,7 +116,7 @@ export function DateRangePicker({
             id="start-date"
             value={startValue}
             placeholder="Start date"
-            className={cn("bg-background pr-10 ", className)}
+            className={cn("bg-background pr-10", className)}
             readOnly
           />
           {startValue ? (
@@ -130,10 +129,13 @@ export function DateRangePicker({
                 setStartMonth(undefined);
                 if (setDateRange)
                   setDateRange({ start_date: "", end_date: "" });
-                if(isDependant && endDate) {
+                if (isDependant && endDate) {
                   setEndDate(undefined);
                   setEndValue("");
                   setEndMonth(undefined);
+                }
+                if (onReset) {
+                  onReset();
                 }
               }}
               className="absolute top-1/2 right-8 -translate-y-1/2 flex items-center justify-center p-1 text-muted-foreground cursor-pointer"
@@ -169,6 +171,7 @@ export function DateRangePicker({
                   setStartDate(date);
                   setStartValue(formatDate(date));
                   setOpenStart(false);
+                  onReset && onReset();
                 }}
               />
             </PopoverContent>
@@ -196,6 +199,9 @@ export function DateRangePicker({
                 setEndMonth(undefined);
                 if (setDateRange)
                   setDateRange({ start_date: startValue, end_date: "" });
+                if (onReset) {
+                  onReset();
+                }
               }}
               className="absolute top-1/2 right-8 -translate-y-1/2 flex items-center justify-center p-1 text-muted-foreground cursor-pointer"
             >
@@ -236,6 +242,7 @@ export function DateRangePicker({
                   setEndDate(date);
                   setEndValue(formatDate(date));
                   setOpenEnd(false);
+                  onReset && onReset();
                 }}
               />
             </PopoverContent>

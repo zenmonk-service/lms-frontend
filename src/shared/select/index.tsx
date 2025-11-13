@@ -14,22 +14,16 @@ interface EnumData {
   [key: string]: string;
 }
 
-interface ArrayDataItem {
-  uuid: string;
-  name: string;
-}
-
-type DataType = EnumData | Array<ArrayDataItem>;
-
 interface CustomSelectProps {
   ref?: React.Ref<any>;
   value: string;
   onValueChange: (value: string) => void;
-  data: DataType;
+  data: any;
   isEnum?: boolean;
   label: string;
   placeholder?: string;
   className?: string;
+  disabled?: boolean;
 }
 
 const CustomSelect: React.FC<CustomSelectProps> = ({
@@ -41,6 +35,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   label,
   placeholder,
   className,
+  disabled = false,
 }) => {
   return (
     <div>
@@ -50,6 +45,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
           value={value}
           onReset={() => onValueChange("")}
           className={cn(className)}
+          disabled={disabled}
         >
           <SelectValue placeholder={placeholder || "Select a value"} />
         </SelectTrigger>
@@ -66,9 +62,15 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
                     </SelectItem>
                   );
                 })
-              : (data as Array<ArrayDataItem>).map((type) => (
-                  <SelectItem key={type.uuid} value={type.uuid}>
-                    {type.name}
+              : (data as any).map((type: any, index: number) => (
+                  <SelectItem
+                    key={type?.uuid || index}
+                    value={type?.uuid || type}
+                  >
+                    {type?.name ||
+                      type
+                        ?.replace(/_/g, " ")
+                        ?.replace(/\b\w/g, (c: string) => c.toUpperCase())}
                   </SelectItem>
                 ))}
           </SelectGroup>

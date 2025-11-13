@@ -48,15 +48,6 @@ import {
 } from "@/components/ui/multi-select";
 import CustomSelect from "@/shared/select";
 import { LoaderCircle } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { getSession } from "@/app/auth/get-auth.action";
 import { UserInterface } from "@/features/user/user.slice";
 
@@ -77,6 +68,15 @@ const allowedRanges: Record<string, string[]> = {
     LeaveRange.THIRD_QUARTER,
     LeaveRange.FOURTH_QUARTER,
   ],
+};
+
+const allowedTypes: Record<string, string[]> = {
+  same_day: [
+    LeaveRequestType.FULL_DAY,
+    LeaveRequestType.HALF_DAY,
+    LeaveRequestType.SHORT_LEAVE,
+  ],
+  multiple_days: [LeaveRequestType.FULL_DAY],
 };
 
 const leaveRequestSchema = z
@@ -133,7 +133,7 @@ export function LeaveRequestModal({
   const { isLoading } = useAppSelector((state) => state.leaveRequestSlice);
   const dispatch = useAppDispatch();
 
-  const { control, handleSubmit, reset, setValue } =
+  const { control, handleSubmit, reset, setValue, watch } =
     useForm<LeaveRequestFormData>({
       resolver: zodResolver(leaveRequestSchema),
       defaultValues: {
@@ -146,8 +146,9 @@ export function LeaveRequestModal({
       },
     });
 
-  const [type, setType] = useState<LeaveRequestType | "">("");
-  const [range, setRange] = useState<LeaveRange | "">("");
+  const dateRange = watch("date_range");
+  const type = watch("type");
+
   const [session, setSession] = useState<any>(null);
 
   async function getUserUuid() {
@@ -168,14 +169,6 @@ export function LeaveRequestModal({
   }, []);
 
   useEffect(() => {
-    if (type === "") {
-      setRange("");
-    }
-    setValue("type", type as LeaveRequestType);
-    setValue("range", range as LeaveRange);
-  }, [type, range]);
-
-  useEffect(() => {
     if (!open || !data) return;
 
     reset({
@@ -189,8 +182,6 @@ export function LeaveRequestModal({
         end_date: data.end_date ?? "",
       },
     });
-    setType(data.type);
-    setRange(data.range);
   }, [open, data, reset]);
 
   const today = useMemo(() => {
@@ -198,6 +189,16 @@ export function LeaveRequestModal({
     d.setHours(0, 0, 0, 0);
     return d;
   }, []);
+
+  const typeOptions = useMemo(() => {
+    const start = new Date(dateRange.start_date);
+    const end = new Date(dateRange.end_date);
+
+    const diffTime = Math.abs(end.getTime() - start.getTime());
+
+    const key = diffTime === 0 ? "same_day" : "multiple_days";
+    return allowedTypes[key];
+  }, [dateRange]);
 
   const onSubmit = async (data: LeaveRequestFormData) => {
     const dateRange = data.date_range;
@@ -229,8 +230,6 @@ export function LeaveRequestModal({
         })
       );
       reset();
-      setRange("");
-      setType("");
       onClose();
     }
   };
@@ -295,6 +294,10 @@ export function LeaveRequestModal({
                           ? "border-destructive ring-destructive focus-visible:ring-destructive text-destructive"
                           : ""
                       }
+                      onReset={() => {
+                        setValue("type", "");
+                        setValue("range", "");
+                      }}
                     />
                     {fieldState.invalid && (
                       <FieldError
@@ -307,7 +310,7 @@ export function LeaveRequestModal({
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               <div className="grid gap-3">
                 <Controller
                   name="type"
@@ -317,12 +320,14 @@ export function LeaveRequestModal({
                       <FieldLabel>Type</FieldLabel>
                       <CustomSelect
                         ref={field.ref}
-                        value={type}
-                        onValueChange={(val) =>
-                          setType(val as LeaveRequestType)
-                        }
-                        data={LeaveRequestType}
-                        isEnum={true}
+                        value={field.value}
+                        onValueChange={(val) => {
+                          field.onChange(val);
+                          if (!val || val === "") {
+                            setValue("range", "");
+                          }
+                        }}
+                        data={typeOptions}
                         label="Leave Type"
                         placeholder="Select leave type"
                         className={
@@ -330,6 +335,7 @@ export function LeaveRequestModal({
                             ? "border-destructive ring-destructive focus-visible:ring-destructive text-destructive"
                             : ""
                         }
+                        disabled={!dateRange.start_date || !dateRange.end_date}
                       />
                       {fieldState.invalid && (
                         <FieldError
@@ -349,42 +355,20 @@ export function LeaveRequestModal({
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid} className="gap-1">
                       <FieldLabel>Range</FieldLabel>
-                      <Select
-                        value={range}
-                        onValueChange={(val) => setRange(val as LeaveRange)}
-                      >
-                        <SelectTrigger
-                          ref={field.ref}
-                          disabled={type === ""}
-                          value={range}
-                          onReset={() => setRange("")}
-                          className={
-                            fieldState.invalid
-                              ? "border-destructive ring-destructive focus-visible:ring-destructive text-destructive"
-                              : ""
-                          }
-                        >
-                          <SelectValue placeholder={"Select leave range"} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectLabel className="text-xs">
-                              Leave Range
-                            </SelectLabel>
-                            {(
-                              allowedRanges[type as LeaveRequestType] ?? []
-                            ).map((val, index) => {
-                              return (
-                                <SelectItem key={index} value={val}>
-                                  {val
-                                    .replace(/_/g, " ")
-                                    .replace(/\b\w/g, (c) => c.toUpperCase())}
-                                </SelectItem>
-                              );
-                            })}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
+                      <CustomSelect
+                        ref={field.ref}
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        data={allowedRanges[type as LeaveRequestType] ?? []}
+                        label="Leave Range"
+                        placeholder="Select leave range"
+                        className={
+                          fieldState.invalid
+                            ? "border-destructive ring-destructive focus-visible:ring-destructive text-destructive"
+                            : ""
+                        }
+                        disabled={type == ""}
+                      />
                       {fieldState.invalid && (
                         <FieldError
                           errors={[fieldState.error]}

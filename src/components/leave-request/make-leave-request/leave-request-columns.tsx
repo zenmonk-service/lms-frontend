@@ -4,12 +4,12 @@ import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
-} from "../ui/hover-card";
-import { Badge } from "../ui/badge";
+} from "../../ui/hover-card";
+import { Badge } from "../../ui/badge";
 import { LeaveRequestStatus } from "@/features/leave-requests/leave-requests.types";
-import { Button } from "../ui/button";
+import { Button } from "../../ui/button";
 import { useAppSelector } from "@/store";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../../ui/tooltip";
 
 interface LeaveRequest {
   uuid: string;

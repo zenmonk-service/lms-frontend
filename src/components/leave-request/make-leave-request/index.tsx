@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import React, { useState } from "react";
-import { LeaveRequestModal } from "../leave-request-modal";
+import { LeaveRequestModal } from "./leave-request-modal";
 
 const MakeLeaveRequest = () => {
   const [open, setOpen] = useState(false);

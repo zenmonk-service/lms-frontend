@@ -6,6 +6,8 @@ import {
   deleteOrganizationAction,
   getOrganizationById,
   getAllOrganizationsAction,
+  activateUserAction,
+  deactivateUserAction,
 } from "./organizations.action";
 
 export interface Organization {
@@ -148,6 +150,30 @@ export const organizationsSlice = createSlice({
         state.isLoading = false;
         state.error =
           action.payload?.message || "Failed to delete organization";
+      });
+
+    builder
+      .addCase(activateUserAction.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(activateUserAction.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(activateUserAction.rejected, (state, action: any) => {
+        state.isLoading = false;
+        state.error = action.payload?.message;
+      })
+      .addCase(deactivateUserAction.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(deactivateUserAction.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(deactivateUserAction.rejected, (state, action: any) => {
+        state.isLoading = false;
+        state.error = action.payload?.message;
       });
   },
 });

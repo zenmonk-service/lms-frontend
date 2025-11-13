@@ -185,7 +185,7 @@ export default function ApproveLeaveRequests() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 justify-end">
         <div>
           <CustomSelect
             value={leaveTypeFilter}

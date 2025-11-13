@@ -152,7 +152,7 @@ export function AppSidebar({ uuid }: { uuid: string }) {
                       href={child.url}
                       className={
                         pathname === child.url
-                          ? "bg-orange-100 text-orange-600 font-semibold rounded-md"
+                          ? "bg-orange-100 text-orange-600 font-semibold rounded-md hover:!text-orange-600 hover:!bg-orange-100"
                           : ""
                       }
                     >

@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Info, LoaderCircle, MoreHorizontal, Pencil } from "lucide-react";
+import { Info, LoaderCircle, Pencil } from "lucide-react";
 import {
   HoverCard,
   HoverCardContent,
@@ -10,16 +10,15 @@ import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
 import { useEffect, useState } from "react";
+import { getSession } from "@/app/auth/get-auth.action";
+import { Switch } from "../ui/switch";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import {
   activateLeaveTypeAction,
   deactivateLeaveTypeAction,
   getLeaveTypesAction,
 } from "@/features/leave-types/leave-types.action";
-import { getSession } from "@/app/auth/get-auth.action";
-import { Switch } from "../ui/switch";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { hasPermissions } from "@/libs/haspermissios";
-import { current } from "@reduxjs/toolkit";
 
 type Checked = DropdownMenuCheckboxItemProps["checked"];
 
@@ -63,7 +62,33 @@ const renderApplicableFor = (
   getRole: (roleUuid: string) => any
 ) => {
   const roles = applicableFor.value.map((roleUuid) => getRole(roleUuid)?.name);
-  return <span>{roles?.join(", ")}</span>;
+  return (
+    <div className="flex gap-1 flex-wrap">
+      {roles.slice(0, 3).map((role, index) => (
+        <Badge variant={"outline"} className="rounded-sm" key={index}>
+          {role}
+        </Badge>
+      ))}
+      {roles.length > 3 && (
+        <HoverCard>
+          <HoverCardTrigger asChild>
+            <Badge className="cursor-pointer">+ {roles.length - 3}</Badge>
+          </HoverCardTrigger>
+          <HoverCardContent align="start" className="max-w-80">
+            <div className="space-y-1">
+              <div className="flex flex-wrap gap-1">
+                {roles.slice(3).map((role, index) => (
+                  <Badge variant="outline" className="text-xs" key={index}>
+                    {role}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          </HoverCardContent>
+        </HoverCard>
+      )}
+    </div>
+  );
 };
 
 export const useLeaveTypesColumns = (
@@ -72,9 +97,9 @@ export const useLeaveTypesColumns = (
 ): ColumnDef<LeaveTypes>[] => {
   const [session, setSession] = useState<any>(null);
 
+  const dispatch = useAppDispatch();
   const { isLoading } = useAppSelector((state) => state.leaveTypeSlice);
   const { roles } = useAppSelector((state) => state.rolesSlice);
-  const dispatch = useAppDispatch();
   const { currentUserRolePermissions } = useAppSelector(
     (state) => state.permissionSlice
   );
@@ -91,38 +116,6 @@ export const useLeaveTypesColumns = (
     setSession(session);
   }
 
-  async function handleUpdateLeaveType() {
-    if (org_uuid) {
-      await dispatch(
-        getLeaveTypesAction({
-          org_uuid,
-        })
-      );
-    }
-  }
-
-  const handleActiveToggle = async (
-    isActive: boolean,
-    leave_type_uuid: string
-  ) => {
-    if (isActive) {
-      await dispatch(
-        deactivateLeaveTypeAction({
-          org_uuid,
-          leave_type_uuid,
-        })
-      );
-    } else {
-      await dispatch(
-        activateLeaveTypeAction({
-          org_uuid,
-          leave_type_uuid,
-        })
-      );
-    }
-    await handleUpdateLeaveType();
-  };
-
   useEffect(() => {
     async function fetchUserLeaves() {
       await getUserUuid();
@@ -133,26 +126,56 @@ export const useLeaveTypesColumns = (
   return [
      ...(hasPermissions("leave_type_management", "update", currentUserRolePermissions ,currentUser?.email)
     ? [  {
-       header:"Active",
       id: "active_inactive",
-      enableHiding: false,
-      cell: ({ row }: any) => {
+      header: () => {
+        return (
+          <div className="text-center">
+            <span>Status</span>
+          </div>
+        );
+      },
+      cell: ({ row }) => {
         const leaveType = row.original;
         const isActive: boolean = leaveType.is_active;
         const leave_type_uuid = leaveType.uuid;
         return (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span>
-                <Switch
-                  checked={isActive}
-                  className="data-[state=checked]:bg-orange-500"
-                  onClick={() => handleActiveToggle(isActive, leave_type_uuid)}
-                />
-              </span>
-            </TooltipTrigger>
-            <TooltipContent>{isActive ? "Active" : "Inactive"}</TooltipContent>
-          </Tooltip>
+          <div className="flex justify-center">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span>
+                  <Switch
+                    checked={isActive}
+                    className="data-[state=checked]:bg-orange-500"
+                    onClick={async () => {
+                      if (isActive) {
+                        await dispatch(
+                          deactivateLeaveTypeAction({
+                            org_uuid,
+                            leave_type_uuid,
+                          })
+                        );
+                      } else {
+                        await dispatch(
+                          activateLeaveTypeAction({
+                            org_uuid,
+                            leave_type_uuid,
+                          })
+                        );
+                      }
+                      await dispatch(
+                        getLeaveTypesAction({
+                          org_uuid: org_uuid!,
+                        })
+                      );
+                    }}
+                  />
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                {isActive ? "Active" : "Inactive"}
+              </TooltipContent>
+            </Tooltip>
+          </div>
         );
       },
     }] : []),
@@ -179,7 +202,18 @@ export const useLeaveTypesColumns = (
       cell: ({ row }) => {
         const accrual = row.getValue("accrual") as LeaveTypes["accrual"];
         return (
-          <Badge variant={"outline"}>
+          <Badge
+            variant={"outline"}
+            className={`rounded-sm ${
+              accrual?.period === "monthly"
+                ? "text-orange-500 border border-orange-500 font-semibold"
+                : ""
+            } ${
+              accrual?.period === "yearly"
+                ? "text-orange-700 border border-orange-700 font-semibold"
+                : ""
+            }`}
+          >
             {accrual?.period
               ? accrual?.period.charAt(0).toUpperCase() +
                 accrual?.period.slice(1)
@@ -236,7 +270,7 @@ export const useLeaveTypesColumns = (
                   )}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Edit Leave Request</TooltipContent>
+              <TooltipContent>Edit Leave Type</TooltipContent>
             </Tooltip>
           </div>
         );

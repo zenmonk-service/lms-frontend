@@ -1,9 +1,10 @@
 "use client";
 
-import AppBar from "@/components/app-bar";
 import * as React from "react";
 
-import { ChevronDown, MoreHorizontal, Pencil, UserPlus } from "lucide-react";
+import {
+  MoreHorizontal,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -23,10 +24,18 @@ import { format } from "date-fns";
 import CreateUser from "@/components/user/create-user";
 import DataTable, { PaginationState } from "@/shared/table";
 import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { Switch } from "../ui/switch";
+import {
+  activateUserAction,
+  deactivateUserAction,
+} from "@/features/organizations/organizations.action";
+
 import { hasPermissions } from "@/libs/haspermissios";
 import NoReadPermission from "@/shared/no-read-permission";
 type Checked = DropdownMenuCheckboxItemProps["checked"];
-export default  function ManageOrganizationsUser() {
+
+export default function ManageOrganizationsUser() {
   const dispatch = useAppDispatch();
   const currentOrgUUID = useAppSelector(
     (state) => state.userSlice.currentOrganizationUuid
@@ -41,6 +50,60 @@ export default  function ManageOrganizationsUser() {
   );
 
   const columns: ColumnDef<UserInterface>[] = [
+    {
+      id: "active_inactive",
+      header: () => {
+        return (
+          <div className="text-center">
+            <span>Status</span>
+          </div>
+        );
+      },
+      cell: ({ row }) => {
+        const isActive = row.original.is_active;
+        const user_uuid = row.original.user_id;
+        return (
+          <div className="flex justify-center">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span>
+                    <Switch
+                      checked={isActive}
+                      className="data-[state=checked]:bg-orange-500"
+                      onClick={async () => {
+                        if (isActive) {
+                          await dispatch(
+                            deactivateUserAction({
+                              org_uuid: currentOrgUUID,
+                              user_uuid: user_uuid,
+                            })
+                          );
+                        } else {
+                          await dispatch(
+                            activateUserAction({
+                              org_uuid: currentOrgUUID,
+                              user_uuid: user_uuid,
+                            })
+                          );
+                        }
+                        await dispatch(
+                          listUserAction({
+                            org_uuid: currentOrgUUID,
+                            pagination,
+                          })
+                        );
+                      }}
+                    />
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {isActive ? "Active" : "Inactive"}
+                </TooltipContent>
+              </Tooltip>
+          </div>
+        );
+      },
+    },
     {
       accessorKey: "name",
 

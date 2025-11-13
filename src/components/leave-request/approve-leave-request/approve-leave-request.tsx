@@ -19,6 +19,7 @@ import { LeaveRequestStatus } from "@/features/leave-requests/leave-requests.typ
 import CustomSelect from "@/shared/select";
 import { DateRangePicker } from "@/shared/date-range-picker";
 import { listUserAction } from "@/features/user/user.action";
+import { SearchSelect } from "@/shared/select/search-select";
 
 export type LeaveAction = "approve" | "reject" | "recommend" | null;
 
@@ -33,7 +34,7 @@ export default function ApproveLeaveRequests() {
   );
 
   const { leaveTypes } = useAppSelector((s) => s.leaveTypeSlice);
-  const { users } = useAppSelector((state) => state.userSlice);
+  const { users, currentUser } = useAppSelector((state) => state.userSlice);
   console.log("users: ", users);
 
   const [session, setSession] = useState<Session | null>(null);
@@ -98,6 +99,7 @@ export default function ApproveLeaveRequests() {
     leaveTypeFilter,
     statusFilter,
     dateRangeFilter,
+    userFilter,
   ]);
 
   useEffect(() => {
@@ -173,6 +175,10 @@ export default function ApproveLeaveRequests() {
     onRecommend: handleRecommend,
   });
 
+  const handleUserSearch = (search: string) => {
+    setUserFilter(search);
+  };
+
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-4 ">
@@ -198,15 +204,18 @@ export default function ApproveLeaveRequests() {
         </div>
 
         <div>
-          <CustomSelect
+          <SearchSelect
             value={userFilter}
             onValueChange={setUserFilter}
-            onSearch={setUserFilter}
-            search={true}
-            data={users ?? []}
-            label="Applied By"
-            placeholder="Applied By"
+            onSearch={handleUserSearch}
+            data={
+              users.filter((user) => user.user_id !== currentUser?.user_id) ??
+              []
+            }
+            label="Users"
+            placeholder="Select user"
             className="w-[200px]"
+            emptyMessage="No users found."
           />
         </div>
 

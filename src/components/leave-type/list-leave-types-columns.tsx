@@ -18,6 +18,8 @@ import {
 import { getSession } from "@/app/auth/get-auth.action";
 import { Switch } from "../ui/switch";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { hasPermissions } from "@/libs/haspermissios";
+import { current } from "@reduxjs/toolkit";
 
 type Checked = DropdownMenuCheckboxItemProps["checked"];
 
@@ -73,7 +75,13 @@ export const useLeaveTypesColumns = (
   const { isLoading } = useAppSelector((state) => state.leaveTypeSlice);
   const { roles } = useAppSelector((state) => state.rolesSlice);
   const dispatch = useAppDispatch();
+  const { currentUserRolePermissions } = useAppSelector(
+    (state) => state.permissionSlice
+  );
 
+    const { currentUser } = useAppSelector(
+    (state) => state.userSlice
+  );
   function getRole(roleUuid: string) {
     return roles.find((role: any) => role.uuid === roleUuid);
   }
@@ -123,10 +131,12 @@ export const useLeaveTypesColumns = (
   }, [session?.user?.uuid]);
 
   return [
-    {
+     ...(hasPermissions("leave_type_management", "update", currentUserRolePermissions ,currentUser?.email)
+    ? [  {
+       header:"Active",
       id: "active_inactive",
       enableHiding: false,
-      cell: ({ row }) => {
+      cell: ({ row }: any) => {
         const leaveType = row.original;
         const isActive: boolean = leaveType.is_active;
         const leave_type_uuid = leaveType.uuid;
@@ -145,7 +155,7 @@ export const useLeaveTypesColumns = (
           </Tooltip>
         );
       },
-    },
+    }] : []),
     {
       accessorKey: "code",
       header: "Code",
@@ -197,18 +207,21 @@ export const useLeaveTypesColumns = (
         return <span>{date.toLocaleDateString()}</span>;
       },
     },
-    {
+    ...(hasPermissions("leave_type_management", "update", currentUserRolePermissions , currentUser?.email)
+    ? [ {
+      accessorKey: "actions",
       id: "actions",
       header: () => {
         return (
-          <div className="text-center hidden">
+          <div className="text-center">
             <span>Actions</span>
           </div>
         );
       },
-      cell: ({ row }) => {
+      cell: ({ row }: any) => {
         return (
-          <div className="flex justify-center">
+          <div className="flex justify-center w-30.5">
+          
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -228,6 +241,8 @@ export const useLeaveTypesColumns = (
           </div>
         );
       },
-    },
+    }
+      ]
+    : []),
   ];
 };

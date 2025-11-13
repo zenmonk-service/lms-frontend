@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import {
   Home,
@@ -10,6 +10,7 @@ import {
   Plane,
   ChevronDown,
   BookCheck,
+  Loader,
 } from "lucide-react";
 
 import {
@@ -25,6 +26,8 @@ import {
 import Link from "next/link";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { listRolePermissionsAction } from "@/features/permissions/permission.action";
+import { hasPermissions } from "@/libs/haspermissios";
+import { useSession } from "next-auth/react";
 
 export function AppSidebar({ uuid }: { uuid: string }) {
   const pathname = usePathname();
@@ -33,16 +36,27 @@ export function AppSidebar({ uuid }: { uuid: string }) {
   const { currentUserRolePermissions } = useAppSelector(
     (state) => state.permissionSlice
   );
-
-  function hasPermission(tag: string) {
+  function hasPagePermission(tag: string) {
     return currentUserRolePermissions.some((perm) => perm.tag === tag);
   }
+  const { data, update } = useSession();
 
   const filterItemsByPermission = (items: any[]) => {
     return items
       .filter((item) => {
         if (item.tag) {
-          return hasPermission(item.tag);
+          if (item.title === "Approvals") {
+            return (
+              hasPagePermission(item.tag) &&
+              hasPermissions(
+                "leave_request_management",
+                "approval",
+                currentUserRolePermissions,
+                currentUser?.email
+              )
+            );
+          }
+          return hasPagePermission(item.tag);
         }
         return true;
       })
@@ -60,7 +74,6 @@ export function AppSidebar({ uuid }: { uuid: string }) {
 
   const items = filterItemsByPermission([
     {
-      tag: "home",
       title: "Home",
       url: `/${uuid}/dashboard`,
       icon: Home,
@@ -175,7 +188,7 @@ export function AppSidebar({ uuid }: { uuid: string }) {
   }
 
   useEffect(() => {
-    if (currentUser) {
+    if (currentUser?.role.uuid) {
       dispatch(
         listRolePermissionsAction({
           org_uuid: uuid,
@@ -185,6 +198,19 @@ export function AppSidebar({ uuid }: { uuid: string }) {
       );
     }
   }, [currentUser, uuid]);
+
+  useEffect(() => {
+    if (data?.user.email) {
+      update({
+        ...data,
+        user: {
+          ...data.user,
+          permissions: currentUserRolePermissions,
+        },
+      });
+    }
+  }, [currentUserRolePermissions]);
+
   return (
     <Sidebar>
       <SidebarContent>

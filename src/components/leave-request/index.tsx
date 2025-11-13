@@ -23,12 +23,15 @@ import {
   MultiSelectValue,
 } from "../ui/multi-select";
 import { LeaveRequestModal } from "./make-leave-request/leave-request-modal";
+import { hasPermissions } from "@/libs/haspermissios";
+import NoReadPermission from "@/shared/no-read-permission";
+import { LeaveRequest as LeaveRequestType } from "./approve-leave-request/approve-leave-request-columns";
 import { ConfirmationDialog } from "@/shared/confirmation-dialog";
 import { type LeaveRequest } from "./approve-leave-request/approve-leave-request-columns";
 
 const LeaveRequest = () => {
   const [session, setSession] = useState<any>(null);
-  const { users, currentUser } = useAppSelector((state) => state.userSlice);
+  const { users, currentUser ,currentUser } = useAppSelector((state) => state.userSlice);
 
   const [leaveTypeFilter, setLeaveTypeFilter] = useState<string>("");
   const [managerFilter, setManagerFilter] = useState<string[]>([]);
@@ -41,9 +44,11 @@ const LeaveRequest = () => {
     end_date: undefined,
   });
 
-  const [data, setData] = useState<LeaveRequest>();
+  const [data, setData] = useState<LeaveRequestType >();
   const [modalOpen, setModalOpen] = useState(false);
-  const [confirmationOpen, setConfirmationOpen] = useState(false);
+  const { currentUserRolePermissions } = useAppSelector(
+    (state) => state.permissionSlice
+  );  const [confirmationOpen, setConfirmationOpen] = useState(false);
   const [selectedLeaveRequestUuid, setSelectedLeaveRequestUuid] = useState<
     string | null
   >(null);
@@ -135,85 +140,104 @@ const LeaveRequest = () => {
               List of all leave requests made by users.
             </p>
           </div>
-          <MakeLeaveRequest />
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <div>
-            <CustomSelect
-              value={leaveTypeFilter}
-              onValueChange={setLeaveTypeFilter}
-              data={leaveTypes.rows.filter((lt) => lt.is_active)}
-              label="Leave Type"
-              placeholder="Leave type"
-              className="w-[180px]"
-            />
-          </div>
+          {  hasPermissions(
+            "leave_request_management",
+            "create",
+            currentUserRolePermissions,
+            currentUser?.email
 
-          <div>
-            <MultiSelect
-              values={managerFilter}
-              onValuesChange={setManagerFilter}
-            >
-              <MultiSelectTrigger className="w-[180px] hover:bg-transparent">
-                <MultiSelectValue
-                  overflowBehavior="cutoff"
-                  placeholder="Select managers"
+          ) && <MakeLeaveRequest />}
+        </div>
+
+        { hasPermissions(
+          "leave_request_management",
+          "read",
+          currentUserRolePermissions,
+          currentUser?.email
+        ) ? (
+          <>
+            <div className="flex flex-wrap gap-2">
+              <div>
+                <CustomSelect
+                  value={leaveTypeFilter}
+                  onValueChange={setLeaveTypeFilter}
+                  data={leaveTypes.rows.filter((lt) => lt.is_active)}
+                  label="Leave Type"
+                  placeholder="Leave type"
+                  className="w-[180px]"
                 />
-              </MultiSelectTrigger>
-              <MultiSelectContent
-                search={{
-                  emptyMessage: "No manager found.",
-                  placeholder: "Search managers...",
-                }}
-              >
-                <MultiSelectGroup>
-                  {users
-                    .filter(
+              </div>
+
+              <div>
+                <MultiSelect
+                  values={managerFilter}
+                  onValuesChange={setManagerFilter}
+                >
+                  <MultiSelectTrigger className="w-[180px] hover:bg-transparent">
+                    <MultiSelectValue
+                      overflowBehavior="cutoff"
+                      placeholder="Select managers"
+                    />
+                  </MultiSelectTrigger>
+                  <MultiSelectContent
+                    search={{
+                      emptyMessage: "No manager found.",
+                      placeholder: "Search managers...",
+                    }}
+                  >
+                    <MultiSelectGroup>
+                      {users
+                        .filter(
+                          
                       (manager) => manager.user_id !== currentUser?.user_id
-                    )
-                    .map((manager) => (
-                      <MultiSelectItem
-                        value={manager.user_id}
-                        key={manager.user_id}
-                      >
-                        {manager.name}
-                      </MultiSelectItem>
-                    ))}
-                </MultiSelectGroup>
-              </MultiSelectContent>
-            </MultiSelect>
-          </div>
+                    
+                        )
+                        .map((manager) => (
+                          <MultiSelectItem
+                            value={manager.user_id}
+                            key={manager.user_id}
+                          >
+                            {manager.name}
+                          </MultiSelectItem>
+                        ))}
+                    </MultiSelectGroup>
+                  </MultiSelectContent>
+                </MultiSelect>
+              </div>
 
-          <div>
-            <CustomSelect
-              value={statusFilter}
-              onValueChange={setStatusFilter}
-              data={LeaveRequestStatus}
-              isEnum={true}
-              label="Leave Status"
-              placeholder="Status"
-              className="w-[180px]"
+              <div>
+                <CustomSelect
+                  value={statusFilter}
+                  onValueChange={setStatusFilter}
+                  data={LeaveRequestStatus}
+                  isEnum={true}
+                  label="Leave Status"
+                  placeholder="Status"
+                  className="w-[180px]"
+                />
+              </div>
+
+              <div>
+                <DateRangePicker
+                  setDateRange={setDateRangeFilter}
+                  isDependant={false}
+                />
+              </div>
+            </div>
+            <DataTable
+              data={userLeaveRequests.rows || []}
+              columns={columns}
+              isLoading={isLoading}
+              searchable={false}
+              totalCount={userLeaveRequests.count || 0}
+              pagination={pagination}
+              onPaginationChange={handlePaginationChange}
+              noDataMessage="No leave request found."
             />
-          </div>
-
-          <div>
-            <DateRangePicker
-              setDateRange={setDateRangeFilter}
-              isDependant={false}
-            />
-          </div>
-        </div>
-        <DataTable
-          data={userLeaveRequests.rows || []}
-          columns={columns}
-          isLoading={isLoading}
-          searchable={false}
-          totalCount={userLeaveRequests.count || 0}
-          pagination={pagination}
-          onPaginationChange={handlePaginationChange}
-          noDataMessage="No leave request found."
-        />
-
+          </>
+        ) : (
+          <NoReadPermission />
+        )}
         <ConfirmationDialog
           open={confirmationOpen}
           onOpenChange={setConfirmationOpen}

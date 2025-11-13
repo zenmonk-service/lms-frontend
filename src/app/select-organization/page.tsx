@@ -1,10 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import {
-  Building2,
-
-} from "lucide-react";
+import { Building2 } from "lucide-react";
 import AppBar from "@/components/app-bar";
 import { useAppDispatch, useAppSelector } from "@/store";
 import {
@@ -16,17 +13,14 @@ import { setCurrentOrganizationUuid } from "@/features/user/user.slice";
 import { getSession } from "../auth/get-auth.action";
 import { listUserAction } from "@/features/user/user.action";
 
-
 function App() {
   const { isLoading, organizations } = useAppSelector(
     (state) => state.organizationsSlice
   );
-  
-  
+
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [sessionData, setSessionData] = useState<any>(null);
-
 
   async function getSessionData() {
     setSessionData(await getSession());
@@ -43,8 +37,6 @@ function App() {
     }
   }, [sessionData?.user?.uuid]);
 
-
-
   const handleOrgSelect = async (uuid: string) => {
     try {
       await dispatch(
@@ -55,7 +47,13 @@ function App() {
       );
 
       dispatch(setCurrentOrganizationUuid(uuid));
-      dispatch(listUserAction({ org_uuid: uuid, pagination: { page: 1, limit: 10, search: sessionData?.user?.email }, isCurrentUser: true }));
+      dispatch(
+        listUserAction({
+          org_uuid: uuid,
+          pagination: { page: 1, limit: 10, search: sessionData?.user?.email },
+          isCurrentUser: true,
+        })
+      );
       router.push(`/${uuid}/dashboard`);
     } catch (err) {
       console.log(err);
@@ -90,7 +88,7 @@ function App() {
 
         {/* Organizations Grid */}
         <div className="grid gap-4 max-w-2xl mx-auto">
-          {organizations.length === 0 && !isLoading  && sessionData? (
+          {organizations.length === 0 && !isLoading && sessionData ? (
             <div className="text-center py-12">
               <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-500">

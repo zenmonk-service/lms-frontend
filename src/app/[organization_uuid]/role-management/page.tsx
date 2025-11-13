@@ -24,9 +24,15 @@ import { getOrganizationRolesAction } from "@/features/role/role.action";
 import { Role, setPagination } from "@/features/role/role.slice";
 import AssignPermission from "@/components/permission/assign-permission";
 import { listRolePermissions } from "@/features/permissions/permission.service";
-import { listOrganizationPermissionsAction, listRolePermissionsAction, updateRolePermissionsAction } from "@/features/permissions/permission.action";
+import {
+  listOrganizationPermissionsAction,
+  listRolePermissionsAction,
+  updateRolePermissionsAction,
+} from "@/features/permissions/permission.action";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import CreateRole from "@/components/role/create-role";
+import { hasPermissions } from "@/libs/haspermissios";
+import NoReadPermission from "@/shared/no-read-permission";
 
 type Checked = DropdownMenuCheckboxItemProps["checked"];
 export default function RoleManagement() {
@@ -43,9 +49,12 @@ export default function RoleManagement() {
 
   const { currentUser } = useAppSelector((state) => state.userSlice);
 
-  const { rolePermissions, permissions, isLoading: isLoadingPermissions } = useAppSelector(
-    (state) => state.permissionSlice
-  );
+  const {
+    rolePermissions,
+    permissions,
+    currentUserRolePermissions,
+    isLoading: isLoadingPermissions,
+  } = useAppSelector((state) => state.permissionSlice);
 
   const columns: ColumnDef<Role>[] = [
     {
@@ -70,41 +79,41 @@ export default function RoleManagement() {
         return <div>{date}</div>;
       },
     },
-    {
-      id: "actions",
-      header: "Actions",
-      enableHiding: false,
-      cell: ({ row }) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <MoreHorizontal />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <Button
-              onClick={() => {
-                getRolePermissions(row.original.uuid);
-                setSelectedRoleId(row.original.uuid);
-                setAssignDialogOpen(true);
-              }}
-              variant="ghost"
-              className="justify-start w-full"
-            >
-              <Pencil className="mr-2 h-4 w-4" />
-              Manage Permissions
-            </Button>
-            <DropdownMenuSeparator />
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ),
-    },
+
+    ...( hasPermissions("role_management", "update", currentUserRolePermissions ,currentUser?.email)
+      ? [
+          {
+            id: "actions",
+            header: "Actions",
+            enableHiding: true,
+            size: 150,
+            cell: ({ row }: any) => (
+              <Button
+                onClick={() => {
+                  getRolePermissions(row.original.uuid);
+                  setSelectedRoleId(row.original.uuid);
+                  setAssignDialogOpen(true);
+                }}
+                variant="default"
+                className="justify-start bg-orange-500 hover:bg-orange-600 text-white"
+              >
+                <Pencil className="mr-2 h-4 w-4" />
+                Manage Permissions
+              </Button>
+            ),
+          },
+        ]
+      : []),
   ];
 
-  const handleSave = async(ids: string[]) => {
-   const data = await  dispatch(updateRolePermissionsAction({ org_uuid: currentOrgUUID, role_uuid: selectedRoleId, permission_uuids: ids }));
+  const handleSave = async (ids: string[]) => {
+    const data = await dispatch(
+      updateRolePermissionsAction({
+        org_uuid: currentOrgUUID,
+        role_uuid: selectedRoleId,
+        permission_uuids: ids,
+      })
+    );
     if (currentUser && data.meta.requestStatus === "fulfilled") {
       dispatch(
         listRolePermissionsAction({
@@ -137,13 +146,11 @@ export default function RoleManagement() {
         },
       })
     );
-    dispatch(
-      listOrganizationPermissionsAction({ org_uuid: currentOrgUUID })
-    );
+    dispatch(listOrganizationPermissionsAction({ org_uuid: currentOrgUUID }));
   }, [currentOrgUUID, pagination]);
 
   return (
-    <div className="p-6 h-max-[calc(100vh-69px)]">
+    <div className="p-6 h-[100vh]">
       <div className="flex items-center justify-between mb-4 ">
         <div>
           <h2 className="text-lg font-semibold">Role Management</h2>
@@ -151,35 +158,50 @@ export default function RoleManagement() {
             List of roles in the organization.
           </p>
         </div>
-        <div>
-          <CreateRole org_uuid={currentOrgUUID!} />
-        </div>
+        {  hasPermissions(
+          "role_management",
+          "create",
+          currentUserRolePermissions,
+          currentUser?.email
+        ) && (
+          <div>
+            <CreateRole org_uuid={currentOrgUUID!} />
+          </div>
+        )}
+      </div>
 
-      </div>
-      <DataTable
-        data={roles || []}
-        columns={columns}
-        isLoading={isLoading}
-        totalCount={total || 0}
-        pagination={pagination}
-        onPaginationChange={handlePaginationChange}
-        searchPlaceholder="Filter organization roles..."
-        noDataMessage="No roles found."
-      />
-      {/* AssignPermission Dialog rendered once at the top level */}
-      <div className="h-[500px] w-0 overflow-hidden">
-      <Dialog open={assignDialogOpen}  onOpenChange={setAssignDialogOpen}>
-        <DialogContent className="h-[70%] min-w-[650px]">
-          <DialogTitle className="text-lg font-semibold mb-2">Manage Permissions</DialogTitle>
-          <AssignPermission
-            selectedPermissions={rolePermissions.role_permissions}
-            permissions={permissions}
-            onSave={handleSave}
-            isLoading={isLoadingPermissions}
+      {  hasPermissions("role_management", "read", currentUserRolePermissions ,currentUser?.email) ? (
+        <>
+          <DataTable
+            data={roles || []}
+            columns={columns}
+            isLoading={isLoading}
+            totalCount={total || 0}
+            pagination={pagination}
+            onPaginationChange={handlePaginationChange}
+            searchPlaceholder="Filter organization roles..."
+            noDataMessage="No roles found."
           />
-        </DialogContent>
-      </Dialog>
-      </div>
+
+          <div className="h-[500px] w-0 overflow-hidden">
+            <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
+              <DialogContent className="h-[70%] min-w-[650px]">
+                <DialogTitle className="text-lg font-semibold mb-2">
+                  Manage Permissions
+                </DialogTitle>
+                <AssignPermission
+                  selectedPermissions={rolePermissions.role_permissions}
+                  permissions={permissions}
+                  onSave={handleSave}
+                  isLoading={isLoadingPermissions}
+                />
+              </DialogContent>
+            </Dialog>
+          </div>
+        </>
+      ) : (
+        <NoReadPermission />
+      )}
     </div>
   );
 }

@@ -51,27 +51,57 @@ export default function RolePermissionForm({
       </div>
     ) : (
       <>
-        <div className="space-y-6 h-full overflow-y-auto no-scrollbar">
+        <div className="space-y-6 h-full pb-1 overflow-y-auto no-scrollbar">
           {Object.entries(grouped).map(([group, perms]) => (
             <Card key={group}>
               <CardHeader>
-                <CardTitle className="capitalize">
-                  {group.replace(/_/g, " ")}
-                </CardTitle>
+                <div className="flex items-center gap-2">
+                  {/* Use a ref to set indeterminate manually */}
+                  
+                  <CardTitle className="capitalize">
+                    {group.replace(/_/g, " ")}
+                  </CardTitle>
+                </div>
               </CardHeader>
-              <CardContent className="flex flex-wrap gap-4">
-                {perms.map((permission) => (
-                  <label
-                    key={permission.uuid}
-                    className="flex items-center space-x-2 cursor-pointer"
-                  >
-                    <Checkbox
-                      checked={selected.has(permission.uuid)}
-                      onCheckedChange={() => togglePermission(permission.uuid)}
-                    />
-                    <span>{permission.action}</span>
-                  </label>
-                ))}
+              <CardContent className="flex-wrap gap-4">
+                <div className="flex gap-2">
+                  {perms.map((permission) => (
+                    <label
+                      key={permission.uuid}
+                      className="flex items-center space-x-2 cursor-pointer"
+                    >
+                      <Checkbox
+                        checked={selected.has(permission.uuid)}
+                        onCheckedChange={() => togglePermission(permission.uuid)}
+                      />
+                      <span>{permission.action}</span>
+                    </label>
+                  ))}
+                </div>
+                <div className="flex justify-end items-center gap-2.5">
+                  <label className="flex items-center space-x-2 cursor-pointer underline" htmlFor={`select-all-${group}`}>Select All</label>
+                  <Checkbox
+                    id={`select-all-${group}`}
+                    checked={perms.every((permission) => selected.has(permission.uuid))}
+                    ref={el => {
+                      const input = el as HTMLInputElement | null;
+                      if (input) {
+                        input.indeterminate =
+                          perms.some((permission) => selected.has(permission.uuid)) &&
+                          !perms.every((permission) => selected.has(permission.uuid));
+                      }
+                    }}
+                    onCheckedChange={(checked) => {
+                      const updated = new Set(selected);
+                      if (checked) {
+                        perms.forEach((permission) => updated.add(permission.uuid));
+                      } else {
+                        perms.forEach((permission) => updated.delete(permission.uuid));
+                      }
+                      setSelected(updated);
+                    }}
+                  />
+                </div>
               </CardContent>
             </Card>
           ))}

@@ -23,19 +23,22 @@ import { format } from "date-fns";
 import CreateUser from "@/components/user/create-user";
 import DataTable, { PaginationState } from "@/shared/table";
 import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
+import { hasPermissions } from "@/libs/haspermissios";
+import NoReadPermission from "@/shared/no-read-permission";
 type Checked = DropdownMenuCheckboxItemProps["checked"];
-export default function ManageOrganizationsUser() {
+export default  function ManageOrganizationsUser() {
   const dispatch = useAppDispatch();
   const currentOrgUUID = useAppSelector(
     (state) => state.userSlice.currentOrganizationUuid
   );
 
-  const { users, isLoading, total, pagination } = useAppSelector(
-    (state) => state.userSlice
+  const { currentUserRolePermissions } = useAppSelector(
+    (state) => state.permissionSlice
   );
 
-  const [showStatusBar, setShowStatusBar] = React.useState<Checked>(true);
-  const [showActivityBar, setShowActivityBar] = React.useState<Checked>(false);
+  const { users, isLoading, total, pagination ,currentUser } = useAppSelector(
+    (state) => state.userSlice
+  );
 
   const columns: ColumnDef<UserInterface>[] = [
     {
@@ -67,69 +70,46 @@ export default function ManageOrganizationsUser() {
         return <div>{date}</div>;
       },
     },
-    {
-      id: "actions",
-      header: "Actions",
-      enableHiding: false,
-      cell: ({ row }) => {
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <MoreHorizontal />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <div>
-                <CreateUser
-                  org_uuid={currentOrgUUID}
-                  isEdited={true}
-                  userData={row.original}
-                />
-              </div>
-              <DropdownMenuSeparator />
-
-              <DropdownMenuCheckboxItem
-                checked={showStatusBar}
-                onCheckedChange={setShowStatusBar}
-              >
-                Active
-              </DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem
-                checked={showActivityBar}
-                onCheckedChange={setShowActivityBar}
-                disabled
-              >
-                Inactive
-              </DropdownMenuCheckboxItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
-    },
+    ...(  hasPermissions("user_management", "update", currentUserRolePermissions ,currentUser?.email)
+      ? [
+          {
+            id: "actions",
+            header: "Actions",
+            enableHiding: true,
+            size: 150,
+            cell: ({ row }: any) => (
+              <CreateUser
+                org_uuid={currentOrgUUID}
+                isEdited={true}
+                userData={row.original}
+              />
+            ),
+          },
+        ]
+      : []),
   ];
 
   const handlePaginationChange = (newPagination: Partial<PaginationState>) => {
     dispatch(setPagination({ ...pagination, ...newPagination }));
   };
 
-  React.useEffect(() => {
-    dispatch(
-      listUserAction({
-        org_uuid: currentOrgUUID,
-        pagination: {
-          page: pagination.page,
-          limit: pagination.limit,
-          search: pagination.search?.trim(),
-        },
-      })
-    );
+  React.useEffect(  () =>  {
+    if (true) {
+      dispatch(
+        listUserAction({
+          org_uuid: currentOrgUUID,
+          pagination: {
+            page: pagination.page,
+            limit: pagination.limit,
+            search: pagination.search?.trim(),
+          },
+        })
+      );
+    }
   }, [currentOrgUUID, pagination]);
 
   return (
-    <div className="p-6 h-max-[calc(100vh-69px)]">
+    <div className="p-6 h-[100vh]">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">User Management</h2>
@@ -137,20 +117,31 @@ export default function ManageOrganizationsUser() {
             List of users in the organization.
           </p>
         </div>
-        <div>
-          <CreateUser org_uuid={currentOrgUUID} isEdited={false} />
-        </div>
+         {  hasPermissions(
+          "user_management",
+          "create",
+          currentUserRolePermissions ,
+          currentUser?.email
+        ) && (
+          <div>
+            <CreateUser org_uuid={currentOrgUUID} isEdited={false} />
+          </div>
+        )}
       </div>
-      <DataTable
-        data={users || []}
-        columns={columns}
-        isLoading={isLoading}
-        totalCount={total || 0}
-        pagination={pagination}
-        onPaginationChange={handlePaginationChange}
-        searchPlaceholder="Filter organization users..."
-        noDataMessage="No users found."
-      />
+      {  hasPermissions("user_management", "read", currentUserRolePermissions ,currentUser?.email) ? (
+        <DataTable
+          data={users || []}
+          columns={columns}
+          isLoading={isLoading}
+          totalCount={total || 0}
+          pagination={pagination}
+          onPaginationChange={handlePaginationChange}
+          searchPlaceholder="Filter organization users..."
+          noDataMessage="No users found."
+        />
+      ) : (
+        <NoReadPermission />
+      )}
     </div>
   );
 }

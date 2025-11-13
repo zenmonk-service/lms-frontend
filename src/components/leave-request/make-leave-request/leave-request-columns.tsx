@@ -10,6 +10,7 @@ import { LeaveRequestStatus } from "@/features/leave-requests/leave-requests.typ
 import { Button } from "../../ui/button";
 import { useAppSelector } from "@/store";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../../ui/tooltip";
+import { hasPermissions } from "@/libs/haspermissios";
 
 interface LeaveRequest {
   uuid: string;
@@ -52,11 +53,17 @@ interface LeaveRequestProps {
   onDelete?: (uuid: string) => void;
 }
 
-export const useLeaveRequestColumns = ({
+export const useLeaveRequestColumns =   ({
   onEdit,
   onDelete,
 }: LeaveRequestProps): ColumnDef<LeaveRequest>[] => {
   const { isLoading } = useAppSelector((state) => state.leaveRequestSlice);
+  const { currentUserRolePermissions } = useAppSelector(
+    (state) => state.permissionSlice
+  );
+    const { currentUser } = useAppSelector(
+    (state) => state.userSlice
+  );
 
   return [
     {
@@ -186,7 +193,9 @@ export const useLeaveRequestColumns = ({
         );
       },
     },
-    {
+    ...( hasPermissions("leave_request_management", "update", currentUserRolePermissions ,currentUser?.email)
+    ? [ {
+      accessorKey: "actions", 
       id: "actions",
       header: () => {
         return (
@@ -195,7 +204,7 @@ export const useLeaveRequestColumns = ({
           </div>
         );
       },
-      cell: ({ row }) => {
+      cell: ({ row }: any) => {
         const status = row.getValue("status") as LeaveRequestStatus;
         const uuid = row.original.uuid;
 
@@ -242,6 +251,6 @@ export const useLeaveRequestColumns = ({
           </div>
         );
       },
-    },
+    } ] : []),
   ];
 };

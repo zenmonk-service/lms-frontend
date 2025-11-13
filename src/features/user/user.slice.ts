@@ -74,6 +74,9 @@ export const userSlice = createSlice({
     setIsUserExist: (state, action) => {
       state.isUserExist = action.payload || false;
     },
+    setCurrentUser: (state, action) => {
+      state.currentUser = action.payload || null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -124,5 +127,5 @@ export const userSlice = createSlice({
 });
 
 export const userReducer = userSlice.reducer;
-export const { setCurrentOrganizationUuid, setPagination, setIsUserExist } =
+export const { setCurrentOrganizationUuid, setPagination, setIsUserExist ,setCurrentUser } =
   userSlice.actions;

@@ -7,6 +7,7 @@ declare module "next-auth" {
       uuid?: string;
       name?: string;
       email?: string;
+      permissions?: any[];
     };
   }
 
@@ -14,6 +15,7 @@ declare module "next-auth" {
     uuid?: string;
     name?: string;
     email?: string;
+    permissions?: any[];
   }
 }
 

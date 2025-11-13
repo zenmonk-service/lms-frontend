@@ -6,15 +6,21 @@ import { getLeaveTypesAction } from "@/features/leave-types/leave-types.action";
 import { LeaveTypes, useLeaveTypesColumns } from "./list-leave-types-columns";
 import LeaveTypeForm from "./leave-type-form";
 import DataTable, { PaginationState } from "@/shared/table";
+import { hasPermissions } from "@/libs/haspermissios";
+import NoReadPermission from "@/shared/no-read-permission";
+import { current } from "@reduxjs/toolkit";
 
 export default function ListLeaveTypes() {
   const dispatch = useAppDispatch();
   const { leaveTypes, isLoading } = useAppSelector(
     (state) => state.leaveTypeSlice
   );
+  const { currentUserRolePermissions } = useAppSelector(
+    (state) => state.permissionSlice
+  );
 
-  const currentOrgUUID = useAppSelector(
-    (state) => state.userSlice.currentOrganizationUuid
+  const {currentOrganizationUuid ,currentUser} = useAppSelector(
+    (state) => state.userSlice
   );
 
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -32,27 +38,28 @@ export default function ListLeaveTypes() {
     setEditDialogOpen(true);
   };
 
-  const columns = useLeaveTypesColumns(handleEdit, currentOrgUUID);
+  const columns = useLeaveTypesColumns(handleEdit, currentOrganizationUuid);
 
   useEffect(() => {
-    if (currentOrgUUID) {
+    if (currentOrganizationUuid) {
       dispatch(
         getLeaveTypesAction({
-          org_uuid: currentOrgUUID,
+          org_uuid: currentOrganizationUuid,
           page: pagination.page,
           limit: pagination.limit,
           search: pagination.search,
         })
       );
     }
-  }, [dispatch, currentOrgUUID, pagination]);
+  }, [dispatch, currentOrganizationUuid, pagination]);
 
   const handlePaginationChange = (newPagination: Partial<PaginationState>) => {
     setPagination((prev) => ({ ...prev, ...newPagination }));
   };
 
   return (
-    <div>
+    <>
+      { hasPermissions("leave_type_management", "read", currentUserRolePermissions , currentUser?.email) ?<div>
       <DataTable
         data={leaveTypes?.rows || []}
         columns={columns}
@@ -83,6 +90,7 @@ export default function ListLeaveTypes() {
           }}
         />
       )}
-    </div>
+    </div>  : <NoReadPermission />}
+    </>
   );
 }

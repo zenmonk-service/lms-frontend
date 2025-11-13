@@ -14,9 +14,15 @@ import {
 } from "@/components/ui/card";
 import { LoginCredentials, User } from "@/types/user";
 import { authenticate } from "@/app/auth/authenticate.action";
-import { signIn } from "@/features/user/user.service";
+
+
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { setCurrentUser } from "@/features/user/user.slice";
+import { useAppDispatch } from "@/store";
+import { signIn  as signInUser} from "next-auth/react";
+import { signIn } from "@/features/user/user.service";
+
 
 export default function LoginPage() {
   const [credentials, setCredentials] = useState<LoginCredentials>({
@@ -25,7 +31,7 @@ export default function LoginPage() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  const dispatch = useAppDispatch();
   const router = useRouter();
   const handleChange = (field: keyof LoginCredentials, value: string) => {
     setCredentials((prev) => ({ ...prev, [field]: value }));
@@ -43,11 +49,13 @@ export default function LoginPage() {
     try {
       const user: any = await signIn(credentials);
       const userData = user.data.data;
-      await authenticate({
-        email: credentials.email,
+      await signInUser("credentials", {
+        redirect: false,
+        email: userData.email,
         name: userData.name,
         uuid: userData.user_id,
       });
+      dispatch(setCurrentUser(userData));
       if (userData.role == "superadmin") {
         router.push("/organizations");
       } else {

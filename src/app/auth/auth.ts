@@ -11,19 +11,28 @@ export const authConfig: NextAuthConfig = {
     strategy: "jwt",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.uuid = (user as any).uuid;
         token.email = user.email;
         token.name = user.name;
       }
+      if (trigger === "update" && session) {
+        token = {
+          uuid: session.user.uuid,
+          email: session.user.email,
+          name: session.user.name,
+          permissions: session.user.permissions,
+        };
+      }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token }: { session: any; token: any }) {
       if (session.user) {
         session.user.uuid = token.uuid as string;
         session.user.email = token.email as string;
         session.user.name = token.name as string;
+        session.user.permissions = token.permissions || [];
       }
       return session;
     },
@@ -32,7 +41,6 @@ export const authConfig: NextAuthConfig = {
     Credentials({
       async authorize(credentials) {
         if (!credentials?.uuid || !credentials?.email) return null;
-
         return {
           uuid: credentials.uuid as string,
           email: credentials.email as string,

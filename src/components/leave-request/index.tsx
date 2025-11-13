@@ -31,7 +31,7 @@ import { type LeaveRequest } from "./approve-leave-request/approve-leave-request
 
 const LeaveRequest = () => {
   const [session, setSession] = useState<any>(null);
-  const { users, currentUser ,currentUser } = useAppSelector((state) => state.userSlice);
+  const { users, currentUser  } = useAppSelector((state) => state.userSlice);
 
   const [leaveTypeFilter, setLeaveTypeFilter] = useState<string>("");
   const [managerFilter, setManagerFilter] = useState<string[]>([]);

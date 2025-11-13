@@ -134,7 +134,7 @@ export const useLeaveTypesColumns = (
           </div>
         );
       },
-      cell: ({ row }) => {
+      cell: ({ row } :any) => {
         const leaveType = row.original;
         const isActive: boolean = leaveType.is_active;
         const leave_type_uuid = leaveType.uuid;

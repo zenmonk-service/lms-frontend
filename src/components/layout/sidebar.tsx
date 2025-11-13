@@ -38,7 +38,7 @@ export function AppSidebar({ uuid }: { uuid: string }) {
     (state) => state.permissionSlice
   );
   function hasPagePermission(tag: string) {
-    return currentUserRolePermissions.some((perm) => perm.tag === tag);
+    return currentUserRolePermissions?.some((perm) => perm.tag === tag);
   }
   const { data, update } = useSession();
 

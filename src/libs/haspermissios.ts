@@ -4,7 +4,7 @@ export function hasPermissions(
   tag: string,
   action: string,
   requiredPermissions: Permission[],
-  email?: string // Pass email as argument
+  email?: string
 ) {
   return requiredPermissions.some((perm) => tag === perm.tag && action === perm.action) ||
     (email === "superadmin@superadmin.in");

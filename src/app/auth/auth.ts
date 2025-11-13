@@ -18,12 +18,7 @@ export const authConfig: NextAuthConfig = {
         token.name = user.name;
       }
       if (trigger === "update" && session) {
-        token = {
-          uuid: session.user.uuid,
-          email: session.user.email,
-          name: session.user.name,
-          permissions: session.user.permissions,
-        };
+         token = { ...token, ...session.user };
       }
       return token;
     },

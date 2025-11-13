@@ -1,5 +1,15 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { LoaderCircle, NotepadText, Pencil, Trash2 } from "lucide-react";
+import {
+  AlertCircleIcon,
+  CheckIcon,
+  ClockIcon,
+  LoaderCircle,
+  NotepadText,
+  Pencil,
+  Trash2,
+  TrendingUpIcon,
+  XIcon,
+} from "lucide-react";
 import {
   HoverCard,
   HoverCardContent,
@@ -99,7 +109,7 @@ export const useLeaveRequestColumns =   ({
         const type = row.getValue("type") as string;
         return (
           <div className="flex justify-center">
-            <Badge variant={"outline"}>
+            <Badge variant={"outline"} className="rounded-sm">
               {type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
             </Badge>
           </div>
@@ -119,7 +129,7 @@ export const useLeaveRequestColumns =   ({
         const range = row.getValue("range") as string;
         return (
           <div className="flex justify-center">
-            <Badge variant={"outline"}>
+            <Badge variant={"outline"} className="rounded-sm">
               {range
                 .replace(/_/g, " ")
                 .replace(/\b\w/g, (c) => c.toUpperCase())}
@@ -156,7 +166,7 @@ export const useLeaveRequestColumns =   ({
             variant = "secondary";
             break;
           case LeaveRequestStatus.CANCELLED:
-            variant = "destructive";
+            variant = "outline";
             break;
           case LeaveRequestStatus.RECOMMENDED:
             variant = "default";
@@ -166,7 +176,14 @@ export const useLeaveRequestColumns =   ({
         }
         return (
           <div className="flex justify-center">
-            <Badge variant={variant}>{value}</Badge>
+            <Badge variant={variant} className="rounded-sm">
+              {variant === "secondary" && <ClockIcon />}
+              {variant === "destructive" && <XIcon />}
+              {variant === "success" && <CheckIcon />}
+              {variant === "default" && <TrendingUpIcon />}
+              {variant === "outline" && <AlertCircleIcon />}
+              {value}
+            </Badge>
           </div>
         );
       },

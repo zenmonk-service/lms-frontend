@@ -116,7 +116,7 @@ const LeaveRequest = () => {
     setModalOpen(true);
   };
 
-  const onDelete = async (leave_request_uuid: string) => {
+  const onDelete = (leave_request_uuid: string) => {
     setSelectedLeaveRequestUuid(leave_request_uuid);
     setConfirmationOpen(true);
   };
@@ -156,7 +156,7 @@ const LeaveRequest = () => {
           currentUser?.email
         ) ? (
           <>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 justify-end">
               <div>
                 <CustomSelect
                   value={leaveTypeFilter}

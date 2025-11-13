@@ -11,10 +11,13 @@ export const getOrganizations = (payload: OrganizationFetchPayload) => {
   });
 };
 
-
 export const getAllOrganizations = (payload: OrganizationFetchPayload) => {
   return axiosInterceptorInstance.get(`/organizations`, {
-    params: { page: payload.page , limit: payload.limit ,search : payload.search },
+    params: {
+      page: payload.page,
+      limit: payload.limit,
+      search: payload.search,
+    },
   });
 };
 
@@ -86,4 +89,24 @@ export const getRoles = (org_uuid: string) => {
       org_uuid: org_uuid,
     },
   });
+};
+
+export const activateUser = (org_uuid: string, user_uuid: string) => {
+  return axiosInterceptorInstance.patch(`/users/${user_uuid}/activate`, null, {
+    headers: {
+      org_uuid: org_uuid,
+    },
+  });
+};
+
+export const deactivateUser = (org_uuid: string, user_uuid: string) => {
+  return axiosInterceptorInstance.patch(
+    `/users/${user_uuid}/deactivate`,
+    null,
+    {
+      headers: {
+        org_uuid: org_uuid,
+      },
+    }
+  );
 };

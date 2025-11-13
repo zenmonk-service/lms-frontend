@@ -25,6 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import Image from "next/image";
 
 export interface PaginationState {
   page: number;

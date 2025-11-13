@@ -2,7 +2,17 @@
 
 import React, { useEffect, useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { Check, X, ThumbsUp, Info } from "lucide-react";
+import {
+  Check,
+  X,
+  ThumbsUp,
+  Info,
+  ClockIcon,
+  XIcon,
+  CheckIcon,
+  TrendingUpIcon,
+  AlertCircleIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -31,11 +41,10 @@ export type LeaveRequest = {
   range?: string;
   leave_duration?: number | null;
   reason?: string | null;
-  status?: string;
+  status?: LeaveRequestStatus;
   created_at?: string;
   updated_at?: string;
 };
-
 
 const ReasonCell = ({ value }: { value?: string | null }) => {
   if (!value) return <span>-</span>;
@@ -52,7 +61,6 @@ const ReasonCell = ({ value }: { value?: string | null }) => {
     </HoverCard>
   );
 };
-
 
 export const useLeaveRequestsColumns = (opts?: {
   onApprove?: (lr: LeaveRequest) => void;
@@ -102,23 +110,72 @@ export const useLeaveRequestsColumns = (opts?: {
     },
     {
       accessorKey: "type",
-      header: "Type",
-      cell: ({ row }) => (
-        <Badge variant="outline">{row.original.type ?? "-"}</Badge>
-      ),
+      header: () => {
+        return (
+          <div className="text-center">
+            <span>Type</span>
+          </div>
+        );
+      },
+      cell: ({ row }) => {
+        const type = row.getValue("type") as string;
+        return (
+          <div className="flex justify-center">
+            <Badge variant={"outline"} className="rounded-sm">
+              {type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
+            </Badge>
+          </div>
+        );
+      },
     },
     {
       accessorKey: "status",
-      header: "Status",
+      header: () => {
+        return (
+          <div className="text-center">
+            <span>Status</span>
+          </div>
+        );
+      },
       cell: ({ row }) => {
-        const status = row.original.status ?? "UNKNOWN";
-        const colorVariant =
-          status.toLowerCase() === "approved"
-            ? "default"
-            : status.toLowerCase() === "rejected"
-            ? "destructive"
-            : "secondary";
-        return <Badge variant="outline">{status}</Badge>;
+        const value = row.getValue("status") as LeaveRequestStatus;
+        let variant:
+          | "default"
+          | "destructive"
+          | "secondary"
+          | "outline"
+          | "success";
+        switch (value) {
+          case LeaveRequestStatus.APPROVED:
+            variant = "success";
+            break;
+          case LeaveRequestStatus.REJECTED:
+            variant = "destructive";
+            break;
+          case LeaveRequestStatus.PENDING:
+            variant = "secondary";
+            break;
+          case LeaveRequestStatus.CANCELLED:
+            variant = "outline";
+            break;
+          case LeaveRequestStatus.RECOMMENDED:
+            variant = "default";
+            break;
+          default:
+            variant = "outline";
+        }
+        return (
+          <div className="flex justify-center">
+            <Badge variant={variant} className="rounded-sm">
+              {variant === "secondary" && <ClockIcon />}
+              {variant === "destructive" && <XIcon />}
+              {variant === "success" && <CheckIcon />}
+              {variant === "default" && <TrendingUpIcon />}
+              {variant === "outline" && <AlertCircleIcon />}
+              {value}
+            </Badge>
+          </div>
+        );
       },
     },
     {

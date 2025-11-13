@@ -33,7 +33,7 @@ export function ConfirmationDialog({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleConfirm}>
+          <AlertDialogAction onClick={handleConfirm} className="bg-orange-500">
             Continue
           </AlertDialogAction>
         </AlertDialogFooter>

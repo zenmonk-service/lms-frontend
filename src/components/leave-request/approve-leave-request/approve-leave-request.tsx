@@ -18,6 +18,7 @@ import LeaveActionModal from "./approve-leave-request-modal";
 import { LeaveRequestStatus } from "@/features/leave-requests/leave-requests.types";
 import CustomSelect from "@/shared/select";
 import { DateRangePicker } from "@/shared/date-range-picker";
+import { listUserAction } from "@/features/user/user.action";
 
 export type LeaveAction = "approve" | "reject" | "recommend" | null;
 
@@ -31,8 +32,9 @@ export default function ApproveLeaveRequests() {
     (state) => state.userSlice.currentOrganizationUuid
   );
 
-  // leave types from store (for select)
   const { leaveTypes } = useAppSelector((s) => s.leaveTypeSlice);
+  const { users } = useAppSelector((state) => state.userSlice);
+  console.log("users: ", users);
 
   const [session, setSession] = useState<Session | null>(null);
   const [pagination, setPagination] = useState<PaginationState>({
@@ -41,15 +43,14 @@ export default function ApproveLeaveRequests() {
     search: "",
   });
 
-  // filters
   const [leaveTypeFilter, setLeaveTypeFilter] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("");
+  const [userFilter, setUserFilter] = useState<string>("");
   const [dateRangeFilter, setDateRangeFilter] = useState<{
     start_date?: string;
     end_date?: string;
   }>({ start_date: undefined, end_date: undefined });
 
-  // modal state
   const [modalOpen, setModalOpen] = useState(false);
   const [selected, setSelected] = useState<LeaveRequest | null>(null);
   const [leaveAction, setLeaveAction] = useState<LeaveAction>(null);
@@ -82,6 +83,7 @@ export default function ApproveLeaveRequests() {
       status: statusFilter || LeaveRequestStatus.PENDING,
       leave_type_uuid: leaveTypeFilter || undefined,
       date_range: date_range,
+      user_uuid: userFilter,
       date: date_range
         ? undefined
         : dateRangeFilter.start_date || dateRangeFilter.end_date || undefined,
@@ -97,6 +99,19 @@ export default function ApproveLeaveRequests() {
     statusFilter,
     dateRangeFilter,
   ]);
+
+  useEffect(() => {
+    dispatch(
+      listUserAction({
+        org_uuid: currentOrgUUID,
+        pagination: {
+          page: 1,
+          limit: 10,
+          search: userFilter,
+        },
+      })
+    );
+  }, [userFilter]);
 
   const openModal = (lr: LeaveRequest, actionMode: LeaveAction) => {
     setSelected(lr);
@@ -178,6 +193,19 @@ export default function ApproveLeaveRequests() {
             data={leaveTypes?.rows ?? []}
             label="Leave Type"
             placeholder="Leave type"
+            className="w-[200px]"
+          />
+        </div>
+
+        <div>
+          <CustomSelect
+            value={userFilter}
+            onValueChange={setUserFilter}
+            onSearch={setUserFilter}
+            search={true}
+            data={users ?? []}
+            label="Applied By"
+            placeholder="Applied By"
             className="w-[200px]"
           />
         </div>

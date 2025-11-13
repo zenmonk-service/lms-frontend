@@ -19,7 +19,7 @@ export const updateUser = (user?: UpdateUserPayload) => {
 };
 
 export const listUser = (
-  filters: { page: number; limit?: number },
+  filters: { page: number; limit?: number, search?: string },
   org_uuid: string
 ) => {
   return axiosInterceptorInstance.get(`/users`, {

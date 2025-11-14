@@ -10,16 +10,23 @@ export const GET = async (request: Request) => {
   const limit = searchParams.get("limit");
   const search = searchParams.get("search");
 
-  const response = await axios.get(`${BASE_URL}/permissions`, {
-    headers: {
-      org_uuid: org_uuid,
-    },
-    params: {
-      page,
-      limit,
-      search,
-    },
-  });
+  try {
+    const response = await axios.get(`${BASE_URL}/permissions`, {
+      headers: {
+        org_uuid: org_uuid,
+      },
+      params: {
+        page,
+        limit,
+        search,
+      },
+    });
 
-  return NextResponse.json(response.data);
+    return NextResponse.json(response.data);
+  } catch (err: any) {
+    return NextResponse.json(
+      { error: err?.response.data.error },
+      { status: err?.status }
+    );
+  }
 };

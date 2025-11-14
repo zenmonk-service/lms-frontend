@@ -30,13 +30,11 @@ export async function GET(
     );
 
     return NextResponse.json(response.data, { status: response.status });
-  } catch (err: any) {
-    const axiosResp = err?.response;
-    const status = axiosResp?.status;
-    const data = axiosResp?.data ?? {
-      message: err?.message ?? "Unknown error",
-    };
-    return NextResponse.json(data, { status });
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error?.response.data.error },
+      { status: error?.status }
+    );
   }
 }
 
@@ -70,8 +68,8 @@ export async function POST(
   } catch (error: any) {
     console.log("error: ", error);
     return NextResponse.json(
-      { error: error?.response.data.description },
-      { status: error.status }
+      { error: error?.response.data.error },
+      { status: error?.status }
     );
   }
 }

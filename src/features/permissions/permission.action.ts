@@ -18,8 +18,8 @@ export const listOrganizationPermissionsAction = createAsyncThunk(
     try {
       const response = await listOrganizationPermissions(payload);
       return response.data;
-    } catch (err) {
-      toast.error("Something went wrong.");
+    } catch (err: any) {
+      toast.error(err.response.data.error ?? "Something went wrong.");
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error?.response?.data);
     }
@@ -36,8 +36,8 @@ export const listRolePermissionsAction = createAsyncThunk(
         currentUserRolePermissions:
           payload.isCurrentUserRolePermissions ?? false,
       };
-    } catch (err) {
-      toast.error("Something went wrong.");
+    } catch (err: any) {
+      toast.error(err.response.data.error ?? "Something went wrong.");
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error?.response?.data);
     }
@@ -50,8 +50,8 @@ export const updateRolePermissionsAction = createAsyncThunk(
     try {
       const response = await updateRolePermissions(payload);
       return response.data;
-    } catch (err) {
-      toast.error("Something went wrong.");
+    } catch (err: any) {
+      toast.error(err.response.data.error ?? "Something went wrong.");
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error?.response?.data);
     }

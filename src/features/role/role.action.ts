@@ -13,8 +13,8 @@ export const getOrganizationRolesAction = createAsyncThunk(
       const response = await getOrganizationRoles(payload);
       return response.data;
 
-    } catch (err) {
-      toast.error("Something went wrong.");
+    } catch (err: any) {
+      toast.error(err.response.data.error ?? "Something went wrong.");
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error?.response?.data);
     }
@@ -29,8 +29,8 @@ export const createOrganizationRoleAction = createAsyncThunk(
       const response = await createOrganizationRole(payload);
       return response.data;
 
-    } catch (err) {
-      toast.error("Something went wrong.");
+    } catch (err: any) {
+      toast.error(err.response.data.error ?? "Something went wrong.");
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error?.response?.data);
     }

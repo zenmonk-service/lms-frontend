@@ -62,7 +62,7 @@ export default function LoginPage() {
         router.push("/select-organization");
       }
     } catch (err: any) {
-      toast.error("Something went wrong.");
+      toast.error(err.response.data.error);
     } finally {
       setLoading(false);
     }

@@ -9,7 +9,7 @@ export const POST = async (request: Request) => {
     return NextResponse.json(response.data);
   } catch (error :any) {
     return NextResponse.json(
-      { error: error?.response.data.description },
+      { error: error?.response.data.message },
       { status: error.status }
     );
   }

@@ -24,12 +24,10 @@ export async function PATCH(
     );
 
     return NextResponse.json(response.data);
-  } catch (err: any) {
-    const axiosResp = err?.response;
-    const status = axiosResp?.status;
-    const data = axiosResp?.data ?? {
-      message: err?.message ?? "Unknown error",
-    };
-    return NextResponse.json(data, { status });
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error?.response.data.error },
+      { status: error?.status }
+    );
   }
 }

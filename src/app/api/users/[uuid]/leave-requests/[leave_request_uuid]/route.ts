@@ -32,8 +32,8 @@ export async function PUT(
     return NextResponse.json(response.data);
   } catch (error: any) {
     return NextResponse.json(
-      { error: error?.response.data.description },
-      { status: error.status }
+      { error: error?.response.data.error },
+      { status: error?.status }
     );
   }
 }
@@ -66,8 +66,8 @@ export async function DELETE(
     return NextResponse.json(response.data);
   } catch (error: any) {
     return NextResponse.json(
-      { error: error?.response.data.description },
-      { status: error.status }
+      { error: error?.response.data.error },
+      { status: error?.status }
     );
   }
 }

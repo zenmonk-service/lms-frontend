@@ -19,8 +19,8 @@ export const getLeaveRequestsAction = createAsyncThunk(
       const response = await getLeaveRequests(data.org_uuid, data);
       console.log("response: ", response.data);
       return response.data;
-    } catch (err) {
-      toast.error("Something went wrong.");
+    } catch (err: any) {
+      toast.error(err.response.data.error ?? "Something went wrong.");
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error.response?.data);
     }
@@ -37,8 +37,8 @@ export const getUserLeaveRequestsAction = createAsyncThunk(
         data
       );
       return response.data;
-    } catch (err) {
-      toast.error("Something went wrong.");
+    } catch (err: any) {
+      toast.error(err.response.data.error ?? "Something went wrong.");
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error.response?.data);
     }
@@ -55,8 +55,8 @@ export const createUserLeaveRequestsAction = createAsyncThunk(
         data
       );
       return response.data;
-    } catch (err) {
-      toast.error("Something went wrong.");
+    } catch (err: any) {
+      toast.error(err.response.data.error ?? "Something went wrong.");
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error.response?.data);
     }
@@ -81,8 +81,6 @@ export const approveLeaveRequestAction = createAsyncThunk(
         data.manager_uuid,
         data.remark
       );
-      // refresh list after successful operation
-      try {
         if (data.org_uuid) {
           thunkAPI.dispatch(
             getLeaveRequestsAction({
@@ -94,12 +92,10 @@ export const approveLeaveRequestAction = createAsyncThunk(
             } as any)
           );
         }
-      } catch (e) {
-        // ignore refresh errors
-      }
+
       return response.data;
-    } catch (err) {
-      toast.error("Something went wrong.");
+    } catch (err: any) {
+      toast.error(err.response.data.error ?? "Something went wrong.");
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error.response?.data);
     }
@@ -124,7 +120,6 @@ export const recommendLeaveRequestAction = createAsyncThunk(
         data.manager_uuid,
         data.remark
       );
-      try {
         const org_uuid = (thunkAPI.getState() as any).userSlice
           ?.currentOrganizationUuid;
         if (org_uuid) {
@@ -138,10 +133,9 @@ export const recommendLeaveRequestAction = createAsyncThunk(
             } as any)
           );
         }
-      } catch (e) {}
       return response.data;
-    } catch (err) {
-      toast.error("Something went wrong.");
+    } catch (err: any) {
+      toast.error(err.response.data.error ?? "Something went wrong.");
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error.response?.data);
     }
@@ -182,8 +176,8 @@ export const rejectLeaveRequestAction = createAsyncThunk(
         }
       } catch (e) {}
       return response.data;
-    } catch (err) {
-      toast.error("Something went wrong.");
+    } catch (err: any) {
+      toast.error(err.response.data.error ?? "Something went wrong.");
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error.response?.data);
     }
@@ -201,8 +195,8 @@ export const updateLeaveRequestOfUserAction = createAsyncThunk(
         data
       );
       return response.data;
-    } catch (err) {
-      toast.error("Something went wrong.");
+    } catch (err: any) {
+      toast.error(err.response.data.error ?? "Something went wrong.");
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error.response?.data);
     }
@@ -219,8 +213,8 @@ export const deleteLeaveRequestOfUserAction = createAsyncThunk(
         data.leave_request_uuid
       );
       return response.data;
-    } catch (err) {
-      toast.error("Something went wrong.");
+    } catch (err: any) {
+      toast.error(err.response.data.error ?? "Something went wrong.");
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error.response?.data);
     }

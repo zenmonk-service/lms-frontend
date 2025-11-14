@@ -39,13 +39,9 @@ export async function PATCH(
 
     return NextResponse.json(response.data, { status: response.status });
   } catch (error: any) {
-    console.error("approve proxy error:", error?.response ?? error);
-
-    const status = error?.response?.status ?? 500;
-    const data = error?.response?.data ?? {
-      error: "Internal Server Error",
-    };
-
-    return NextResponse.json(data, { status });
+    return NextResponse.json(
+      { error: error?.response.data.error },
+      { status: error?.status }
+    );
   }
 }

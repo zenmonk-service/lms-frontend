@@ -19,10 +19,10 @@ export async function POST(request: Request) {
 
     return NextResponse.json(resp.data, { status: resp.status });
   } catch (err: any) {
-    const axiosResp = err?.response;
-    const status = axiosResp?.status;
-    const data = axiosResp?.data ?? { message: err?.message ?? "Unknown error" };
-    return NextResponse.json(data, { status });
+    return NextResponse.json(
+      { error: err?.response.data.error },
+      { status: err?.status }
+    );
   }
 }
 
@@ -44,10 +44,10 @@ export async function PUT(request: Request) {
 
     return NextResponse.json(resp.data, { status: resp.status });
   } catch (err: any) {
-    const axiosResp = err?.response;
-    const status = axiosResp?.status;
-    const data = axiosResp?.data ?? { message: err?.message ?? "Unknown error" };
-    return NextResponse.json(data, { status });
+        return NextResponse.json(
+      { error: err?.response.data.error },
+      { status: err?.status }
+    );
   }
 }
 
@@ -59,7 +59,6 @@ export async function GET(request: Request) {
     const params: Record<string, string> = {};
     url.searchParams.forEach((v, k) => (params[k] = v));
 
-    // forward org_uuid header if provided
     const org_uuid = request.headers.get("org_uuid") ?? undefined;
     const authorization = request.headers.get("authorization") ?? undefined;
 
@@ -73,10 +72,10 @@ export async function GET(request: Request) {
     });
 
     return NextResponse.json(resp.data, { status: resp.status });
-  } catch (err: any) {
-    const axiosResp = err?.response;
-    const status = axiosResp?.status;
-    const data = axiosResp?.data ?? { message: err?.message ?? "Unknown error" };
-    return NextResponse.json(data, { status });
+  } catch (error: any) {
+        return NextResponse.json(
+      { error: error?.response.data.error },
+      { status: error?.status }
+    );
   }
 }

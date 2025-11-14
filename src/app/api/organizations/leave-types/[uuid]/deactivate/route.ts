@@ -26,10 +26,9 @@ export async function PATCH(
 
     return NextResponse.json(response.data);
   } catch (error: any) {
-    console.log("error: ", error);
     return NextResponse.json(
-      { error: error?.response.data.description },
-      { status: error.status }
+      { error: error?.response.data.error },
+      { status: error?.status }
     );
   }
 }

@@ -21,8 +21,8 @@ export const signInAction = createAsyncThunk(
     try {
       const response = await signIn(signInfo);
       return response.data;
-    } catch (err) {
-      toast.error("Something went wrong.");
+    } catch (err: any) {
+      toast.error(err.response.data.error ?? "Something went wrong.");
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error?.response?.data);
     }
@@ -48,8 +48,8 @@ export const updateUserAction = createAsyncThunk(
     try {
       const response = await updateUser(payload);
       return response.data;
-    } catch (err) {
-      toast.error("Something went wrong.");
+    } catch (err: any) {
+      toast.error(err.response.data.error ?? "Something went wrong.");
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error?.response?.data);
     }
@@ -62,8 +62,8 @@ export const listUserAction = createAsyncThunk(
     try {
       const response = await listUser(payload.pagination, payload.org_uuid);
       return { ...response.data, isCurrentUser: payload.isCurrentUser , email: payload.pagination.search };
-    } catch (err) {
-      toast.error("Something went wrong.");
+    } catch (err: any) {
+      toast.error(err.response.data.error ?? "Something went wrong.");
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error?.response?.data);
     }

@@ -254,8 +254,7 @@ export const useLeaveTypesColumns = (
       },
       cell: ({ row }: any) => {
         return (
-          <div className="flex justify-center w-30.5">
-          
+          <div className="flex justify-center">
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button

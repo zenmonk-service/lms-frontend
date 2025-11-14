@@ -51,7 +51,7 @@ export function AppSidebar({ uuid }: { uuid: string }) {
               hasPagePermission(item.tag) &&
               hasPermissions(
                 "leave_request_management",
-                "approval",
+                "approve",
                 currentUserRolePermissions,
                 currentUser?.email
               )

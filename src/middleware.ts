@@ -3,19 +3,21 @@ import { getSession } from "./app/auth/get-auth.action";
 
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
-  const  loggedInUser = await getSession();
+  const loggedInUser = await getSession();
 
   if (!loggedInUser) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
   async function hasPagePermission(tag: string) {
-    return (await getSession())?.user?.permissions?.some((perm) => perm.tag === tag);
+    return (await getSession())?.user?.permissions?.some(
+      (perm) => perm.tag === tag
+    );
   }
 
   async function isApprovalPageAccessible() {
     return (
-      await hasPagePermission("leave_request_management") &&
+      (await hasPagePermission("leave_request_management")) &&
       loggedInUser?.user?.permissions?.some(
         (perm) =>
           perm.tag === "leave_request_management" && perm.action === "approval"
@@ -25,7 +27,7 @@ export async function middleware(request: NextRequest) {
 
   async function isMyLeavePageAccessible() {
     return (
-      await hasPagePermission("leave_request_management") &&
+      (await hasPagePermission("leave_request_management")) &&
       loggedInUser?.user?.permissions?.some(
         (perm) =>
           (perm.tag === "leave_request_management" &&
@@ -37,27 +39,46 @@ export async function middleware(request: NextRequest) {
     );
   }
 
+  async function isMyLeaveTypePageAccessible() {
+    return (
+      (await hasPagePermission("leave_type_management")) &&
+      loggedInUser?.user?.permissions?.some(
+        (perm) =>
+          (perm.tag === "leave_type_management" && perm.action === "create") ||
+          perm.action === "read" ||
+          perm.action === "update" ||
+          perm.action === "delete"
+      )
+    );
+  }
+
   if (
-    !await hasPagePermission("user_management") &&
+    !(await hasPagePermission("user_management")) &&
     request.nextUrl.pathname.endsWith("/user-management")
   ) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
   if (
-    !await hasPagePermission("role_management") &&
+    !(await hasPagePermission("role_management")) &&
     request.nextUrl.pathname.endsWith("/role-management")
   ) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
   if (
-    !await isApprovalPageAccessible() &&
+    !(await isApprovalPageAccessible()) &&
     request.nextUrl.pathname.endsWith("/approvals")
+  ) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+  if (
+    !(await isMyLeaveTypePageAccessible()) &&
+    request.nextUrl.pathname.endsWith("/leave-types")
   ) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
   if (
-    !await isMyLeavePageAccessible() &&
+    !(await isMyLeavePageAccessible()) &&
     request.nextUrl.pathname.endsWith("/my-leaves")
   ) {
     return NextResponse.redirect(new URL("/login", request.url));

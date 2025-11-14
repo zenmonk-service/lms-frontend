@@ -63,7 +63,7 @@ interface LeaveRequestProps {
   onDelete?: (uuid: string) => void;
 }
 
-export const useLeaveRequestColumns =   ({
+export const useLeaveRequestColumns = ({
   onEdit,
   onDelete,
 }: LeaveRequestProps): ColumnDef<LeaveRequest>[] => {
@@ -71,9 +71,7 @@ export const useLeaveRequestColumns =   ({
   const { currentUserRolePermissions } = useAppSelector(
     (state) => state.permissionSlice
   );
-    const { currentUser } = useAppSelector(
-    (state) => state.userSlice
-  );
+  const { currentUser } = useAppSelector((state) => state.userSlice);
 
   return [
     {
@@ -193,8 +191,38 @@ export const useLeaveRequestColumns =   ({
       header: "Manager",
       cell: ({ row }) => {
         const managers = row.getValue("managers") as LeaveRequest["managers"];
-        const user = managers.map((manager) => manager.user.name).join(", ");
-        return <span>{user || "-"}</span>;
+        const user = managers.map((manager) => manager.user.name);
+        return (
+          <div className="flex gap-1 flex-wrap">
+            {user.slice(0, 3).map((user, index) => (
+              <Badge variant={"outline"} className="rounded-sm" key={index}>
+                {user}
+              </Badge>
+            ))}
+            {user.length > 3 && (
+              <HoverCard>
+                <HoverCardTrigger asChild>
+                  <Badge className="cursor-pointer">+ {user.length - 3}</Badge>
+                </HoverCardTrigger>
+                <HoverCardContent align="start" className="max-w-80">
+                  <div className="space-y-1">
+                    <div className="flex flex-wrap gap-1">
+                      {user.slice(3).map((user, index) => (
+                        <Badge
+                          variant="outline"
+                          className="text-xs"
+                          key={index}
+                        >
+                          {user}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </HoverCardContent>
+              </HoverCard>
+            )}
+          </div>
+        );
       },
     },
     {
@@ -210,64 +238,72 @@ export const useLeaveRequestColumns =   ({
         );
       },
     },
-    ...( hasPermissions("leave_request_management", "update", currentUserRolePermissions ,currentUser?.email)
-    ? [ {
-      accessorKey: "actions", 
-      id: "actions",
-      header: () => {
-        return (
-          <div className="text-center">
-            <span>Actions</span>
-          </div>
-        );
-      },
-      cell: ({ row }: any) => {
-        const status = row.getValue("status") as LeaveRequestStatus;
-        const uuid = row.original.uuid;
+    ...(hasPermissions(
+      "leave_request_management",
+      "update",
+      currentUserRolePermissions,
+      currentUser?.email
+    )
+      ? [
+          {
+            accessorKey: "actions",
+            id: "actions",
+            header: () => {
+              return (
+                <div className="text-center">
+                  <span>Actions</span>
+                </div>
+              );
+            },
+            cell: ({ row }: any) => {
+              const status = row.getValue("status") as LeaveRequestStatus;
+              const uuid = row.original.uuid;
 
-        return (
-          <div className="flex justify-center">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  disabled={status !== LeaveRequestStatus.PENDING}
-                  onClick={() => onEdit?.(row.original)}
-                >
-                  {isLoading ? (
-                    <LoaderCircle className="animate-spin" />
-                  ) : (
-                    <Pencil height={16} width={16} />
-                  )}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Edit Leave Request</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  disabled={status !== LeaveRequestStatus.PENDING}
-                  onClick={() => onDelete?.(uuid)}
-                >
-                  {isLoading ? (
-                    <LoaderCircle className="animate-spin" />
-                  ) : (
-                    <Trash2
-                      height={16}
-                      width={16}
-                      className="text-orange-500"
-                    />
-                  )}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Delete Leave Request</TooltipContent>
-            </Tooltip>
-          </div>
-        );
-      },
-    } ] : []),
+              return (
+                <div className="flex justify-center">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        disabled={status !== LeaveRequestStatus.PENDING}
+                        onClick={() => onEdit?.(row.original)}
+                      >
+                        {isLoading ? (
+                          <LoaderCircle className="animate-spin" />
+                        ) : (
+                          <Pencil height={16} width={16} />
+                        )}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Edit Leave Request</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        disabled={status !== LeaveRequestStatus.PENDING}
+                        onClick={() => onDelete?.(uuid)}
+                      >
+                        {isLoading ? (
+                          <LoaderCircle className="animate-spin" />
+                        ) : (
+                          <Trash2
+                            height={16}
+                            width={16}
+                            className="text-orange-500"
+                          />
+                        )}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Delete Leave Request</TooltipContent>
+                  </Tooltip>
+                </div>
+              );
+            },
+          },
+        ]
+      : []),
   ];
 };

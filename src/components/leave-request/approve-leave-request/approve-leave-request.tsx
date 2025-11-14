@@ -20,6 +20,7 @@ import CustomSelect from "@/shared/select";
 import { DateRangePicker } from "@/shared/date-range-picker";
 import { listUserAction } from "@/features/user/user.action";
 import { SearchSelect } from "@/shared/select/search-select";
+import { getLeaveTypesAction } from "@/features/leave-types/leave-types.action";
 
 export type LeaveAction = "approve" | "reject" | "recommend" | null;
 
@@ -34,8 +35,15 @@ export default function ApproveLeaveRequests() {
   );
 
   const { leaveTypes } = useAppSelector((s) => s.leaveTypeSlice);
-  const { users, currentUser } = useAppSelector((state) => state.userSlice);
-  console.log("users: ", users);
+  const {
+    users,
+    currentUser,
+    isLoading: isUsersLoading,
+  } = useAppSelector((state) => state.userSlice);
+
+  const currentOrganizationUuid = useAppSelector(
+    (state) => state.userSlice.currentOrganizationUuid
+  );
 
   const [session, setSession] = useState<Session | null>(null);
   const [pagination, setPagination] = useState<PaginationState>({
@@ -47,6 +55,7 @@ export default function ApproveLeaveRequests() {
   const [leaveTypeFilter, setLeaveTypeFilter] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [userFilter, setUserFilter] = useState<string>("");
+  const [selectedUser, setSelectedUser] = useState<string>("");
   const [dateRangeFilter, setDateRangeFilter] = useState<{
     start_date?: string;
     end_date?: string;
@@ -65,6 +74,7 @@ export default function ApproveLeaveRequests() {
 
   useEffect(() => {
     setUserSession();
+    dispatch(getLeaveTypesAction({ org_uuid: currentOrganizationUuid }));
   }, []);
 
   useEffect(() => {
@@ -84,7 +94,7 @@ export default function ApproveLeaveRequests() {
       status: statusFilter || LeaveRequestStatus.PENDING,
       leave_type_uuid: leaveTypeFilter || undefined,
       date_range: date_range,
-      user_uuid: userFilter,
+      user_uuid: selectedUser,
       date: date_range
         ? undefined
         : dateRangeFilter.start_date || dateRangeFilter.end_date || undefined,
@@ -99,7 +109,7 @@ export default function ApproveLeaveRequests() {
     leaveTypeFilter,
     statusFilter,
     dateRangeFilter,
-    userFilter,
+    selectedUser,
   ]);
 
   useEffect(() => {
@@ -196,7 +206,7 @@ export default function ApproveLeaveRequests() {
           <CustomSelect
             value={leaveTypeFilter}
             onValueChange={setLeaveTypeFilter}
-            data={leaveTypes?.rows ?? []}
+            data={leaveTypes.rows.filter((lt) => lt.is_active)}
             label="Leave Type"
             placeholder="Leave type"
             className="w-[200px]"
@@ -205,8 +215,8 @@ export default function ApproveLeaveRequests() {
 
         <div>
           <SearchSelect
-            value={userFilter}
-            onValueChange={setUserFilter}
+            value={selectedUser}
+            onValueChange={setSelectedUser}
             onSearch={handleUserSearch}
             data={
               users.filter((user) => user.user_id !== currentUser?.user_id) ??
@@ -215,7 +225,10 @@ export default function ApproveLeaveRequests() {
             label="Users"
             placeholder="Select user"
             className="w-[200px]"
+            isLoading={isUsersLoading}
             emptyMessage="No users found."
+            displayKey="name"
+            valueKey="user_id"
           />
         </div>
 
@@ -235,6 +248,7 @@ export default function ApproveLeaveRequests() {
           <DateRangePicker
             setDateRange={setDateRangeFilter}
             isDependant={false}
+            className="w-[180px]"
           />
         </div>
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Home,
@@ -10,26 +10,48 @@ import {
   Plane,
   ChevronDown,
   BookCheck,
-  Loader,
+  Building2,
+  LogOut,
+  ChevronsUpDown,
+  BadgeCheck,
+  Bell,
+  LoaderCircle,
 } from "lucide-react";
 
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { listRolePermissionsAction } from "@/features/permissions/permission.action";
 import { hasPermissions } from "@/libs/haspermissios";
 import { useSession } from "next-auth/react";
+import { Avatar, AvatarFallback } from "../ui/avatar";
+import { getSession } from "@/app/auth/get-auth.action";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { signOutUser } from "@/app/auth/sign-out.action";
 
 export function AppSidebar({ uuid }: { uuid: string }) {
+  const { isMobile } = useSidebar();
+  const [isPending, startTransition] = useTransition();
+
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -72,6 +94,16 @@ export function AppSidebar({ uuid }: { uuid: string }) {
       })
       .filter(Boolean);
   };
+
+  const [user, setUser] = useState<any>(null);
+  async function getAuth() {
+    const session = await getSession();
+    setUser(session?.user);
+  }
+
+  useEffect(() => {
+    getAuth();
+  }, []);
 
   const items = filterItemsByPermission([
     {
@@ -212,11 +244,26 @@ export function AppSidebar({ uuid }: { uuid: string }) {
 
   return (
     <Sidebar>
+      <SidebarHeader>
+        <SidebarMenuButton
+          size="lg"
+          className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+        >
+          <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+            <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
+              <Building2 className="w-5 h-5 text-white" />
+            </div>
+          </div>
+          <div className="grid flex-1 text-left text-sm leading-tight">
+            <span className="truncate font-medium">LMS</span>
+            <span className="truncate text-xs">Leave Management System</span>
+          </div>
+        </SidebarMenuButton>
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel></SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="mt-8">
+            <SidebarMenu>
               {items?.map((item: any) => (
                 <SidebarNestedItem key={item.title} item={item} />
               ))}
@@ -224,6 +271,68 @@ export function AppSidebar({ uuid }: { uuid: string }) {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <SidebarMenuButton
+              size="lg"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+            >
+              <Avatar className="h-8 w-8 rounded-lg">
+                {/* <AvatarImage src={user?.avatar} alt={user?.name} /> */}
+                <AvatarFallback className="rounded-lg">LG</AvatarFallback>
+              </Avatar>
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-medium">{user?.name}</span>
+                <span className="truncate text-xs">{user?.email}</span>
+              </div>
+              <ChevronsUpDown className="ml-auto size-4" />
+            </SidebarMenuButton>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+            side={isMobile ? "bottom" : "right"}
+            align="end"
+            sideOffset={4}
+          >
+            <DropdownMenuLabel className="p-0 font-normal">
+              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                <Avatar className="h-8 w-8 rounded-lg">
+                  {/* <AvatarImage src={user.avatar} alt={user.name} /> */}
+                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                </Avatar>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-medium">{user?.name}</span>
+                  <span className="truncate text-xs">{user?.email}</span>
+                </div>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuGroup>
+              <DropdownMenuItem>
+                <BadgeCheck className="h-4 w-4 mr-2" />
+                Account
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Bell className="h-4 w-4 mr-2" />
+                Notifications
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => {
+                startTransition(() => signOutUser());
+              }}
+            >
+              {isPending ? (
+                <LoaderCircle className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <LogOut className="w-4 h-4 mr-2" />
+              )}
+              Logout
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </SidebarFooter>
     </Sidebar>
   );
 }

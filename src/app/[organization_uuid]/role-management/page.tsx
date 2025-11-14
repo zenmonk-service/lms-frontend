@@ -150,7 +150,7 @@ export default function RoleManagement() {
   }, [currentOrgUUID, pagination]);
 
   return (
-    <div className="p-6 h-[100vh]">
+    <div className="p-6 h-[calc(100vh-77px)] ">
       <div className="flex items-center justify-between mb-4 ">
         <div>
           <h2 className="text-lg font-semibold">Role Management</h2>

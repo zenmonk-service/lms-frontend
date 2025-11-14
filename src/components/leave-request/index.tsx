@@ -31,7 +31,7 @@ import { type LeaveRequest } from "./approve-leave-request/approve-leave-request
 
 const LeaveRequest = () => {
   const [session, setSession] = useState<any>(null);
-  const { users, currentUser  } = useAppSelector((state) => state.userSlice);
+  const { users, currentUser } = useAppSelector((state) => state.userSlice);
 
   const [leaveTypeFilter, setLeaveTypeFilter] = useState<string>("");
   const [managerFilter, setManagerFilter] = useState<string[]>([]);
@@ -44,11 +44,12 @@ const LeaveRequest = () => {
     end_date: undefined,
   });
 
-  const [data, setData] = useState<LeaveRequestType >();
+  const [data, setData] = useState<LeaveRequestType>();
   const [modalOpen, setModalOpen] = useState(false);
   const { currentUserRolePermissions } = useAppSelector(
     (state) => state.permissionSlice
-  );  const [confirmationOpen, setConfirmationOpen] = useState(false);
+  );
+  const [confirmationOpen, setConfirmationOpen] = useState(false);
   const [selectedLeaveRequestUuid, setSelectedLeaveRequestUuid] = useState<
     string | null
   >(null);
@@ -140,16 +141,15 @@ const LeaveRequest = () => {
               List of all leave requests made by users.
             </p>
           </div>
-          {  hasPermissions(
+          {hasPermissions(
             "leave_request_management",
             "create",
             currentUserRolePermissions,
             currentUser?.email
-
           ) && <MakeLeaveRequest />}
         </div>
 
-        { hasPermissions(
+        {hasPermissions(
           "leave_request_management",
           "read",
           currentUserRolePermissions,
@@ -188,9 +188,7 @@ const LeaveRequest = () => {
                     <MultiSelectGroup>
                       {users
                         .filter(
-                          
-                      (manager) => manager.user_id !== currentUser?.user_id
-                    
+                          (manager) => manager.user_id !== currentUser?.user_id
                         )
                         .map((manager) => (
                           <MultiSelectItem
@@ -221,6 +219,7 @@ const LeaveRequest = () => {
                 <DateRangePicker
                   setDateRange={setDateRangeFilter}
                   isDependant={false}
+                  className="w-[180px]"
                 />
               </div>
             </div>

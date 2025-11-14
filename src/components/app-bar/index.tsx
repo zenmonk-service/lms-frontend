@@ -27,7 +27,7 @@ function AppBar() {
     <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50 py-4 px-6">
       <div className="mx-auto flex items-center justify-between">
         {/* Left: Brand */}
-        <div className="flex items-center space-x-3 md:pl-[255px]">
+        <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
             <Building2 className="w-5 h-5 text-white" />
           </div>

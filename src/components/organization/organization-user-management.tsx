@@ -172,7 +172,7 @@ export default function ManageOrganizationsUser() {
   }, [currentOrgUUID, pagination]);
 
   return (
-    <div className="p-6 h-[100vh]">
+    <div className="p-6 h-[calc(100vh-77px)] box-border">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">User Management</h2>

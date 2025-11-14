@@ -30,7 +30,6 @@ import React, {
 } from "react";
 import { Badge } from "@/components/ui/badge";
 import { CaretSortIcon } from "@radix-ui/react-icons";
-import { Checkbox } from "./checkbox";
 
 type MultiSelectContextType = {
   open: boolean;

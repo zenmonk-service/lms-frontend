@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Home,
@@ -203,12 +203,9 @@ export function AppSidebar({ uuid }: { uuid: string }) {
   useEffect(() => {
     if (data?.user.email && currentUserRolePermissions?.length > 0) {
       update({
-        ...data,
-        user: {
-          ...data.user,
-          permissions: currentUserRolePermissions,
-        },
+        permissions: currentUserRolePermissions,
       });
+      router.refresh();
     }
   }, [currentUserRolePermissions]);
 

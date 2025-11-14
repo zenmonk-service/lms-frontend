@@ -202,10 +202,11 @@ export function AppSidebar({ uuid }: { uuid: string }) {
 
   useEffect(() => {
     if (data?.user.email && currentUserRolePermissions?.length > 0) {
-      update({
-        permissions: currentUserRolePermissions,
-      });
+     (async () => {
+      await update({ permissions: currentUserRolePermissions });
+
       router.refresh();
+    })();
     }
   }, [currentUserRolePermissions]);
 

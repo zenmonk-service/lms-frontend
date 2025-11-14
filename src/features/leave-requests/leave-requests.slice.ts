@@ -66,6 +66,9 @@ const leaveRequestSlice = createSlice({
         state.isLoading = true;
       })
       .addCase(getUserLeaveRequestsAction.fulfilled, (state, action) => {
+        // if(action.payload.isManager){
+        //    state.userLeaveApproval = action.payload;
+        // }
         state.isLoading = false;
         state.userLeaveRequests = action.payload;
       })

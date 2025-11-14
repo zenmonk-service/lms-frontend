@@ -72,12 +72,8 @@ export default function ApproveLeaveRequests() {
     setSession(userSession);
   }
 
-  useEffect(() => {
-    setUserSession();
-    dispatch(getLeaveTypesAction({ org_uuid: currentOrganizationUuid }));
-  }, []);
 
-  useEffect(() => {
+  const fetchLeaveRequests = () => {
     if (!currentOrgUUID || !session?.user?.uuid) return;
 
     let date_range = undefined;
@@ -101,14 +97,25 @@ export default function ApproveLeaveRequests() {
     };
 
     dispatch(getLeaveRequestsAction(params));
+  };
+
+  useEffect(() => {
+    setUserSession();
+    dispatch(getLeaveTypesAction({ org_uuid: currentOrganizationUuid }));
+  }, []);
+
+  useEffect(() => {
+    fetchLeaveRequests();
   }, [
-    dispatch,
     currentOrgUUID,
     session,
-    pagination,
+    pagination.page,
+    pagination.limit,
+    pagination.search,
     leaveTypeFilter,
     statusFilter,
-    dateRangeFilter,
+    dateRangeFilter.start_date,
+    dateRangeFilter.end_date,
     selectedUser,
   ]);
 
@@ -141,14 +148,13 @@ export default function ApproveLeaveRequests() {
 
   const handleModalConfirm = async (remarkText: string) => {
     if (!selected || !leaveAction || !session?.user?.uuid) return;
-
     if (!currentOrgUUID) {
       console.error("missing org uuid");
       return;
     }
 
     const payloadWithOrg = {
-      leave_request_uuid: (selected as any).uuid,
+      leave_request_uuid: selected.uuid,
       manager_uuid: session.user.uuid,
       remark: remarkText,
       org_uuid: currentOrgUUID,
@@ -163,6 +169,9 @@ export default function ApproveLeaveRequests() {
       } else if (leaveAction === "recommend") {
         await dispatch(recommendLeaveRequestAction(payloadWithOrg)).unwrap();
       }
+      closeModal();
+      setPagination((p) => ({ ...p, page: 1 }));
+      fetchLeaveRequests();
     } catch (err) {
       console.error("action failed", err);
       throw err;
@@ -200,7 +209,6 @@ export default function ApproveLeaveRequests() {
         </div>
       </div>
 
-      {/* Filters */}
       <div className="flex flex-wrap gap-2 justify-end">
         <div>
           <CustomSelect

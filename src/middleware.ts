@@ -5,18 +5,17 @@ export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
   const  loggedInUser = await getSession();
 
-
   if (!loggedInUser) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
-  
-  function hasPagePermission(tag: string) {
-    return loggedInUser?.user?.permissions?.some((perm) => perm.tag === tag);
+
+  async function hasPagePermission(tag: string) {
+    return (await getSession())?.user?.permissions?.some((perm) => perm.tag === tag);
   }
 
-  function isApprovalPageAccessible() {
+  async function isApprovalPageAccessible() {
     return (
-      hasPagePermission("leave_request_management") &&
+      await hasPagePermission("leave_request_management") &&
       loggedInUser?.user?.permissions?.some(
         (perm) =>
           perm.tag === "leave_request_management" && perm.action === "approval"
@@ -24,9 +23,9 @@ export async function middleware(request: NextRequest) {
     );
   }
 
-  function isMyLeavePageAccessible() {
+  async function isMyLeavePageAccessible() {
     return (
-      hasPagePermission("leave_request_management") &&
+      await hasPagePermission("leave_request_management") &&
       loggedInUser?.user?.permissions?.some(
         (perm) =>
           (perm.tag === "leave_request_management" &&
@@ -39,26 +38,26 @@ export async function middleware(request: NextRequest) {
   }
 
   if (
-    !hasPagePermission("user_management") &&
+    !await hasPagePermission("user_management") &&
     request.nextUrl.pathname.endsWith("/user-management")
   ) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
   if (
-    !hasPagePermission("role_management") &&
+    !await hasPagePermission("role_management") &&
     request.nextUrl.pathname.endsWith("/role-management")
   ) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
   if (
-    !isApprovalPageAccessible() &&
+    !await isApprovalPageAccessible() &&
     request.nextUrl.pathname.endsWith("/approvals")
   ) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
   if (
-    !isMyLeavePageAccessible() &&
+    !await isMyLeavePageAccessible() &&
     request.nextUrl.pathname.endsWith("/my-leaves")
   ) {
     return NextResponse.redirect(new URL("/login", request.url));
@@ -70,12 +69,11 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     "/users/:path*",
-    "/organizations/:path*",
     "/select-organization",
     "/:org/user-management",
     "/:org/role-management",
     "/:org/my-leaves",
     "/:org/leave-types",
-     "/:org/dashboard",
+    "/:org/dashboard",
   ],
 };

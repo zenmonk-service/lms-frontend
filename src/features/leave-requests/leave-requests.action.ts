@@ -17,7 +17,6 @@ export const getLeaveRequestsAction = createAsyncThunk(
   async (data: any, thunkAPI) => {
     try {
       const response = await getLeaveRequests(data.org_uuid, data);
-      console.log("response: ", response.data);
       return response.data;
     } catch (err: any) {
       toast.error(err.response.data.error ?? "Something went wrong.");

@@ -195,11 +195,7 @@ export const useLeaveRequestsColumns = (opts?: {
           <div className="flex gap-2 items-center">
             <Button
               size="sm"
-              onClick={() =>
-                onApprove
-                  ? onApprove(lr)
-                  : console.log("Approve clicked", lr.uuid)
-              }
+              onClick={() => onApprove && onApprove(lr)}
               title="Approve"
             >
               <Check className="mr-1" size={14} /> Approve
@@ -208,9 +204,7 @@ export const useLeaveRequestsColumns = (opts?: {
             <Button
               size="sm"
               variant="ghost"
-              onClick={() =>
-                onReject ? onReject(lr) : console.log("Reject clicked", lr.uuid)
-              }
+              onClick={() => onReject && onReject(lr)}
               title="Reject"
             >
               <X className="mr-1" size={14} /> Reject
@@ -219,11 +213,7 @@ export const useLeaveRequestsColumns = (opts?: {
             <Button
               size="sm"
               variant="secondary"
-              onClick={() =>
-                onRecommend
-                  ? onRecommend(lr)
-                  : console.log("Recommend clicked", lr.uuid)
-              }
+              onClick={() => onRecommend && onRecommend(lr)}
               title="Recommend"
             >
               <ThumbsUp className="mr-1" size={14} /> Recommend

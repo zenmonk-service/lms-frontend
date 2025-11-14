@@ -4,7 +4,6 @@ import { getSession } from "./app/auth/get-auth.action";
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
   const loggedInUser = await getSession();
-  console.log("✌️loggedInUser --->", loggedInUser);
 
   if (!loggedInUser) {
     return NextResponse.redirect(new URL("/login", request.url));

@@ -66,7 +66,7 @@ function Dashboard() {
           ></Input>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-orange-500 text-white font-bold cursor-pointer">
+              <Button className="bg-orange-500 hover:bg-orange-600 text-white font-bold cursor-pointer">
                 Add Organization
               </Button>
             </DialogTrigger>

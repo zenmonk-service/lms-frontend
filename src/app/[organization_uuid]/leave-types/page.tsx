@@ -8,16 +8,13 @@ import { useAppSelector } from "@/store";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 
-export default  function LeaveTypes() {
+export default function LeaveTypes() {
   const [isOpen, setIsOpen] = useState(false);
   const { currentUserRolePermissions } = useAppSelector(
     (state) => state.permissionSlice
   );
 
-   const { currentUser } = useAppSelector(
-    (state) => state.userSlice
-  );
-
+  const { currentUser } = useAppSelector((state) => state.userSlice);
 
   const onOpenChange = (open: boolean) => {
     setIsOpen(open);
@@ -37,15 +34,20 @@ export default  function LeaveTypes() {
           </p>
         </div>
         <div>
-         { hasPermissions("leave_type_management", "create", currentUserRolePermissions ,currentUser?.email) && (
-          <Button
-            className="bg-gradient-to-r from-orange-500 to-amber-500 text-white"
-            size="sm"
-            onClick={() => onOpenChange(true)}
-          >
-            <Plus className="w-5 h-5" /> Create Leave Type
-          </Button>
-         )}
+          {hasPermissions(
+            "leave_type_management",
+            "create",
+            currentUserRolePermissions,
+            currentUser?.email
+          ) && (
+            <Button
+              className="bg-orange-500 hover:bg-orange-600 text-white"
+              size="sm"
+              onClick={() => onOpenChange(true)}
+            >
+              <Plus className="w-5 h-5" /> Create Leave Type
+            </Button>
+          )}
           <LeaveTypeForm
             label="create"
             isOpen={isOpen}

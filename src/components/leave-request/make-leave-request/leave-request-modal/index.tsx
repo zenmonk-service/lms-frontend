@@ -93,8 +93,8 @@ const leaveRequestSchema = z
     reason: z
       .string()
       .trim()
-      .min(10, "Reason must be at least 10 characters long")
-      .max(500, "Reason must be at most 500 characters long"),
+      .max(255, "Reason must be at most 255 characters long")
+      .optional(),
     date_range: z
       .object({
         start_date: z.string().nonempty("Start date is required."),
@@ -447,7 +447,10 @@ export function LeaveRequestModal({
                 name="reason"
                 control={control}
                 render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid} className="gap-1">
+                  <Field
+                    data-invalid={fieldState.invalid}
+                    className="gap-1 truncate"
+                  >
                     <FieldLabel htmlFor="form-rhf-demo-reason">
                       Reason
                     </FieldLabel>
@@ -459,10 +462,11 @@ export function LeaveRequestModal({
                         rows={6}
                         className="min-h-24 resize-none"
                         aria-invalid={fieldState.invalid}
+                        maxLength={255}
                       />
                       <InputGroupAddon align="block-end">
                         <InputGroupText className="tabular-nums">
-                          {field?.value?.length || 0}/100 characters
+                          {field?.value?.length || 0}/255 characters
                         </InputGroupText>
                       </InputGroupAddon>
                     </InputGroup>
@@ -484,7 +488,7 @@ export function LeaveRequestModal({
             <Button
               type="submit"
               disabled={isLoading}
-              className="bg-gradient-to-r from-orange-500 to-amber-500 text-white"
+              className="bg-orange-500 hover:bg-orange-600 text-white"
             >
               {isLoading ? (
                 <LoaderCircle className="animate-spin" />

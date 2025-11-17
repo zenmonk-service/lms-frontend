@@ -72,13 +72,22 @@ const renderApplicableFor = (
       {roles.length > 3 && (
         <HoverCard>
           <HoverCardTrigger asChild>
-            <Badge className="cursor-pointer">+ {roles.length - 3}</Badge>
+            <Badge
+              className="cursor-pointer"
+              variant={"outline"}
+            >
+              + {roles.length - 3}
+            </Badge>
           </HoverCardTrigger>
           <HoverCardContent align="start" className="max-w-80">
             <div className="space-y-1">
               <div className="flex flex-wrap gap-1">
                 {roles.slice(3).map((role, index) => (
-                  <Badge variant="outline" className="text-xs" key={index}>
+                  <Badge
+                    variant="outline"
+                    className="text-xs rounded-sm"
+                    key={index}
+                  >
                     {role}
                   </Badge>
                 ))}
@@ -104,9 +113,7 @@ export const useLeaveTypesColumns = (
     (state) => state.permissionSlice
   );
 
-    const { currentUser } = useAppSelector(
-    (state) => state.userSlice
-  );
+  const { currentUser } = useAppSelector((state) => state.userSlice);
   function getRole(roleUuid: string) {
     return roles.find((role: any) => role.uuid === roleUuid);
   }
@@ -124,61 +131,69 @@ export const useLeaveTypesColumns = (
   }, [session?.user?.uuid]);
 
   return [
-     ...(hasPermissions("leave_type_management", "update", currentUserRolePermissions ,currentUser?.email)
-    ? [  {
-      id: "active_inactive",
-      header: () => {
-        return (
-          <div className="text-center">
-            <span>Status</span>
-          </div>
-        );
-      },
-      cell: ({ row } :any) => {
-        const leaveType = row.original;
-        const isActive: boolean = leaveType.is_active;
-        const leave_type_uuid = leaveType.uuid;
-        return (
-          <div className="flex justify-center">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span>
-                  <Switch
-                    checked={isActive}
-                    className="data-[state=checked]:bg-orange-500"
-                    onClick={async () => {
-                      if (isActive) {
-                        await dispatch(
-                          deactivateLeaveTypeAction({
-                            org_uuid,
-                            leave_type_uuid,
-                          })
-                        );
-                      } else {
-                        await dispatch(
-                          activateLeaveTypeAction({
-                            org_uuid,
-                            leave_type_uuid,
-                          })
-                        );
-                      }
-                      await dispatch(
-                        getLeaveTypesAction({
-                          org_uuid: org_uuid!,
-                        })
-                      );
-                    }}
-                  />
-                </span>
-              </TooltipTrigger>
-              <TooltipContent>
-                {isActive ? "Active" : "Inactive"}
-              </TooltipContent>
-            </Tooltip>
-          </div>
-        );
-      },
-    }] : []),
+    ...(hasPermissions(
+      "leave_type_management",
+      "update",
+      currentUserRolePermissions,
+      currentUser?.email
+    )
+      ? [
+          {
+            id: "active_inactive",
+            header: () => {
+              return (
+                <div className="text-center">
+                  <span>Status</span>
+                </div>
+              );
+            },
+            cell: ({ row }: any) => {
+              const leaveType = row.original;
+              const isActive: boolean = leaveType.is_active;
+              const leave_type_uuid = leaveType.uuid;
+              return (
+                <div className="flex justify-center">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span>
+                        <Switch
+                          checked={isActive}
+                          className="data-[state=checked]:bg-orange-500"
+                          onClick={async () => {
+                            if (isActive) {
+                              await dispatch(
+                                deactivateLeaveTypeAction({
+                                  org_uuid,
+                                  leave_type_uuid,
+                                })
+                              );
+                            } else {
+                              await dispatch(
+                                activateLeaveTypeAction({
+                                  org_uuid,
+                                  leave_type_uuid,
+                                })
+                              );
+                            }
+                            await dispatch(
+                              getLeaveTypesAction({
+                                org_uuid: org_uuid!,
+                              })
+                            );
+                          }}
+                        />
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {isActive ? "Active" : "Inactive"}
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+              );
+            },
+          },
+        ]
+      : []),
     {
       accessorKey: "code",
       header: "Code",
@@ -241,41 +256,47 @@ export const useLeaveTypesColumns = (
         return <span>{date.toLocaleDateString()}</span>;
       },
     },
-    ...(hasPermissions("leave_type_management", "update", currentUserRolePermissions , currentUser?.email)
-    ? [ {
-      accessorKey: "actions",
-      id: "actions",
-      header: () => {
-        return (
-          <div className="text-center">
-            <span>Actions</span>
-          </div>
-        );
-      },
-      cell: ({ row }: any) => {
-        return (
-          <div className="flex justify-center">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onEdit?.(row.original)}
-                >
-                  {isLoading ? (
-                    <LoaderCircle className="animate-spin" />
-                  ) : (
-                    <Pencil height={16} width={16} />
-                  )}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Edit Leave Type</TooltipContent>
-            </Tooltip>
-          </div>
-        );
-      },
-    }
-      ]
-    : []),
+    ...(hasPermissions(
+      "leave_type_management",
+      "update",
+      currentUserRolePermissions,
+      currentUser?.email
+    )
+      ? [
+          {
+            accessorKey: "actions",
+            id: "actions",
+            header: () => {
+              return (
+                <div className="text-center">
+                  <span>Actions</span>
+                </div>
+              );
+            },
+            cell: ({ row }: any) => {
+              return (
+                <div className="flex justify-center">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onEdit?.(row.original)}
+                      >
+                        {isLoading ? (
+                          <LoaderCircle className="animate-spin" />
+                        ) : (
+                          <Pencil height={16} width={16} />
+                        )}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Edit Leave Type</TooltipContent>
+                  </Tooltip>
+                </div>
+              );
+            },
+          },
+        ]
+      : []),
   ];
 };

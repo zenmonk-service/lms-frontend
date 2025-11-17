@@ -23,7 +23,6 @@ import {
 } from "@/components/ui/input-group";
 import {
   Field,
-  FieldDescription,
   FieldError,
   FieldLabel,
 } from "@/components/ui/field";
@@ -206,7 +205,6 @@ export default function CreateUser({
                   </InputGroupText>
                 </InputGroupAddon>
               </InputGroup>
-              <FieldDescription>Enter the user's full name.</FieldDescription>
               {errors.name && (
                 <FieldError errors={[errors.name]} className="text-xs" />
               )}
@@ -230,9 +228,6 @@ export default function CreateUser({
                     </InputGroupText>
                   </InputGroupAddon>
                 </InputGroup>
-                <FieldDescription>
-                  Provide a valid email address for the user.
-                </FieldDescription>
                 {errors.email && (
                   <FieldError errors={[errors.email]} className="text-xs" />
                 )}
@@ -257,9 +252,7 @@ export default function CreateUser({
                     </InputGroupText>
                   </InputGroupAddon>
                 </InputGroup>
-                <FieldDescription>
-                  Set an initial password for the user.
-                </FieldDescription>
+
                 {errors.password && (
                   <FieldError errors={[errors.password]} className="text-xs" />
                 )}
@@ -294,9 +287,6 @@ export default function CreateUser({
                   ))}
                 </SelectContent>
               </Select>
-              <FieldDescription>
-                Choose a role to define the user&apos;s permissions.
-              </FieldDescription>
               {errors.role && (
                 <FieldError errors={[errors.role]} className="text-xs" />
               )}

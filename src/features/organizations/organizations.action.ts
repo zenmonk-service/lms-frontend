@@ -16,6 +16,9 @@ import {
 } from "./organizations.service";
 import { OrganizationFetchPayload } from "./organizations.type";
 import { toast } from "sonner";
+import { create } from "domain";
+import { createUser } from "../user/user.service";
+import { CreateUserPayload } from "../user/user.type";
 
 // ========== ORGANIZATION ACTIONS ==========
 
@@ -137,11 +140,11 @@ export const getUsersAction = createAsyncThunk(
 export const createUserAction = createAsyncThunk(
   "users/create",
   async (
-    { organizationId, userInfo }: { organizationId: string; userInfo: any },
+    payload: CreateUserPayload,
     thunkAPI
   ) => {
     try {
-      const response = await createOrganizationUser(organizationId, userInfo);
+      const response = await createUser(payload);
       return response.data;
     } catch (err: any) {
       toast.error(err.response.data.error ?? "Something went wrong.");

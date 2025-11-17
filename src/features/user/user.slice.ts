@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
+  createUserAction,
   isUserExistAction,
   listUserAction,
   updateUserAction,
@@ -114,18 +115,36 @@ export const userSlice = createSlice({
         state.error = action.payload?.message || "Failed to update user";
       })
       .addCase(isUserExistAction.pending, (state) => {
+        state.isLoading = true;
         state.error = null;
       })
       .addCase(isUserExistAction.fulfilled, (state, action) => {
-        state.isUserExist = action.payload;
+        state.isLoading = false;
+        state.isUserExist = action.payload ? true : false;
       })
       .addCase(isUserExistAction.rejected, (state, action: any) => {
+        state.isLoading = false;
         state.error =
           action.payload?.message || "Failed to check user existence";
+      })
+      .addCase(createUserAction.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(createUserAction.fulfilled, (state, action) => {
+        state.isLoading = false;
+      })
+      .addCase(createUserAction.rejected, (state, action: any) => {
+        state.isLoading = false;
+        state.error = action.payload?.message || "Failed to create user";
       });
   },
 });
 
 export const userReducer = userSlice.reducer;
-export const { setCurrentOrganizationUuid, setPagination, setIsUserExist ,setCurrentUser } =
-  userSlice.actions;
+export const {
+  setCurrentOrganizationUuid,
+  setPagination,
+  setIsUserExist,
+  setCurrentUser,
+} = userSlice.actions;

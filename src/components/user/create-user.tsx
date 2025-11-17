@@ -21,11 +21,7 @@ import {
   InputGroupInput,
   InputGroupText,
 } from "@/components/ui/input-group";
-import {
-  Field,
-  FieldError,
-  FieldLabel,
-} from "@/components/ui/field";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import {
   Select,
   SelectContent,
@@ -34,7 +30,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { UserPlus, Mail, Lock, User, Users, EditIcon } from "lucide-react";
+import {
+  UserPlus,
+  Mail,
+  Lock,
+  User,
+  Users,
+  EditIcon,
+  Loader2,
+} from "lucide-react";
 import { createUser, updateUser } from "@/features/user/user.service";
 import {
   setIsUserExist,
@@ -43,7 +47,12 @@ import {
 } from "@/features/user/user.slice";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { getOrganizationRolesAction } from "@/features/role/role.action";
-import { isUserExistAction, listUserAction } from "@/features/user/user.action";
+import {
+  isUserExistAction,
+  listUserAction,
+  updateUserAction,
+} from "@/features/user/user.action";
+import { createUserAction } from "@/features/organizations/organizations.action";
 
 export default function CreateUser({
   org_uuid,
@@ -56,7 +65,8 @@ export default function CreateUser({
 }) {
   const dispatch = useAppDispatch();
   const roles = useAppSelector((state) => state.rolesSlice.roles);
-  const isUserPresent = useAppSelector((state) => state.userSlice.isUserExist);
+  const { isUserExist, isLoading } = useAppSelector((state) => state.userSlice);
+  
 
   const [selectedRole, setSelectedRole] = useState(
     isEdited ? (userData ? userData.role.uuid : "") : ""
@@ -70,7 +80,7 @@ export default function CreateUser({
       ? z.string().optional()
       : z.string().email("Enter a valid email address"),
     password:
-      isUserPresent || isEdited
+      isUserExist || isEdited
         ? z.string().optional()
         : z.string().min(1, "Password is required"),
     role: z.string().min(1, "Role is required"),
@@ -100,27 +110,31 @@ export default function CreateUser({
 
   const onSubmit = async (data: FormData) => {
     if (isEdited && userData) {
-      await updateUser({
-        name: data.name,
-        role: data.role,
-        user_uuid: userData.user_id,
-        org_uuid: org_uuid,
-      });
+      await dispatch(
+        updateUserAction({
+          name: data.name,
+          role: data.role,
+          user_uuid: userData.user_id,
+          org_uuid: org_uuid,
+        })
+      );
       dispatch(
         listUserAction({ org_uuid, pagination: { page: 1, limit: 10 } })
       );
       dispatch(setPagination({ page: 1, limit: 10 }));
       setOpen(false);
     } else {
-      await createUser({
-        name: data.name,
-        email: data.email?.trim() || "",
-        // only send password when user is NOT already present
-        ...(!isUserPresent && { password: data.password ?? "" }),
-        org_uuid,
-        role_uuid: data.role,
-        role: "user",
-      });
+      await dispatch(
+        createUserAction({
+          name: data.name,
+          email: data.email?.trim() || "",
+          // only send password when user is NOT already present
+          ...(!isUserExist && { password: data.password ?? "" }),
+          org_uuid,
+          role_uuid: data.role,
+          role: "user",
+        })
+      );
       dispatch(
         listUserAction({ org_uuid, pagination: { page: 1, limit: 10 } })
       );
@@ -138,12 +152,11 @@ export default function CreateUser({
   }, [org_uuid, open, dispatch]);
 
   useEffect(() => {
-    const isValidEmail =
-      emailValue &&
-      userSchema.shape.email.safeParse(emailValue).success &&
-      !isEdited;
+    const isValidEmail = emailValue && !isEdited;
 
-    if (!isValidEmail) return;
+    if (!isValidEmail) {
+      return;
+    }
 
     const handler = setTimeout(() => {
       dispatch(isUserExistAction(emailValue.trim()));
@@ -209,7 +222,6 @@ export default function CreateUser({
                 <FieldError errors={[errors.name]} className="text-xs" />
               )}
             </Field>
-
             {/* Email (only when creating and not editing) */}
             {!isEdited && (
               <Field data-invalid={!!errors.email} className="gap-1">
@@ -223,8 +235,21 @@ export default function CreateUser({
                     {...register("email")}
                   />
                   <InputGroupAddon>
-                    <InputGroupText>
+                    <InputGroupText className="flex items-center gap-2">
                       <Mail className="w-4 h-4 text-orange-500" />
+                    </InputGroupText>
+                  </InputGroupAddon>
+
+                  <InputGroupAddon align={"inline-end"}>
+                    <InputGroupText className="flex items-center gap-2">
+                      {isLoading && (
+                        <>
+                          <Loader2 className="w-4 h-4 text-orange-500 animate-spin" />
+                          <span className="text-xs text-gray-600">
+                            Checking!
+                          </span>
+                        </>
+                      )}
                     </InputGroupText>
                   </InputGroupAddon>
                 </InputGroup>
@@ -233,9 +258,8 @@ export default function CreateUser({
                 )}
               </Field>
             )}
-
             {/* Password (only when creating and user is not present) */}
-            {!isEdited && !isUserPresent && (
+            {!isEdited && !isUserExist && (
               <Field data-invalid={!!errors.password} className="gap-1">
                 <FieldLabel htmlFor="user-password">Password</FieldLabel>
                 <InputGroup>
@@ -258,7 +282,6 @@ export default function CreateUser({
                 )}
               </Field>
             )}
-
             {/* Role Selection */}
             <Field data-invalid={!!errors.role} className="gap-1">
               <FieldLabel>Assign Role</FieldLabel>
@@ -303,10 +326,17 @@ export default function CreateUser({
               <Button variant="outline">Cancel</Button>
             </DialogClose>
             <Button
+              disabled={isLoading}
               type="submit"
               className="bg-gradient-to-r from-orange-500 to-amber-500 text-white"
             >
-              {isEdited ? "Edit User" : "Create User"}
+              {isLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : isEdited ? (
+                "Edit User"
+              ) : (
+                "Create User"
+              )}
             </Button>
           </DialogFooter>
         </form>

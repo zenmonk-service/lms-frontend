@@ -10,7 +10,7 @@ import {
   listRolePermissions,
   updateRolePermissions,
 } from "./permission.service";
-import { toast } from "sonner";
+import { toastError } from "@/shared/toast/toast-error";
 
 export const listOrganizationPermissionsAction = createAsyncThunk(
   "permissions/list",
@@ -19,7 +19,7 @@ export const listOrganizationPermissionsAction = createAsyncThunk(
       const response = await listOrganizationPermissions(payload);
       return response.data;
     } catch (err: any) {
-      toast.error(err.response.data.error ?? "Something went wrong.");
+      toastError(err.response.data.error ?? "Something went wrong.");
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error?.response?.data);
     }
@@ -37,7 +37,7 @@ export const listRolePermissionsAction = createAsyncThunk(
           payload.isCurrentUserRolePermissions ?? false,
       };
     } catch (err: any) {
-      toast.error(err.response.data.error ?? "Something went wrong.");
+      toastError(err.response.data.error ?? "Something went wrong.");
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error?.response?.data);
     }
@@ -51,7 +51,7 @@ export const updateRolePermissionsAction = createAsyncThunk(
       const response = await updateRolePermissions(payload);
       return response.data;
     } catch (err: any) {
-      toast.error(err.response.data.error ?? "Something went wrong.");
+      toastError(err.response.data.error ?? "Something went wrong.");
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error?.response?.data);
     }

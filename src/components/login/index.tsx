@@ -12,15 +12,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { LoginCredentials, User } from "@/types/user";
-import { authenticate } from "@/app/auth/authenticate.action";
-
+import { LoginCredentials } from "@/types/user";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { setCurrentUser } from "@/features/user/user.slice";
 import { useAppDispatch } from "@/store";
 import { signIn as signInUser } from "next-auth/react";
 import { signIn } from "@/features/user/user.service";
+import { toastError } from "@/shared/toast/toast-error";
 
 export default function LoginPage() {
   const [credentials, setCredentials] = useState<LoginCredentials>({
@@ -60,14 +58,9 @@ export default function LoginPage() {
         router.push("/select-organization");
       }
     } catch (err: any) {
-      toast.error(err.response.data.error, {
-        style: {
-          "--normal-bg":
-            "light-dark(var(--destructive), color-mix(in oklab, var(--destructive) 60%, var(--background)))",
-          "--normal-text": "var(--color-white)",
-          "--normal-border": "transparent",
-        } as React.CSSProperties,
-      });
+      toastError(
+        err?.response?.data?.error || "Something went wrong. Please try again."
+      );
     } finally {
       setLoading(false);
     }

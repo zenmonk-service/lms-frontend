@@ -1,10 +1,10 @@
 "use client";
 import { getSession } from "@/app/auth/get-auth.action";
 import {
-  getLeaveRequestsAction,
   approveLeaveRequestAction,
   recommendLeaveRequestAction,
   rejectLeaveRequestAction,
+  approvableLeaveRequestsAction,
 } from "@/features/leave-requests/leave-requests.action";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { Session } from "next-auth";
@@ -21,12 +21,13 @@ import { DateRangePicker } from "@/shared/date-range-picker";
 import { listUserAction } from "@/features/user/user.action";
 import { SearchSelect } from "@/shared/select/search-select";
 import { getLeaveTypesAction } from "@/features/leave-types/leave-types.action";
+import { resetLeaveRequestState } from "@/features/leave-requests/leave-requests.slice";
 
 export type LeaveAction = "approve" | "reject" | "recommend" | null;
 
 export default function ApproveLeaveRequests() {
   const dispatch = useAppDispatch();
-  const { userLeaveRequests, isLoading } = useAppSelector(
+  const { approvableLeaveRequests, isLoading } = useAppSelector(
     (state) => state.leaveRequestSlice
   );
 
@@ -96,7 +97,7 @@ export default function ApproveLeaveRequests() {
         : dateRangeFilter.start_date || dateRangeFilter.end_date || undefined,
     };
 
-    dispatch(getLeaveRequestsAction(params));
+    dispatch(approvableLeaveRequestsAction(params));
   };
 
   useEffect(() => {
@@ -131,6 +132,12 @@ export default function ApproveLeaveRequests() {
       })
     );
   }, [userFilter]);
+
+useEffect(() => {
+  return () => {
+    dispatch(resetLeaveRequestState()); 
+  };
+}, []);
 
   const openModal = (lr: LeaveRequest, actionMode: LeaveAction) => {
     setSelected(lr);
@@ -262,10 +269,10 @@ export default function ApproveLeaveRequests() {
       </div>
 
       <DataTable
-        data={userLeaveRequests?.rows ?? []}
+        data={approvableLeaveRequests?.rows ?? []}
         columns={columns}
         isLoading={isLoading}
-        totalCount={userLeaveRequests?.count ?? 0}
+        totalCount={approvableLeaveRequests?.count ?? 0}
         pagination={pagination}
         onPaginationChange={handlePaginationChange}
         searchable={false}

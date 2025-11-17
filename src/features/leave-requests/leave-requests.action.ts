@@ -26,6 +26,20 @@ export const getLeaveRequestsAction = createAsyncThunk(
   }
 );
 
+export const approvableLeaveRequestsAction = createAsyncThunk(
+  "orgnization/leave-requests/approvals",
+  async (data: any, thunkAPI) => {
+    try {
+      const response = await getLeaveRequests(data.org_uuid, data);
+      return response.data;
+    } catch (err: any) {
+      toast.error(err.response.data.error ?? "Something went wrong.");
+      const error = err as AxiosError;
+      return thunkAPI.rejectWithValue(error.response?.data);
+    }
+  }
+);
+
 export const getUserLeaveRequestsAction = createAsyncThunk(
   "orgnization/user-leave-requests",
   async (data: any, thunkAPI) => {

@@ -5,6 +5,7 @@ import {
   getLeaveRequestsAction,
   deleteLeaveRequestOfUserAction,
   updateLeaveRequestOfUserAction,
+  approvableLeaveRequestsAction,
 } from "./leave-requests.action";
 import { LeaveRequestStatus } from "./leave-requests.types";
 
@@ -38,17 +39,21 @@ interface LeaveRequest {
 interface LeaveRequestState {
   isLoading: boolean;
   userLeaveRequests: LeaveRequest;
+  approvableLeaveRequests: LeaveRequest;
 }
 
 const initialState: LeaveRequestState = {
   isLoading: false,
   userLeaveRequests: { rows: [], count: 0 },
+  approvableLeaveRequests: { rows: [], count: 0 },
 };
 
 const leaveRequestSlice = createSlice({
   name: "leave-requests",
   initialState,
-  reducers: {},
+  reducers: {
+    resetLeaveRequestState: () => initialState,
+  },
   extraReducers: (builder) => {
     builder
       .addCase(getLeaveRequestsAction.pending, (state) => {
@@ -59,6 +64,17 @@ const leaveRequestSlice = createSlice({
         state.userLeaveRequests = action.payload ?? { rows: [], count: 0 };
       })
       .addCase(getLeaveRequestsAction.rejected, (state) => {
+        state.isLoading = false;
+      })
+
+      .addCase(approvableLeaveRequestsAction.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(approvableLeaveRequestsAction.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.approvableLeaveRequests = action.payload ?? { rows: [], count: 0 };
+      })
+      .addCase(approvableLeaveRequestsAction.rejected, (state) => {
         state.isLoading = false;
       })
 
@@ -104,5 +120,8 @@ const leaveRequestSlice = createSlice({
       });
   },
 });
+
+export const { resetLeaveRequestState } =
+  leaveRequestSlice.actions;
 
 export default leaveRequestSlice.reducer;

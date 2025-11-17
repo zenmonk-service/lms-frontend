@@ -179,7 +179,7 @@ export default function RoleManagement() {
             totalCount={total || 0}
             pagination={pagination}
             onPaginationChange={handlePaginationChange}
-            searchPlaceholder="Filter organization roles..."
+            searchPlaceholder="Filter roles..."
             noDataMessage="No roles found."
           />
 

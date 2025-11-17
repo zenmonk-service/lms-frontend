@@ -139,14 +139,19 @@ export default function CreateUser({
   }, [org_uuid, open, dispatch]);
 
   useEffect(() => {
-    if (
+    const isValidEmail =
       emailValue &&
-      !isEdited &&
-      userSchema.shape.email.safeParse(emailValue).success
-    ) {
+      userSchema.shape.email.safeParse(emailValue).success &&
+      !isEdited;
+
+    if (!isValidEmail) return;
+
+    const handler = setTimeout(() => {
       dispatch(isUserExistAction(emailValue.trim()));
-    }
-  }, [emailValue, isEdited, dispatch, userSchema.shape.email]);
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [emailValue, isEdited]);
 
   return (
     <Dialog

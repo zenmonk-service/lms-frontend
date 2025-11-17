@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
+import { useRef } from "react";
 
 export interface PaginationState {
   page: number;
@@ -62,6 +63,14 @@ export default function DataTable({
     getCoreRowModel: getCoreRowModel(),
   });
 
+  const searchTimeout = useRef<NodeJS.Timeout | null>(null);
+  const handleSearchDebounced = (value: string) => {
+    if (searchTimeout.current) clearTimeout(searchTimeout.current);
+
+    searchTimeout.current = setTimeout(() => {
+      handleSearchChange(value);
+    }, 500); // ← debounce delay (500ms)
+  };
   const handleSearchChange = (value: string) => {
     if (value?.trim() === pagination.search) return;
     onPaginationChange({ search: value, page: 1 });
@@ -82,7 +91,7 @@ export default function DataTable({
           {searchable && (
             <Input
               placeholder={searchPlaceholder}
-              onChange={(event) => handleSearchChange(event.target.value)}
+              onChange={(event) => handleSearchDebounced(event.target.value)}
               className="max-w-sm mt-4"
             />
           )}

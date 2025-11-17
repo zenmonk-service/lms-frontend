@@ -199,7 +199,7 @@ export default function ManageOrganizationsUser() {
           totalCount={total || 0}
           pagination={pagination}
           onPaginationChange={handlePaginationChange}
-          searchPlaceholder="Filter organization users..."
+          searchPlaceholder="Filter users..."
           noDataMessage="No users found."
         />
       ) : (

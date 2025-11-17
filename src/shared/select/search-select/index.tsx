@@ -53,7 +53,15 @@ export function SearchSelect({
   const [searchTerm, setSearchTerm] = React.useState("");
 
   React.useEffect(() => {
-    onSearch(searchTerm);
+    const trimmedSearchTerm = searchTerm.trim();
+
+    const handler = setTimeout(() => {
+      onSearch(trimmedSearchTerm);
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
   }, [searchTerm, onSearch]);
 
   const selectedItem = data.find((item) => item[valueKey] === value);

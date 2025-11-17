@@ -40,7 +40,7 @@ type FormData = {
 
 export default function CreateRole({ org_uuid }: { org_uuid: string }) {
   const dispatch = useAppDispatch();
-  const { pagination } = useAppSelector((state) => state.rolesSlice);
+  const { pagination, isLoading } = useAppSelector((state) => state.rolesSlice);
   const [open, setOpen] = useState(false);
 
   const {
@@ -98,7 +98,6 @@ export default function CreateRole({ org_uuid }: { org_uuid: string }) {
 
           {/* Content */}
           <div className="grid gap-4 overflow-y-auto max-h-96 no-scrollbar py-2">
-
             {/* Role Name */}
             <Field data-invalid={!!errors.name} className="gap-1">
               <FieldLabel>Role Name</FieldLabel>
@@ -154,10 +153,11 @@ export default function CreateRole({ org_uuid }: { org_uuid: string }) {
               <Button variant="outline">Cancel</Button>
             </DialogClose>
             <Button
+              disabled={isLoading}
               type="submit"
               className="bg-gradient-to-r from-orange-500 to-amber-500 text-white"
             >
-              Create Role
+              {isLoading ? "Creating..." : "Create Role"}
             </Button>
           </DialogFooter>
         </form>

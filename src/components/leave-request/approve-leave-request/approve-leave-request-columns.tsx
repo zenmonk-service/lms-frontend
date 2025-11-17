@@ -217,7 +217,7 @@ export const useLeaveRequestsColumns = (opts?: {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => onApprove && onApprove(lr)}
+                  onClick={() => onReject && onReject(lr)}
                 >
                   <X height={16} width={16} className="text-red-500" />
                 </Button>
@@ -230,7 +230,7 @@ export const useLeaveRequestsColumns = (opts?: {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => onApprove && onApprove(lr)}
+                  onClick={() => onRecommend && onRecommend(lr)}
                 >
                   <TrendingUpIcon
                     height={16}

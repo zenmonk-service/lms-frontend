@@ -166,7 +166,7 @@ export function DateRangePicker({
                 captionLayout="dropdown"
                 month={startMonth}
                 onMonthChange={setStartMonth}
-                disabled={(date: Date) => (minDate ? date < minDate : false)}
+                disabled={(date: Date) => (minDate ? date < minDate : endDate ? date > endDate : false)}
                 onSelect={(date) => {
                   setStartDate(date);
                   setStartValue(formatDate(date));

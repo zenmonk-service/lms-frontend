@@ -80,7 +80,12 @@ export default function RoleManagement() {
       },
     },
 
-    ...( hasPermissions("role_management", "update", currentUserRolePermissions ,currentUser?.email)
+    ...(hasPermissions(
+      "role_management",
+      "update",
+      currentUserRolePermissions,
+      currentUser?.email
+    )
       ? [
           {
             id: "actions",
@@ -158,7 +163,7 @@ export default function RoleManagement() {
             List of roles in the organization.
           </p>
         </div>
-        {  hasPermissions(
+        {hasPermissions(
           "role_management",
           "create",
           currentUserRolePermissions,
@@ -170,10 +175,15 @@ export default function RoleManagement() {
         )}
       </div>
 
-      {  hasPermissions("role_management", "read", currentUserRolePermissions ,currentUser?.email) ? (
+      {hasPermissions(
+        "role_management",
+        "read",
+        currentUserRolePermissions,
+        currentUser?.email
+      ) ? (
         <>
           <DataTable
-            data={roles || []}
+            data={roles.filter((role) => role.name !== "Admin") || []}
             columns={columns}
             isLoading={isLoading}
             totalCount={total || 0}

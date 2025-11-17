@@ -2,9 +2,7 @@
 
 import * as React from "react";
 
-import {
-  MoreHorizontal,
-} from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -45,65 +43,74 @@ export default function ManageOrganizationsUser() {
     (state) => state.permissionSlice
   );
 
-  const { users, isLoading, total, pagination ,currentUser } = useAppSelector(
+  const { users, isLoading, total, pagination, currentUser } = useAppSelector(
     (state) => state.userSlice
   );
 
   const columns: ColumnDef<UserInterface>[] = [
-    {
-      id: "active_inactive",
-      header: () => {
-        return (
-          <div className="text-center">
-            <span>Status</span>
-          </div>
-        );
-      },
-      cell: ({ row }) => {
-        const isActive = row.original.is_active;
-        const user_uuid = row.original.user_id;
-        return (
-          <div className="flex justify-center">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span>
-                    <Switch
-                      checked={isActive}
-                      className="data-[state=checked]:bg-orange-500"
-                      onClick={async () => {
-                        if (isActive) {
-                          await dispatch(
-                            deactivateUserAction({
-                              org_uuid: currentOrgUUID,
-                              user_uuid: user_uuid,
-                            })
-                          );
-                        } else {
-                          await dispatch(
-                            activateUserAction({
-                              org_uuid: currentOrgUUID,
-                              user_uuid: user_uuid,
-                            })
-                          );
-                        }
-                        await dispatch(
-                          listUserAction({
-                            org_uuid: currentOrgUUID,
-                            pagination,
-                          })
-                        );
-                      }}
-                    />
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent>
-                  {isActive ? "Active" : "Inactive"}
-                </TooltipContent>
-              </Tooltip>
-          </div>
-        );
-      },
-    },
+    ...(hasPermissions(
+      "user_management",
+      "activate",
+      currentUserRolePermissions,
+      currentUser?.email
+    )
+      ? [
+          {
+            id: "active_inactive",
+            header: () => {
+              return (
+                <div className="text-center">
+                  <span>Status</span>
+                </div>
+              );
+            },
+            cell: ({ row }: any) => {
+              const isActive = row.original.is_active;
+              const user_uuid = row.original.user_id;
+              return (
+                <div className="flex justify-center">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span>
+                        <Switch
+                          checked={isActive}
+                          className="data-[state=checked]:bg-orange-500"
+                          onClick={async () => {
+                            if (isActive) {
+                              await dispatch(
+                                deactivateUserAction({
+                                  org_uuid: currentOrgUUID,
+                                  user_uuid: user_uuid,
+                                })
+                              );
+                            } else {
+                              await dispatch(
+                                activateUserAction({
+                                  org_uuid: currentOrgUUID,
+                                  user_uuid: user_uuid,
+                                })
+                              );
+                            }
+                            await dispatch(
+                              listUserAction({
+                                org_uuid: currentOrgUUID,
+                                pagination,
+                              })
+                            );
+                          }}
+                        />
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {isActive ? "Active" : "Inactive"}
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+              );
+            },
+          },
+        ]
+      : []),
     {
       accessorKey: "name",
 
@@ -133,7 +140,12 @@ export default function ManageOrganizationsUser() {
         return <div>{date}</div>;
       },
     },
-    ...(  hasPermissions("user_management", "update", currentUserRolePermissions ,currentUser?.email)
+    ...(hasPermissions(
+      "user_management",
+      "update",
+      currentUserRolePermissions,
+      currentUser?.email
+    )
       ? [
           {
             id: "actions",
@@ -156,7 +168,7 @@ export default function ManageOrganizationsUser() {
     dispatch(setPagination({ ...pagination, ...newPagination }));
   };
 
-  React.useEffect(  () =>  {
+  React.useEffect(() => {
     if (true) {
       dispatch(
         listUserAction({
@@ -180,10 +192,10 @@ export default function ManageOrganizationsUser() {
             List of users in the organization.
           </p>
         </div>
-         {  hasPermissions(
+        {hasPermissions(
           "user_management",
           "create",
-          currentUserRolePermissions ,
+          currentUserRolePermissions,
           currentUser?.email
         ) && (
           <div>
@@ -191,7 +203,12 @@ export default function ManageOrganizationsUser() {
           </div>
         )}
       </div>
-      {  hasPermissions("user_management", "read", currentUserRolePermissions ,currentUser?.email) ? (
+      {hasPermissions(
+        "user_management",
+        "read",
+        currentUserRolePermissions,
+        currentUser?.email
+      ) ? (
         <DataTable
           data={users || []}
           columns={columns}

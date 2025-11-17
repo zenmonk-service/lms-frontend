@@ -18,12 +18,10 @@ export const getLeaveTypesAction = createAsyncThunk(
       const { org_uuid, page = 1, limit = 10, search } = payload;
       const response = await getLeaveTypes(org_uuid, { page, limit, search });
       return response.data;
-    } catch (err) {
-      toast.error("Something went wrong.")
+    } catch (err: any) {
+      toast.error(err.response.data.error ?? "Something went wrong.");
       const error = err as AxiosError;
-      return thunkAPI.rejectWithValue(
-        error.response?.data ?? { message: error.message }
-      );
+      return thunkAPI.rejectWithValue(error.response?.data);
     }
   }
 );
@@ -34,8 +32,8 @@ export const createLeaveTypeAction = createAsyncThunk(
     try {
       const response = await createLeaveType(data, data.org_uuid);
       return response.data;
-    } catch (err) {
-      toast.error("Something went wrong.")
+    } catch (err: any) {
+      toast.error(err.response.data.error ?? "Something went wrong.");
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error.response?.data);
     }
@@ -48,8 +46,8 @@ export const updateLeaveTypeAction = createAsyncThunk(
     try {
       const response = await updateLeaveType(data, data.org_uuid);
       return response.data;
-    } catch (err) {
-      toast.error("Something went wrong.")
+    } catch (err: any) {
+      toast.error(err.response.data.error ?? "Something went wrong.");
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error.response?.data);
     }
@@ -63,8 +61,8 @@ export const activateLeaveTypeAction = createAsyncThunk(
     try {
       const response = await activateLeaveType(data.org_uuid, data.leave_type_uuid);
       return response.data;
-    } catch (err) {
-      toast.error("Something went wrong.")
+    } catch (err: any) {
+      toast.error(err.response.data.error ?? "Something went wrong.");
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error.response?.data);
     }
@@ -77,8 +75,8 @@ export const deactivateLeaveTypeAction = createAsyncThunk(
     try {
       const response = await deactivateLeaveType(data.org_uuid, data.leave_type_uuid);
       return response.data;
-    } catch (err) {
-      toast.error("Something went wrong.")
+    } catch (err: any) {
+      toast.error(err.response.data.error ?? "Something went wrong.");
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error.response?.data);
     }

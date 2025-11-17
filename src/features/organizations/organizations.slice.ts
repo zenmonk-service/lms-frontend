@@ -41,14 +41,8 @@ export const organizationsSlice = createSlice({
   name: "organizations",
   initialState,
   reducers: {
-    addCurrentOrganization: (state, action) => {
-      state.currentOrganizationAndUser = state.organizations.find(
-        (org) => org.uuid == action.payload
-      );
-    },
-    addOrganizationRoles: (state, action) => {
-      if (state.currentOrganizationAndUser)
-        state.currentOrganizationAndUser.roles = action.payload;
+    resetOrganizationsState: (state, action) => {
+      if (state.organizations) state.organizations = [];
     },
   },
   extraReducers: (builder) => {
@@ -179,5 +173,5 @@ export const organizationsSlice = createSlice({
 });
 
 export const organizationsReducer = organizationsSlice.reducer;
-export const { addCurrentOrganization, addOrganizationRoles } =
+export const { resetOrganizationsState } =
   organizationsSlice.actions;

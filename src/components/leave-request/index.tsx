@@ -28,6 +28,7 @@ import NoReadPermission from "@/shared/no-read-permission";
 import { LeaveRequest as LeaveRequestType } from "./approve-leave-request/approve-leave-request-columns";
 import { ConfirmationDialog } from "@/shared/confirmation-dialog";
 import { type LeaveRequest } from "./approve-leave-request/approve-leave-request-columns";
+import { resetLeaveRequestState } from "@/features/leave-requests/leave-requests.slice";
 
 const LeaveRequest = () => {
   const [session, setSession] = useState<any>(null);
@@ -111,6 +112,12 @@ const LeaveRequest = () => {
     statusFilter,
     dateRangeFilter,
   ]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(resetLeaveRequestState()); 
+    };
+  }, []);
 
   const onEdit = (row: any) => {
     setData(row);

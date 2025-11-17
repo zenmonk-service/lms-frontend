@@ -175,7 +175,7 @@ export default function CreateUser({
       }}
     >
       <Button
-        className="bg-gradient-to-r from-orange-500 to-amber-500 text-white"
+        className="bg-orange-500 hover:bg-orange-600 text-white"
         size="sm"
         onClick={() => setOpen(true)}
       >

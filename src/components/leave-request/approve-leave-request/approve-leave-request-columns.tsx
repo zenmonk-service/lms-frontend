@@ -12,6 +12,7 @@ import {
   CheckIcon,
   TrendingUpIcon,
   AlertCircleIcon,
+  LoaderCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +22,11 @@ import {
   HoverCardContent,
 } from "@/components/ui/hover-card";
 import { LeaveRequestStatus } from "@/features/leave-requests/leave-requests.types";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export type LeaveRequest = {
   uuid: string;
@@ -193,31 +199,47 @@ export const useLeaveRequestsColumns = (opts?: {
 
         return isPending ? (
           <div className="flex gap-2 items-center">
-            <Button
-              size="sm"
-              onClick={() => onApprove && onApprove(lr)}
-              title="Approve"
-            >
-              <Check className="mr-1" size={14} /> Approve
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onApprove && onApprove(lr)}
+                >
+                  <Check height={16} width={16} className="text-green-500" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Approve Leave Request</TooltipContent>
+            </Tooltip>
 
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => onReject && onReject(lr)}
-              title="Reject"
-            >
-              <X className="mr-1" size={14} /> Reject
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onApprove && onApprove(lr)}
+                >
+                  <X height={16} width={16} className="text-red-500" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Reject Leave Request</TooltipContent>
+            </Tooltip>
 
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => onRecommend && onRecommend(lr)}
-              title="Recommend"
-            >
-              <ThumbsUp className="mr-1" size={14} /> Recommend
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onApprove && onApprove(lr)}
+                >
+                  <TrendingUpIcon
+                    height={16}
+                    width={16}
+                  />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Recommend Leave Request</TooltipContent>
+            </Tooltip>
           </div>
         ) : (
           <span>-</span>

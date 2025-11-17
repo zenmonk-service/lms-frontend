@@ -35,7 +35,8 @@ export const createUserAction = createAsyncThunk(
     try {
       const response = await createUser(payload);
       return response.data;
-    } catch (err) {
+    } catch (err: any) {
+      toast.error(err.response.data.error ?? "Something went wrong.");
       const error = err as AxiosError;
       return thunkAPI.rejectWithValue(error?.response?.data);
     }
@@ -61,7 +62,11 @@ export const listUserAction = createAsyncThunk(
   async (payload: listUserPayload, thunkAPI) => {
     try {
       const response = await listUser(payload.pagination, payload.org_uuid);
-      return { ...response.data, isCurrentUser: payload.isCurrentUser , email: payload.pagination.search };
+      return {
+        ...response.data,
+        isCurrentUser: payload.isCurrentUser,
+        email: payload.pagination.search,
+      };
     } catch (err: any) {
       toast.error(err.response.data.error ?? "Something went wrong.");
       const error = err as AxiosError;
@@ -82,4 +87,3 @@ export const isUserExistAction = createAsyncThunk(
     }
   }
 );
-

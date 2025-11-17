@@ -80,7 +80,7 @@ export default function CreateRole({ org_uuid }: { org_uuid: string }) {
     <Dialog open={open} onOpenChange={() => setOpen(!open)}>
       <Button
         onClick={() => setOpen(true)}
-        className="bg-gradient-to-r from-orange-500 to-amber-500 text-white"
+        className="bg-orange-500 hover:bg-orange-600 text-white"
         size="sm"
       >
         <UserPlus className="w-5 h-5" />

@@ -115,6 +115,15 @@ export default function LeaveTypeForm({
     },
   });
 
+  const accrualFrequency = watch("accrualFrequency");
+  const leaveCount = watch("leaveCount");
+
+  useEffect(() => {
+    if (accrualFrequency === "none") {
+      setValue("leaveCount", "");
+    }
+  }, [accrualFrequency]);
+
   const organizationRoles = selector.roles || [];
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const currentOrgUUID = useAppSelector(
@@ -129,7 +138,7 @@ export default function LeaveTypeForm({
         description: data.description || "",
         applicableRoles: data.applicableRoles || [],
         accrualFrequency: data.accrualFrequency || "none",
-        leaveCount: data.leaveCount || "",
+        leaveCount: String(data.leaveCount) || "",
       });
 
       setSelectedRoles(data.applicableRoles);
@@ -232,9 +241,6 @@ export default function LeaveTypeForm({
       throw error;
     }
   };
-
-  const accrualFrequency = watch("accrualFrequency");
-  const leaveCount = watch("leaveCount");
 
   const toggleSelectAll = () => {
     const allUuids = (organizationRoles || []).map((r: any) => r.uuid);

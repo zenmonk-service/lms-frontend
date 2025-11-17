@@ -202,7 +202,7 @@ export const useLeaveRequestColumns = ({
             {user.length > 3 && (
               <HoverCard>
                 <HoverCardTrigger asChild>
-                  <Badge className="cursor-pointer">+ {user.length - 3}</Badge>
+                  <Badge className="cursor-pointer" variant={"outline"}>+ {user.length - 3}</Badge>
                 </HoverCardTrigger>
                 <HoverCardContent align="start" className="max-w-80">
                   <div className="space-y-1">

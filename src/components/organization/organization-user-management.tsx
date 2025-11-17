@@ -52,61 +52,70 @@ export default function ManageOrganizationsUser() {
   );
 
   const columns: ColumnDef<UserInterface>[] = [
-    {
-      id: "active_inactive",
-      header: () => {
-        return (
-          <div className="text-center">
-            <span>Status</span>
-          </div>
-        );
-      },
-      cell: ({ row }) => {
-        const isActive = row.original.is_active;
-        const user_uuid = row.original.user_id;
-        return (
-          <div className="flex justify-center">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span>
-                  <Switch
-                    checked={isActive}
-                    disabled={isActiveLoading}
-                    className="data-[state=checked]:bg-orange-500"
-                    onClick={async () => {
-                      if (isActive) {
-                        await dispatch(
-                          deactivateUserAction({
-                            org_uuid: currentOrgUUID,
-                            user_uuid: user_uuid,
-                          })
-                        );
-                      } else {
-                        await dispatch(
-                          activateUserAction({
-                            org_uuid: currentOrgUUID,
-                            user_uuid: user_uuid,
-                          })
-                        );
-                      }
-                      await dispatch(
-                        listUserAction({
-                          org_uuid: currentOrgUUID,
-                          pagination,
-                        })
-                      );
-                    }}
-                  />
-                </span>
-              </TooltipTrigger>
-              <TooltipContent>
-                {isActive ? "Active" : "Inactive"}
-              </TooltipContent>
-            </Tooltip>
-          </div>
-        );
-      },
-    },
+    ...(hasPermissions(
+      "user_management",
+      "activate",
+      currentUserRolePermissions,
+      currentUser?.email
+    )
+      ? [
+          {
+            id: "active_inactive",
+            header: () => {
+              return (
+                <div className="text-center">
+                  <span>Status</span>
+                </div>
+              );
+            },
+            cell: ({ row }: any) => {
+              const isActive = row.original.is_active;
+              const user_uuid = row.original.user_id;
+              return (
+                <div className="flex justify-center">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span>
+                        <Switch
+                          checked={isActive}
+                          disabled={isActiveLoading}
+                          className="data-[state=checked]:bg-orange-500"
+                          onClick={async () => {
+                            if (isActive) {
+                              await dispatch(
+                                deactivateUserAction({
+                                  org_uuid: currentOrgUUID,
+                                  user_uuid: user_uuid,
+                                })
+                              );
+                            } else {
+                              await dispatch(
+                                activateUserAction({
+                                  org_uuid: currentOrgUUID,
+                                  user_uuid: user_uuid,
+                                })
+                              );
+                            }
+                            await dispatch(
+                              listUserAction({
+                                org_uuid: currentOrgUUID,
+                                pagination,
+                              })
+                            );
+                          }}
+                        />
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {isActive ? "Active" : "Inactive"}
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+              );
+            },
+          },
+        ]
+      : []),
     {
       accessorKey: "name",
 

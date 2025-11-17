@@ -87,7 +87,6 @@ export default function CreateUser({
   const emailValue = watch("email");
 
   const onSubmit = async (data: FormData) => {
- 
     if (isEdited && userData) {
       await updateUser({
         name: data.name,
@@ -120,8 +119,10 @@ export default function CreateUser({
   };
 
   useEffect(() => {
-    dispatch(getOrganizationRolesAction({ org_uuid }));
-  }, [org_uuid, dispatch]);
+    if (open) {
+      dispatch(getOrganizationRolesAction({ org_uuid }));
+    }
+  }, [org_uuid, open]);
 
   useEffect(() => {
     if (

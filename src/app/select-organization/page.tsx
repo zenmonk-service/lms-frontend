@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Building2 } from "lucide-react";
+import { Building2, LoaderCircle } from "lucide-react";
 import AppBar from "@/components/app-bar";
 import { useAppDispatch, useAppSelector } from "@/store";
 import {
@@ -69,6 +69,8 @@ function App() {
       .slice(0, 2);
   };
 
+
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
       {/* Header */}
@@ -87,7 +89,9 @@ function App() {
         </div>
 
         {/* Organizations Grid */}
-        <div className="grid gap-4 max-w-2xl mx-auto">
+     { isLoading ? <div className="flex items-center justify-center">
+         <LoaderCircle className="animate-spin h-10 w-10"  />
+       </div> :  <div className="grid gap-4 max-w-2xl mx-auto">
           {organizations.length === 0 && !isLoading && sessionData ? (
             <div className="text-center py-12">
               <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
@@ -127,7 +131,7 @@ function App() {
               </div>
             ))
           )}
-        </div>
+        </div>}
 
         {/* Footer */}
         <div className="text-center mt-12 pt-8 border-t border-gray-100">

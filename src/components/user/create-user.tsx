@@ -65,7 +65,7 @@ export default function CreateUser({
 }) {
   const dispatch = useAppDispatch();
   const roles = useAppSelector((state) => state.rolesSlice.roles);
-  const { isUserExist, isLoading } = useAppSelector((state) => state.userSlice);
+  const { isUserExist, isExistLoading } = useAppSelector((state) => state.userSlice);
   
 
   const [selectedRole, setSelectedRole] = useState(
@@ -73,7 +73,6 @@ export default function CreateUser({
   );
   const [open, setOpen] = useState(false);
 
-  // Dynamically build schema based on isUserPresent
   const userSchema = z.object({
     name: z.string().min(1, "Name is required"),
     email: isEdited
@@ -242,7 +241,7 @@ export default function CreateUser({
 
                   <InputGroupAddon align={"inline-end"}>
                     <InputGroupText className="flex items-center gap-2">
-                      {isLoading && (
+                      {isExistLoading && (
                         <>
                           <Loader2 className="w-4 h-4 text-orange-500 animate-spin" />
                           <span className="text-xs text-gray-600">
@@ -326,11 +325,11 @@ export default function CreateUser({
               <Button variant="outline">Cancel</Button>
             </DialogClose>
             <Button
-              disabled={isLoading}
+              disabled={isExistLoading}
               type="submit"
               className="bg-gradient-to-r from-orange-500 to-amber-500 text-white"
             >
-              {isLoading ? (
+              {isExistLoading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : isEdited ? (
                 "Edit User"

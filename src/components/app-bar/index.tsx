@@ -9,6 +9,8 @@ import {
 } from "@/components/ui/popover";
 import { signOutUser } from "@/app/auth/sign-out.action";
 import { getSession } from "@/app/auth/get-auth.action";
+import { useAppDispatch } from "@/store";
+import { resetStore } from "@/store/reset-store-action";
 
 function AppBar() {
   const [isPending, startTransition] = React.useTransition();
@@ -18,6 +20,7 @@ function AppBar() {
     const session = await getSession();
     setUser(session?.user);
   }
+  const dispatch = useAppDispatch();
 
   React.useEffect(() => {
     getAuth();
@@ -69,7 +72,10 @@ function AppBar() {
               <button
                 className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-white/40 transition rounded-lg"
                 onClick={() => {
-                  startTransition(() => signOutUser());
+                  startTransition(() => {
+                    signOutUser();
+                    dispatch(resetStore());
+                  });
                 }}
               >
                 {isPending ? (

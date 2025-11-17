@@ -27,13 +27,23 @@ function Dashboard() {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(
-      getAllOrganizationsAction({
-        page: 1,
-        limit: 10,
-        search: search,
-      })
-    );
+    const handler = setTimeout(() => {
+      const trimmed = search.trim();
+      if (trimmed.length === 0 && search.length > 0) {
+        return;
+      }
+      dispatch(
+        getAllOrganizationsAction({
+          page: 1,
+          limit: 10,
+          search: trimmed,
+        })
+      );
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
   }, [search]);
 
   const handleSubmit = async (data: any) => {

@@ -47,6 +47,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { signOutUser } from "@/app/auth/sign-out.action";
+import { resetStore } from "@/store/reset-store-action";
 
 export function AppSidebar({ uuid }: { uuid: string }) {
   const { isMobile } = useSidebar();
@@ -320,7 +321,10 @@ export function AppSidebar({ uuid }: { uuid: string }) {
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
-                startTransition(() => signOutUser());
+                startTransition(() => {
+                  signOutUser();
+                  dispatch(resetStore());
+                });
               }}
             >
               {isPending ? (

@@ -8,6 +8,7 @@ import {
   getAllOrganizationsAction,
   activateUserAction,
   deactivateUserAction,
+  createUserAction,
 } from "./organizations.action";
 
 export interface Organization {
@@ -26,6 +27,7 @@ interface OrganizationState {
   error: string | null;
   total: number;
   currentPage: number;
+  isOrgLoading?: boolean;
 }
 
 const initialState: OrganizationState = {
@@ -35,6 +37,7 @@ const initialState: OrganizationState = {
   error: null,
   total: 100,
   currentPage: 1,
+  isOrgLoading:false
 };
 
 export const organizationsSlice = createSlice({
@@ -48,17 +51,17 @@ export const organizationsSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(getOrganizationsAction.pending, (state) => {
-        state.isLoading = true;
+        state.isOrgLoading = true;
         state.error = null;
       })
       .addCase(getOrganizationsAction.fulfilled, (state, action) => {
-        state.isLoading = false;
+        state.isOrgLoading = false;
         state.organizations = action.payload.rows || [];
         state.total = action.payload.total || 0;
         state.currentPage = action.payload.current_page || 0;
       })
       .addCase(getOrganizationsAction.rejected, (state, action: any) => {
-        state.isLoading = false;
+        state.isOrgLoading = false;
         state.error =
           action.payload?.message || "Failed to fetch organizations";
       })
@@ -168,7 +171,18 @@ export const organizationsSlice = createSlice({
       .addCase(deactivateUserAction.rejected, (state, action: any) => {
         state.isLoading = false;
         state.error = action.payload?.message;
+      }).addCase(createUserAction.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(createUserAction.fulfilled, (state, action) => {
+        state.isLoading = false;
+      })
+      .addCase(createUserAction.rejected, (state, action: any) => {
+        state.isLoading = false;
+        state.error = action.payload?.message;
       });
+
   },
 });
 

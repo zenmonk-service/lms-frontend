@@ -12,9 +12,10 @@ import { useRouter } from "next/navigation";
 import { setCurrentOrganizationUuid } from "@/features/user/user.slice";
 import { getSession } from "../auth/get-auth.action";
 import { listUserAction } from "@/features/user/user.action";
+import { Organization } from "@/features/organizations/organizations.slice";
 
 function App() {
-  const { isLoading, organizations } = useAppSelector(
+  const { isOrgLoading, organizations } = useAppSelector(
     (state) => state.organizationsSlice
   );
 
@@ -69,8 +70,6 @@ function App() {
       .slice(0, 2);
   };
 
-
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
       {/* Header */}
@@ -89,49 +88,53 @@ function App() {
         </div>
 
         {/* Organizations Grid */}
-     { isLoading ? <div className="flex items-center justify-center">
-         <LoaderCircle className="animate-spin h-10 w-10"  />
-       </div> :  <div className="grid gap-4 max-w-2xl mx-auto">
-          {organizations.length === 0 && !isLoading && sessionData ? (
-            <div className="text-center py-12">
-              <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500">
-                No workspaces found matching your search.
-              </p>
-            </div>
-          ) : (
-            organizations.map((org) => (
-              <div
-                key={org.id}
-                onClick={() => handleOrgSelect(org.uuid)}
-                className={`group cursor-pointer bg-white rounded-xl border-2 p-6 transition-all duration-200 hover:border-orange-300 hover:shadow-lg hover:shadow-orange-100 ${"border-gray-200 hover:scale-[1.01]"}`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    {/* Organization Avatar */}
-                    <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-sm">
-                      {getOrgInitials(org.name)}
-                    </div>
-
-                    {/* Organization Info */}
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2 mb-1">
-                        <h3 className="font-semibold text-gray-900 text-lg group-hover:text-orange-700 transition-colors">
-                          {org.name}
-                        </h3>
+        {isOrgLoading ? (
+          <div className="flex items-center justify-center">
+            <LoaderCircle className="animate-spin h-10 w-10" />
+          </div>
+        ) : (
+          <div className="grid gap-4 max-w-2xl mx-auto">
+            {organizations.length === 0 && !isOrgLoading && sessionData ? (
+              <div className="text-center py-12">
+                <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500">
+                  No workspaces found matching your search.
+                </p>
+              </div>
+            ) : (
+              organizations.map((org: Organization) => (
+                <div
+                  key={org.id}
+                  onClick={() => handleOrgSelect(org.uuid)}
+                  className={`group cursor-pointer bg-white rounded-xl border-2 p-6 transition-all duration-200 hover:border-orange-300 hover:shadow-lg hover:shadow-orange-100 ${"border-gray-200 hover:scale-[1.01]"}`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      {/* Organization Avatar */}
+                      <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-sm">
+                        {getOrgInitials(org.name)}
                       </div>
-                      <div className="flex items-center space-x-4 text-sm text-gray-500">
-                        <span className="flex items-center space-x-1">
-                          <span className="font-medium">@{org.domain}</span>
-                        </span>
+
+                      {/* Organization Info */}
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2 mb-1">
+                          <h3 className="font-semibold text-gray-900 text-lg group-hover:text-orange-700 transition-colors">
+                            {org.name}
+                          </h3>
+                        </div>
+                        <div className="flex items-center space-x-4 text-sm text-gray-500">
+                          <span className="flex items-center space-x-1">
+                            <span className="font-medium">@{org.domain}</span>
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))
-          )}
-        </div>}
+              ))
+            )}
+          </div>
+        )}
 
         {/* Footer */}
         <div className="text-center mt-12 pt-8 border-t border-gray-100">

@@ -17,6 +17,7 @@ import {
 import persistReducer from "redux-persist/es/persistReducer";
 import createWebStorage from "redux-persist/es/storage/createWebStorage";
 import { permissionsReducer } from "@/features/permissions/permission.slice";
+import { resetStore } from "./reset-store-action";
 
 const storage = createWebStorage("local");
 
@@ -57,8 +58,13 @@ const rootReducer = (
   state: ReturnType<typeof combinedReducer> | undefined,
   action: Action
 ) => {
+    if (action.type === resetStore.type) {
+    state = undefined;
+  }
   return combinedReducer(state, action);
 };
+
+
 
 export type RootState = ReturnType<typeof rootReducer>;
 const persistedReducer = persistReducer(persistConfig, rootReducer);

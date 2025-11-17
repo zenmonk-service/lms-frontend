@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { LoginCredentials } from "@/types/user";
+import { LoginCredentials, User } from "@/types/user";
+
 import { useRouter } from "next/navigation";
 import { setCurrentUser } from "@/features/user/user.slice";
 import { useAppDispatch } from "@/store";
@@ -51,7 +52,7 @@ export default function LoginPage() {
         name: userData.name,
         uuid: userData.user_id,
       });
-      dispatch(setCurrentUser(userData));
+      await dispatch(setCurrentUser(userData));
       if (userData.role == "superadmin") {
         router.push("/organizations");
       } else {
@@ -65,6 +66,7 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-100 flex items-center justify-center p-4">

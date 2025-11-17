@@ -43,10 +43,12 @@ type UserState = {
   error?: string | null;
   isUserExist: boolean;
   currentUser: UserInterface | null;
+  isExistLoading: boolean;
 };
 
 const initialState: UserState = {
   isLoading: false,
+  isExistLoading: false,
   organizations: [],
   isUserExist: false,
   currentOrganizationUuid: "",
@@ -115,15 +117,15 @@ export const userSlice = createSlice({
         state.error = action.payload?.message || "Failed to update user";
       })
       .addCase(isUserExistAction.pending, (state) => {
-        state.isLoading = true;
+        state.isExistLoading = true;
         state.error = null;
       })
       .addCase(isUserExistAction.fulfilled, (state, action) => {
-        state.isLoading = false;
+        state.isExistLoading = false;
         state.isUserExist = action.payload ? true : false;
       })
       .addCase(isUserExistAction.rejected, (state, action: any) => {
-        state.isLoading = false;
+        state.isExistLoading = false;
         state.error =
           action.payload?.message || "Failed to check user existence";
       })

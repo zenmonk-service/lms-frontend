@@ -12,8 +12,20 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
+import {
+  InputGroup,
+  InputGroupTextarea,
+  InputGroupAddon,
+  InputGroupText,
+} from "@/components/ui/input-group";
+
 import { Users, UserPlus } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/store";
 import {
@@ -30,10 +42,12 @@ export default function CreateRole({ org_uuid }: { org_uuid: string }) {
   const dispatch = useAppDispatch();
   const { pagination } = useAppSelector((state) => state.rolesSlice);
   const [open, setOpen] = useState(false);
+
   const {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm<FormData>({
     defaultValues: {
@@ -42,11 +56,14 @@ export default function CreateRole({ org_uuid }: { org_uuid: string }) {
     },
   });
 
+  const descriptionValue = watch("description");
+
   const onSubmit = async (data: FormData) => {
     await dispatch(createOrganizationRoleAction({ ...data, org_uuid }));
+
     dispatch(
       getOrganizationRolesAction({
-        org_uuid: org_uuid,
+        org_uuid,
         pagination: {
           page: pagination.page,
           limit: pagination.limit,
@@ -54,6 +71,7 @@ export default function CreateRole({ org_uuid }: { org_uuid: string }) {
         },
       })
     );
+
     setOpen(false);
     reset();
   };
@@ -62,76 +80,82 @@ export default function CreateRole({ org_uuid }: { org_uuid: string }) {
     <Dialog open={open} onOpenChange={() => setOpen(!open)}>
       <Button
         onClick={() => setOpen(true)}
-        className="bg-gradient-to-r w-full from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 px-8 py-3 rounded-xl font-semibold flex items-center space-between gap-2"
+        className="bg-gradient-to-r from-orange-500 to-amber-500 text-white"
+        size="sm"
       >
         <UserPlus className="w-5 h-5" />
         Create Role
       </Button>
-      <DialogContent className="sm:max-w-[500px] bg-gradient-to-br from-white to-orange-50 border-2 border-orange-200 shadow-2xl rounded-2xl">
+
+      <DialogContent className="sm:max-w-[650px]">
         <form onSubmit={handleSubmit(onSubmit)}>
-          <DialogHeader className="space-y-3 pb-2">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl shadow-lg">
-                <Users className="w-6 h-6 text-white" />
-              </div>
-              <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
-                Create Role
-              </DialogTitle>
-            </div>
-            <DialogDescription className="text-gray-600 text-lg">
-              Add a new role by providing its name and description.
+          <DialogHeader>
+            <DialogTitle>Create Role</DialogTitle>
+            <DialogDescription>
+              Provide the role name and description to create a new role.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-6 py-4 max-h-96 overflow-y-auto pr-2">
+
+          {/* Content */}
+          <div className="grid gap-4 overflow-y-auto max-h-96 no-scrollbar py-2">
+
             {/* Role Name */}
-            <div className="space-y-2">
-              <Label
-                htmlFor="name"
-                className="text-sm font-semibold text-gray-700 flex items-center gap-2"
-              >
-                <Users className="w-4 h-4 text-orange-500" /> Role Name *
-              </Label>
-              <Input
-                id="name"
-                placeholder="Enter role name"
-                {...register("name", { required: true })}
-                className="border-2 border-orange-200 focus:border-orange-400 focus:ring-orange-200 rounded-xl bg-white/70 backdrop-blur-sm hover:shadow-md"
-              />
+            <Field data-invalid={!!errors.name} className="gap-1">
+              <FieldLabel>Role Name</FieldLabel>
+              <InputGroup>
+                <InputGroupTextarea
+                  {...register("name", { required: true })}
+                  placeholder="Enter role name"
+                  rows={1}
+                  className="min-h-10 resize-none"
+                />
+              </InputGroup>
               {errors.name && (
-                <p className="text-xs text-red-500">Role name is required</p>
+                <FieldError
+                  errors={[{ message: "Role name is required" }]}
+                  className="text-xs"
+                />
               )}
-            </div>
+            </Field>
+
             {/* Role Description */}
-            <div className="space-y-2">
-              <Label
-                htmlFor="description"
-                className="text-sm font-semibold text-gray-700 flex items-center gap-2"
-              >
-                <Users className="w-4 h-4 text-orange-500" /> Description *
-              </Label>
-              <Input
-                id="description"
-                placeholder="Enter role description"
-                {...register("description", { required: true })}
-                className="border-2 border-orange-200 focus:border-orange-400 focus:ring-orange-200 rounded-xl bg-white/70 backdrop-blur-sm hover:shadow-md"
-              />
+            <Field data-invalid={!!errors.description} className="gap-1">
+              <FieldLabel>Description</FieldLabel>
+              <InputGroup>
+                <InputGroupTextarea
+                  {...register("description", { required: true })}
+                  placeholder="Enter description..."
+                  rows={4}
+                  className="min-h-20 resize-none"
+                />
+                <InputGroupAddon align="block-end">
+                  <InputGroupText className="tabular-nums">
+                    {descriptionValue?.length || 0}/200
+                  </InputGroupText>
+                </InputGroupAddon>
+              </InputGroup>
+
+              <FieldDescription>
+                Describe the purpose of this role briefly.
+              </FieldDescription>
+
               {errors.description && (
-                <p className="text-xs text-red-500">Description is required</p>
+                <FieldError
+                  errors={[{ message: "Description is required" }]}
+                  className="text-xs"
+                />
               )}
-            </div>
+            </Field>
           </div>
-          <DialogFooter className="pt-6 border-t border-orange-200/50">
+
+          {/* Footer */}
+          <DialogFooter className="pt-2">
             <DialogClose asChild>
-              <Button
-                variant="outline"
-                className="border-2 border-orange-300 text-orange-600 hover:bg-orange-50 hover:border-orange-400 rounded-xl px-6 py-2 font-semibold transition-all duration-200"
-              >
-                Cancel
-              </Button>
+              <Button variant="outline">Cancel</Button>
             </DialogClose>
             <Button
               type="submit"
-              className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 rounded-xl px-8 py-2 font-semibold"
+              className="bg-gradient-to-r from-orange-500 to-amber-500 text-white"
             >
               Create Role
             </Button>

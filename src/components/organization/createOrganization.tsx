@@ -1,3 +1,5 @@
+// Refactored CreateOrganizationForm using Field, InputGroup, Dialog-style UI
+
 "use client";
 
 import React from "react";
@@ -5,20 +7,23 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+  Field,
+  FieldLabel,
+  FieldError,
+  FieldDescription,
+} from "@/components/ui/field";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupText,
+  InputGroupTextarea,
+} from "@/components/ui/input-group";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 
 const orgSchema = z.object({
   name: z.string().min(2, "Organization name is required"),
-  domain: z.string().optional(),
+  domain: z.string().regex(/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, "Invalid domain format").optional().optional(),
   website: z.string().url("Invalid website URL").optional(),
   description: z.string().optional(),
 });
@@ -43,75 +48,76 @@ export default function CreateOrganizationForm({
   });
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6 p-1"
+    <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-5 p-2 max-h-[75vh] overflow-y-auto">
+      {/* Organization Name */}
+      <Field className="gap-1" data-invalid={!!form.formState.errors.name}>
+        <FieldLabel>Organization Name</FieldLabel>
+        <Input
+          {...form.register("name")}
+          placeholder="e.g. ZenMonk Technologies"
+          className="bg-gray-50 border border-gray-200 rounded-xl"
+        />
+        {form.formState.errors.name && (
+          <FieldError errors={[form.formState.errors.name]} />
+        )}
+      </Field>
+
+      {/* Domain */}
+      <Field className="gap-1" data-invalid={!!form.formState.errors.domain}>
+        <FieldLabel>Domain</FieldLabel>
+        <Input
+          {...form.register("domain")}
+          placeholder="e.g. zenmonk.com"
+          className="bg-gray-50 border border-gray-200 rounded-xl"
+        />
+        {form.formState.errors.domain && (
+          <FieldError errors={[form.formState.errors.domain]} />
+        )}
+      </Field>
+
+      {/* Website */}
+      <Field className="gap-1" data-invalid={!!form.formState.errors.website}>
+        <FieldLabel>Website</FieldLabel>
+        <Input
+          {...form.register("website")}
+          placeholder="https://zenmonk.com"
+          className="bg-gray-50 border border-gray-200 rounded-xl"
+        />
+        {form.formState.errors.website && (
+          <FieldError errors={[form.formState.errors.website]} />
+        )}
+      </Field>
+
+      {/* Description */}
+      <Field className="gap-1" data-invalid={!!form.formState.errors.description}>
+        <FieldLabel>Description</FieldLabel>
+        <InputGroup>
+          <InputGroupTextarea
+            {...form.register("description")}
+            placeholder="Short description about your organization"
+            rows={4}
+            className="resize-none bg-gray-50 border border-gray-200 rounded-xl"
+          />
+          <InputGroupAddon align="block-end">
+            <InputGroupText className="tabular-nums">
+              {(form.watch("description")?.length || 0)}/500
+            </InputGroupText>
+          </InputGroupAddon>
+        </InputGroup>
+        <FieldDescription>Briefly describe the organization.</FieldDescription>
+        {form.formState.errors.description && (
+          <FieldError errors={[form.formState.errors.description]} />
+        )}
+      </Field>
+
+      {/* Submit Button */}
+      <Button
+        type="submit"
+        className="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl shadow"
+        disabled={isSubmitting}
       >
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem >
-              <FormLabel>Organization Name</FormLabel>
-              <FormControl className="mt-1">
-                <Input className="border-0 outline-none" placeholder="e.g. ZenMonk Technologies" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="domain"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Domain</FormLabel>
-              <FormControl className="mt-1">
-                <Input className="border-0 outline-none"  placeholder="e.g. zenmonk.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="website"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Website</FormLabel>
-              <FormControl className="mt-1">
-                <Input className="border-0 outline-none"  placeholder="https://zenmonk.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl className="mt-1">
-                <Textarea
-                  placeholder="Short description about your organization"
-                  className="resize-none border-0 outline-none"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <Button type="submit" className="w-full bg-orange-500 text-white  " disabled={isSubmitting}>
-          {isSubmitting ? "Creating..." : "Create Organization"}
-        </Button>
-      </form>
-    </Form>
+        {isSubmitting ? "Creating..." : "Create Organization"}
+      </Button>
+    </form>
   );
 }

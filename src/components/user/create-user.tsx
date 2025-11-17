@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { email, z } from "zod";
+import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,8 +15,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+} from "@/components/ui/input-group";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
 import {
   Select,
   SelectContent,
@@ -23,6 +34,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
 import { UserPlus, Mail, Lock, User, Users, EditIcon } from "lucide-react";
 import { createUser, updateUser } from "@/features/user/user.service";
 import {
@@ -46,6 +58,7 @@ export default function CreateUser({
   const dispatch = useAppDispatch();
   const roles = useAppSelector((state) => state.rolesSlice.roles);
   const isUserPresent = useAppSelector((state) => state.userSlice.isUserExist);
+
   const [selectedRole, setSelectedRole] = useState(
     isEdited ? (userData ? userData.role.uuid : "") : ""
   );
@@ -103,6 +116,7 @@ export default function CreateUser({
       await createUser({
         name: data.name,
         email: data.email?.trim() || "",
+        // only send password when user is NOT already present
         ...(!isUserPresent && { password: data.password ?? "" }),
         org_uuid,
         role_uuid: data.role,
@@ -122,7 +136,7 @@ export default function CreateUser({
     if (open) {
       dispatch(getOrganizationRolesAction({ org_uuid }));
     }
-  }, [org_uuid, open]);
+  }, [org_uuid, open, dispatch]);
 
   useEffect(() => {
     if (
@@ -132,7 +146,7 @@ export default function CreateUser({
     ) {
       dispatch(isUserExistAction(emailValue.trim()));
     }
-  }, [emailValue, isEdited, dispatch]);
+  }, [emailValue, isEdited, dispatch, userSchema.shape.email]);
 
   return (
     <Dialog
@@ -144,101 +158,112 @@ export default function CreateUser({
       }}
     >
       <Button
+        className="bg-gradient-to-r from-orange-500 to-amber-500 text-white"
+        size="sm"
         onClick={() => setOpen(true)}
-        className="bg-gradient-to-r w-full from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 px-8 py-3 rounded-xl font-semibold flex items-center space-between gap-2"
       >
         {isEdited ? (
-          <EditIcon className="w-5 h-5" />
+          <>
+            <EditIcon className="w-5 h-5" /> Edit User
+          </>
         ) : (
-          <UserPlus className="w-5 h-5" />
+          <>
+            <UserPlus className="w-5 h-5" /> Create User
+          </>
         )}
-        {isEdited ? "Edit User" : "Create User"}
       </Button>
-      <DialogContent className="sm:max-w-[600px] bg-gradient-to-br from-white to-orange-50 border-2 border-orange-200 shadow-2xl rounded-2xl">
+
+      <DialogContent className="sm:max-w-[650px]">
         <form onSubmit={handleSubmit(onSubmit)}>
-          <DialogHeader className="space-y-3 pb-2">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl shadow-lg">
-                <User className="w-6 h-6 text-white" />
-              </div>
-              <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
-                {isEdited ? "Edit User" : "Create User"}
-              </DialogTitle>
-            </div>
-            <DialogDescription className="text-gray-600 text-lg">
+          <DialogHeader>
+            <DialogTitle>{isEdited ? "Edit User" : "Create User"}</DialogTitle>
+            <DialogDescription>
               {isEdited
                 ? "Edit the user's details and assign a new role."
                 : "Add a new user by providing their details and assigning a role."}
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-6 py-4 max-h-96 overflow-y-auto pr-2">
-            {/* Name */}
-            <div className="space-y-2">
-              <Label
-                htmlFor="name"
-                className="text-sm font-semibold text-gray-700 flex items-center gap-2"
-              >
-                <User className="w-4 h-4 text-orange-500" /> Full Name *
-              </Label>
-              <Input
-                id="name"
-                placeholder="Enter user's full name"
-                {...register("name")}
-                className="border-2 border-orange-200 focus:border-orange-400 focus:ring-orange-200 rounded-xl bg-white/70 backdrop-blur-sm hover:shadow-md"
-              />
+
+          <div className="grid gap-4 overflow-y-auto max-h-96 no-scrollbar py-2">
+            {/* Full Name */}
+            <Field data-invalid={!!errors.name} className="gap-1">
+              <FieldLabel htmlFor="user-name">Full Name</FieldLabel>
+              <InputGroup>
+                <InputGroupInput
+                  id="user-name"
+                  placeholder="Enter user's full name"
+                  aria-invalid={!!errors.name}
+                  {...register("name")}
+                />
+                <InputGroupAddon>
+                  <InputGroupText>
+                    <User className="w-4 h-4 text-orange-500" />
+                  </InputGroupText>
+                </InputGroupAddon>
+              </InputGroup>
+              <FieldDescription>Enter the user's full name.</FieldDescription>
               {errors.name && (
-                <p className="text-xs text-red-500">{errors.name.message}</p>
+                <FieldError errors={[errors.name]} className="text-xs" />
               )}
-            </div>
-            {/* Email */}
+            </Field>
+
+            {/* Email (only when creating and not editing) */}
             {!isEdited && (
-              <div className="space-y-2">
-                <Label
-                  htmlFor="email"
-                  className="text-sm font-semibold text-gray-700 flex items-center gap-2"
-                >
-                  <Mail className="w-4 h-4 text-orange-500" /> Email *
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="user@example.com"
-                  {...register("email")}
-                  className="border-2 border-orange-200 focus:border-orange-400 focus:ring-orange-200 rounded-xl bg-white/70 backdrop-blur-sm hover:shadow-md"
-                />
+              <Field data-invalid={!!errors.email} className="gap-1">
+                <FieldLabel htmlFor="user-email">Email</FieldLabel>
+                <InputGroup>
+                  <InputGroupInput
+                    id="user-email"
+                    type="email"
+                    placeholder="user@example.com"
+                    aria-invalid={!!errors.email}
+                    {...register("email")}
+                  />
+                  <InputGroupAddon>
+                    <InputGroupText>
+                      <Mail className="w-4 h-4 text-orange-500" />
+                    </InputGroupText>
+                  </InputGroupAddon>
+                </InputGroup>
+                <FieldDescription>
+                  Provide a valid email address for the user.
+                </FieldDescription>
                 {errors.email && (
-                  <p className="text-xs text-red-500">{errors.email.message}</p>
+                  <FieldError errors={[errors.email]} className="text-xs" />
                 )}
-              </div>
+              </Field>
             )}
-            {/* Password */}
+
+            {/* Password (only when creating and user is not present) */}
             {!isEdited && !isUserPresent && (
-              <div className="space-y-2">
-                <Label
-                  htmlFor="password"
-                  className="text-sm font-semibold text-gray-700 flex items-center gap-2"
-                >
-                  <Lock className="w-4 h-4 text-orange-500" /> Password *
-                </Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Enter password"
-                  {...register("password")}
-                  className="border-2 border-orange-200 focus:border-orange-400 focus:ring-orange-200 rounded-xl bg-white/70 backdrop-blur-sm hover:shadow-md"
-                />
+              <Field data-invalid={!!errors.password} className="gap-1">
+                <FieldLabel htmlFor="user-password">Password</FieldLabel>
+                <InputGroup>
+                  <InputGroupInput
+                    id="user-password"
+                    type="password"
+                    placeholder="Enter password"
+                    aria-invalid={!!errors.password}
+                    {...register("password")}
+                  />
+                  <InputGroupAddon>
+                    <InputGroupText>
+                      <Lock className="w-4 h-4 text-orange-500" />
+                    </InputGroupText>
+                  </InputGroupAddon>
+                </InputGroup>
+                <FieldDescription>
+                  Set an initial password for the user.
+                </FieldDescription>
                 {errors.password && (
-                  <p className="text-xs text-red-500">
-                    {errors.password.message}
-                  </p>
+                  <FieldError errors={[errors.password]} className="text-xs" />
                 )}
-              </div>
+              </Field>
             )}
+
             {/* Role Selection */}
-            <div className="space-y-2">
-              <Label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                <Users className="w-4 h-4 text-orange-500" /> Assign Role *
-              </Label>
+            <Field data-invalid={!!errors.role} className="gap-1">
+              <FieldLabel>Assign Role</FieldLabel>
               <Select
                 value={selectedRole}
                 onValueChange={(val) => {
@@ -247,10 +272,16 @@ export default function CreateUser({
                   trigger("role");
                 }}
               >
-                <SelectTrigger className="w-full border-2 border-orange-200 focus:border-orange-400 focus:ring-orange-200 rounded-xl bg-white/70 backdrop-blur-sm hover:shadow-md p-3">
+                <SelectTrigger
+                  className={
+                    errors.role
+                      ? "border-destructive ring-destructive focus-visible:ring-destructive text-destructive"
+                      : ""
+                  }
+                >
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
-                <SelectContent className="bg-white border-0 shadow-lg rounded-xl">
+                <SelectContent>
                   {roles.map((role: any) => (
                     <SelectItem key={role.uuid} value={role.uuid}>
                       {role.name}
@@ -258,28 +289,27 @@ export default function CreateUser({
                   ))}
                 </SelectContent>
               </Select>
+              <FieldDescription>
+                Choose a role to define the user&apos;s permissions.
+              </FieldDescription>
               {errors.role && (
-                <p className="text-xs text-red-500">{errors.role.message}</p>
+                <FieldError errors={[errors.role]} className="text-xs" />
               )}
               {selectedRole && (
-                <p className="text-xs text-orange-600 mt-1">
+                <p className="text-xs text-green-600 mt-1">
                   {roles.find((r: any) => r.uuid === selectedRole)?.description}
                 </p>
               )}
-            </div>
+            </Field>
           </div>
-          <DialogFooter className="pt-6 border-t border-orange-200/50">
+
+          <DialogFooter className="pt-2">
             <DialogClose asChild>
-              <Button
-                variant="outline"
-                className="border-2 border-orange-300 text-orange-600 hover:bg-orange-50 hover:border-orange-400 rounded-xl px-6 py-2 font-semibold transition-all duration-200"
-              >
-                Cancel
-              </Button>
+              <Button variant="outline">Cancel</Button>
             </DialogClose>
             <Button
               type="submit"
-              className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 rounded-xl px-8 py-2 font-semibold"
+              className="bg-gradient-to-r from-orange-500 to-amber-500 text-white"
             >
               {isEdited ? "Edit User" : "Create User"}
             </Button>

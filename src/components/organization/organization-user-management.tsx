@@ -31,9 +31,15 @@ import {
 
 import { hasPermissions } from "@/libs/haspermissios";
 import NoReadPermission from "@/shared/no-read-permission";
+import { useRouter } from "next/navigation";
 type Checked = DropdownMenuCheckboxItemProps["checked"];
 
-export default function ManageOrganizationsUser() {
+export default function ManageOrganizationsUser({
+  organization_uuid,
+}: {
+  organization_uuid?: string | undefined;
+}) {
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const currentOrgUUID = useAppSelector(
     (state) => state.userSlice.currentOrganizationUuid
@@ -174,7 +180,14 @@ export default function ManageOrganizationsUser() {
   };
 
   React.useEffect(() => {
-    if (true) {
+    if (
+      organization_uuid !== currentOrgUUID &&
+      organization_uuid &&
+      currentOrgUUID
+    ) {
+      router.push("/organizations");
+    }
+    if (currentOrgUUID) {
       dispatch(
         listUserAction({
           org_uuid: currentOrgUUID,

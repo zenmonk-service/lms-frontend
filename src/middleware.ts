@@ -5,8 +5,30 @@ export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
   const loggedInUser = await getSession();
 
-  if (!loggedInUser) {
+  if (!loggedInUser && !request.nextUrl.pathname.startsWith("/login")) {
     return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  if (
+    loggedInUser &&
+    loggedInUser.user.org_uuid &&
+    loggedInUser.user.email !== "superadmin@superadmin.in" &&
+    !request.nextUrl.pathname.startsWith(
+      `/${loggedInUser.user.org_uuid}/dashboard`
+    )
+  ) {
+    return NextResponse.redirect(
+      new URL(`/${loggedInUser.user.org_uuid}/dashboard`, request.url)
+    );
+  }
+
+  if (
+    loggedInUser &&
+    !loggedInUser.user.org_uuid &&
+    loggedInUser.user.email !== "superadmin@superadmin.in" &&
+    !request.nextUrl.pathname.startsWith(`/select-organization`)
+  ) {
+    return NextResponse.redirect(new URL(`/select-organization`, request.url));
   }
 
   async function hasPagePermission(tag: string) {
@@ -53,6 +75,7 @@ export async function middleware(request: NextRequest) {
   }
 
   if (
+    loggedInUser &&
     loggedInUser.user.email !== "superadmin@superadmin.in" &&
     request.nextUrl.pathname.startsWith("/organizations")
   ) {
@@ -97,6 +120,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    "/login",
     "/users/:path*",
     "/organizations/:path*",
     "/select-organization",

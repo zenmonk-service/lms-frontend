@@ -13,12 +13,13 @@ import { setCurrentOrganizationUuid } from "@/features/user/user.slice";
 import { getSession } from "../auth/get-auth.action";
 import { listUserAction } from "@/features/user/user.action";
 import { Organization } from "@/features/organizations/organizations.slice";
+import { useSession } from "next-auth/react";
 
 function App() {
   const { isOrgLoading, organizations } = useAppSelector(
     (state) => state.organizationsSlice
   );
-
+  const { data, update } = useSession();
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [sessionData, setSessionData] = useState<any>(null);
@@ -55,6 +56,10 @@ function App() {
           isCurrentUser: true,
         })
       );
+      (async () => {
+        await update({ org_uuid: uuid });
+        router.refresh();
+      })();
       router.push(`/${uuid}/dashboard`);
     } catch (err) {
       console.log(err);

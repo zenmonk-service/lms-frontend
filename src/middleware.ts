@@ -9,6 +9,10 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
+  if (loggedInUser && loggedInUser.user.email === "superadmin@superadmin.in" && !request.nextUrl.pathname.startsWith("/organizations")) {
+    return NextResponse.redirect(new URL("/organizations", request.url));
+  }
+
   if (
     loggedInUser &&
     loggedInUser.user.org_uuid &&

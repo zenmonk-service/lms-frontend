@@ -323,9 +323,7 @@ export function LeaveRequestModal({
                         value={field.value}
                         onValueChange={(val) => {
                           field.onChange(val);
-                          if (!val || val === "") {
-                            setValue("range", "");
-                          }
+                          setValue("range", "");
                         }}
                         data={typeOptions}
                         label="Leave Type"

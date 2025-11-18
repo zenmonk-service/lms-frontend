@@ -65,7 +65,7 @@ export default function CreateUser({
 }) {
   const dispatch = useAppDispatch();
   const roles = useAppSelector((state) => state.rolesSlice.roles);
-  const { isUserExist, isExistLoading } = useAppSelector(
+  const { isUserExist, isExistLoading ,isLoading } = useAppSelector(
     (state) => state.userSlice
   );
 
@@ -327,11 +327,11 @@ export default function CreateUser({
               <Button variant="outline">Cancel</Button>
             </DialogClose>
             <Button
-              disabled={isExistLoading}
+              disabled={isExistLoading || isLoading}
               type="submit"
               className="bg-gradient-to-r from-orange-500 to-amber-500 text-white"
             >
-              {isExistLoading ? (
+              {isExistLoading ||isLoading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : isEdited ? (
                 "Edit User"

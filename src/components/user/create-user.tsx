@@ -65,8 +65,9 @@ export default function CreateUser({
 }) {
   const dispatch = useAppDispatch();
   const roles = useAppSelector((state) => state.rolesSlice.roles);
-  const { isUserExist, isExistLoading } = useAppSelector((state) => state.userSlice);
-  
+  const { isUserExist, isExistLoading } = useAppSelector(
+    (state) => state.userSlice
+  );
 
   const [selectedRole, setSelectedRole] = useState(
     isEdited ? (userData ? userData.role.uuid : "") : ""
@@ -170,6 +171,7 @@ export default function CreateUser({
       onOpenChange={() => {
         setOpen(!open);
         reset();
+        setSelectedRole("");
         dispatch(setIsUserExist(false));
       }}
     >

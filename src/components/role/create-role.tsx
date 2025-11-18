@@ -54,6 +54,7 @@ export default function CreateRole({ org_uuid }: { org_uuid: string }) {
       name: "",
       description: "",
     },
+    mode: "onChange",
   });
 
   const descriptionValue = watch("description");
@@ -122,10 +123,17 @@ export default function CreateRole({ org_uuid }: { org_uuid: string }) {
               <FieldLabel>Description</FieldLabel>
               <InputGroup>
                 <InputGroupTextarea
-                  {...register("description", { required: true })}
+                  {...register("description", {
+                    required: true,
+                    maxLength: {
+                      value: 200,
+                      message: "Description cannot be more than 200 characters.",
+                    },
+                  })}
                   placeholder="Enter description..."
                   rows={4}
                   className="min-h-20 resize-none"
+                  maxLength={200}
                 />
                 <InputGroupAddon align="block-end">
                   <InputGroupText className="tabular-nums">
@@ -140,7 +148,7 @@ export default function CreateRole({ org_uuid }: { org_uuid: string }) {
 
               {errors.description && (
                 <FieldError
-                  errors={[{ message: "Description is required" }]}
+                  errors={[errors.description]}
                   className="text-xs"
                 />
               )}

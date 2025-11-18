@@ -13,9 +13,7 @@ export async function middleware(request: NextRequest) {
     loggedInUser &&
     loggedInUser.user.org_uuid &&
     loggedInUser.user.email !== "superadmin@superadmin.in" &&
-    !request.nextUrl.pathname.startsWith(
-      `/${loggedInUser.user.org_uuid}/dashboard`
-    )
+    request.nextUrl.pathname.startsWith(`/login`)
   ) {
     return NextResponse.redirect(
       new URL(`/${loggedInUser.user.org_uuid}/dashboard`, request.url)

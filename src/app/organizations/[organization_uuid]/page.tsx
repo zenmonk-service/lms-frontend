@@ -8,7 +8,6 @@ export default async function ManageOrganizations({ params }: any) {
     ? resolvedParams.organization_uuid[0]
     : resolvedParams.organization_uuid;
 
-  console.log('✌️organization_uuid --->', organization_uuid);
 
   return <ManageOrganizationsUser organization_uuid={organization_uuid} />;
 }

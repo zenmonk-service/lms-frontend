@@ -55,7 +55,7 @@ export default function CreateOrganizationForm({
         <Input
           {...form.register("name")}
           placeholder="e.g. ZenMonk Technologies"
-          className="bg-gray-50 border border-gray-200 rounded-xl"
+          className={`bg-gray-50 border rounded-xl ${form.formState.errors.name ? 'border-red-400' : 'border-gray-200'}`}
         />
         {form.formState.errors.name && (
           <FieldError errors={[form.formState.errors.name]} />
@@ -68,7 +68,7 @@ export default function CreateOrganizationForm({
         <Input
           {...form.register("domain")}
           placeholder="e.g. zenmonk.com"
-          className="bg-gray-50 border border-gray-200 rounded-xl"
+          className={`bg-gray-50 border rounded-xl ${form.formState.errors.domain ? 'border-red-400' : 'border-gray-200'}`}
         />
         {form.formState.errors.domain && (
           <FieldError errors={[form.formState.errors.domain]} />
@@ -81,7 +81,7 @@ export default function CreateOrganizationForm({
         <Input
           {...form.register("website")}
           placeholder="https://zenmonk.com"
-          className="bg-gray-50 border border-gray-200 rounded-xl"
+          className={`bg-gray-50 border rounded-xl ${form.formState.errors.website ? 'border-red-400' : 'border-gray-200'}`}
         />
         {form.formState.errors.website && (
           <FieldError errors={[form.formState.errors.website]} />
@@ -91,12 +91,12 @@ export default function CreateOrganizationForm({
       {/* Description */}
       <Field className="gap-1" data-invalid={!!form.formState.errors.description}>
         <FieldLabel>Description</FieldLabel>
-        <InputGroup>
+        <InputGroup className="border-none p-0">
           <InputGroupTextarea
             {...form.register("description")}
             placeholder="Short description about your organization"
             rows={4}
-            className="resize-none bg-gray-50 border border-gray-200 rounded-xl"
+            className={`resize-none bg-gray-50 max-h-[200px] border rounded-xl ${form.formState.errors.description ? 'border-red-400' : 'border-gray-200'}`}
           />
           <InputGroupAddon align="block-end">
             <InputGroupText className="tabular-nums">

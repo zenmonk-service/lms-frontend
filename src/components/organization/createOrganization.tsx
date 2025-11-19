@@ -20,10 +20,16 @@ import {
 } from "@/components/ui/input-group";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useAppSelector } from "@/store";
+import { Loader2 } from "lucide-react";
 
 const orgSchema = z.object({
   name: z.string().min(2, "Organization name is required"),
-  domain: z.string().regex(/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, "Invalid domain format").optional().optional(),
+  domain: z
+    .string()
+    .regex(/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, "Invalid domain format")
+    .optional()
+    .optional(),
   website: z.string().url("Invalid website URL").optional(),
   description: z.string().optional(),
 });
@@ -47,15 +53,22 @@ export default function CreateOrganizationForm({
     },
   });
 
+  const { isLoading } = useAppSelector((state) => state.organizationsSlice);
+
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-5 p-2 max-h-[75vh] overflow-y-auto">
+    <form
+      onSubmit={form.handleSubmit(onSubmit)}
+      className="grid gap-5 p-2 max-h-[75vh] overflow-y-auto"
+    >
       {/* Organization Name */}
       <Field className="gap-1" data-invalid={!!form.formState.errors.name}>
         <FieldLabel>Organization Name</FieldLabel>
         <Input
           {...form.register("name")}
           placeholder="e.g. ZenMonk Technologies"
-          className={`${form.formState.errors.name ? 'border-red-400' : 'border-gray-200'}`}
+          className={`${
+            form.formState.errors.name ? "border-red-400" : "border-gray-200"
+          }`}
         />
         {form.formState.errors.name && (
           <FieldError errors={[form.formState.errors.name]} className="text-xs"/>
@@ -102,7 +115,7 @@ export default function CreateOrganizationForm({
           />
           <InputGroupAddon align="block-end">
             <InputGroupText className="tabular-nums">
-              {(form.watch("description")?.length || 0)}/500
+              {form.watch("description")?.length || 0}/500
             </InputGroupText>
           </InputGroupAddon>
         </InputGroup>
@@ -116,9 +129,13 @@ export default function CreateOrganizationForm({
       <Button
         type="submit"
         className="w-full bg-orange-500 hover:bg-orange-600 text-white rounded-md shadow"
-        disabled={isSubmitting}
+        disabled={isLoading}
       >
-        {isSubmitting ? "Creating..." : "Create Organization"}
+        {isLoading ? (
+          <Loader2 className="animate-spin" />
+        ) : (
+          "Create Organization"
+        )}
       </Button>
     </form>
   );

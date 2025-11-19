@@ -38,6 +38,8 @@ import {
   Users,
   EditIcon,
   Loader2,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { createUser, updateUser } from "@/features/user/user.service";
 import {
@@ -73,6 +75,7 @@ export default function CreateUser({
     isEdited ? (userData ? userData.role.uuid : "") : ""
   );
   const [open, setOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const userSchema = z.object({
     name: z.string().min(1, "Name is required"),
@@ -266,7 +269,7 @@ export default function CreateUser({
                 <InputGroup>
                   <InputGroupInput
                     id="user-password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     placeholder="Enter password"
                     aria-invalid={!!errors.password}
                     {...register("password")}
@@ -274,6 +277,20 @@ export default function CreateUser({
                   <InputGroupAddon>
                     <InputGroupText>
                       <Lock className="w-4 h-4 text-orange-500" />
+                    </InputGroupText>
+                  </InputGroupAddon>
+                  <InputGroupAddon align="inline-end">
+                    <InputGroupText
+                      className="cursor-pointer"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      tabIndex={0}
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-4 h-4 text-orange-500" />
+                      ) : (
+                        <Eye className="w-4 h-4 text-orange-500" />
+                      )}
                     </InputGroupText>
                   </InputGroupAddon>
                 </InputGroup>
@@ -331,7 +348,7 @@ export default function CreateUser({
               type="submit"
               className="bg-gradient-to-r from-orange-500 to-amber-500 text-white"
             >
-              {isExistLoading ||isLoading ? (
+              {isExistLoading || isLoading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : isEdited ? (
                 "Edit User"

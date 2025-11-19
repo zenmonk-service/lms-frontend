@@ -85,7 +85,7 @@ export default function DataTable({
   };
 
   return (
-    <div className="h-[calc(100vh-200px)]">
+    <div className="h-[calc(100vh-250px)]">
       <div className="flex items-center justify-between mb-4 ">
         <div>
           {searchable && (

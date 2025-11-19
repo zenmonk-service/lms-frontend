@@ -49,28 +49,9 @@ const leaveTypeSchema = z
     applicableRoles: z
       .array(z.string())
       .min(1, "At least one role must be selected"),
-    accrualFrequency: z.enum(["none", "monthly", "yearly"]),
-    leaveCount: z.string().optional(),
-  })
-  .refine(
-    (data) => {
-      if (data.accrualFrequency === "none") return true;
-
-      if (
-        data.leaveCount === "" ||
-        data.leaveCount === undefined ||
-        data.leaveCount === null
-      ) {
-        return false;
-      }
-      const leaveCountNum = Number(data.leaveCount);
-      return !isNaN(leaveCountNum) && leaveCountNum > 0;
-    },
-    {
-      message: "Leave count must be set when accrual frequency is set.",
-      path: ["leaveCount"],
-    }
-  );
+    accrualFrequency: z.enum(["no_accrual", "monthly", "yearly"]),
+    leaveCount: z.string().trim().nonempty("Leave count is required"),
+  });
 
 type LeaveTypeFormData = z.infer<typeof leaveTypeSchema>;
 
@@ -110,19 +91,13 @@ export default function LeaveTypeForm({
       code: "",
       description: "",
       applicableRoles: [],
-      accrualFrequency: "none",
+      accrualFrequency: "no_accrual",
       leaveCount: "",
     },
   });
 
   const accrualFrequency = watch("accrualFrequency");
   const leaveCount = watch("leaveCount");
-
-  useEffect(() => {
-    if (accrualFrequency === "none") {
-      setValue("leaveCount", "");
-    }
-  }, [accrualFrequency]);
 
   const organizationRoles = selector.roles || [];
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
@@ -138,7 +113,7 @@ export default function LeaveTypeForm({
       code: data.code || "",
       description: data.description || "",
       applicableRoles: data.applicableRoles || [],
-      accrualFrequency: data.accrualFrequency || "none",
+      accrualFrequency: data.accrualFrequency || "no_accrual",
       leaveCount: String(data.leaveCount) || "",
     });
 
@@ -173,6 +148,7 @@ export default function LeaveTypeForm({
     };
 
     const frequencyToPeriodMap: Record<string, string> = {
+      no_accrual: "no_accrual",
       monthly: "monthly",
       yearly: "yearly",
       quarterly: "quarterly",
@@ -180,9 +156,8 @@ export default function LeaveTypeForm({
     };
 
     const period =
-      data.accrualFrequency && data.accrualFrequency !== "none"
-        ? frequencyToPeriodMap[data.accrualFrequency] || data.accrualFrequency
-        : null;
+      data.accrualFrequency && frequencyToPeriodMap[data.accrualFrequency] || data.accrualFrequency
+       
 
     const accrual =
       period || (data.leaveCount !== "" && data.leaveCount !== undefined)
@@ -377,7 +352,7 @@ export default function LeaveTypeForm({
                           <SelectValue placeholder="Accrual" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="none">No Accrual</SelectItem>
+                          <SelectItem value="no_accrual">No Accrual</SelectItem>
                           <SelectItem value="monthly">Monthly</SelectItem>
                           <SelectItem value="yearly">Yearly</SelectItem>
                         </SelectContent>
@@ -390,7 +365,6 @@ export default function LeaveTypeForm({
               <Field className="gap-1">
                 <FieldLabel htmlFor="leaveCount">Leave count</FieldLabel>
                 <Input
-                  disabled={accrualFrequency === "none"}
                   {...register("leaveCount")}
                   id="leaveCount"
                   type="number"
@@ -409,7 +383,7 @@ export default function LeaveTypeForm({
 
               <div>
                 {/* Preview */}
-                {(accrualFrequency && accrualFrequency !== "none") ||
+                {
                 leaveCount ? (
                   <div
                     className="
@@ -425,7 +399,7 @@ export default function LeaveTypeForm({
                     <p className="text-sm">
                       {leaveCount && `${leaveCount} days`}{" "}
                       {accrualFrequency &&
-                        accrualFrequency !== "none" &&
+                        accrualFrequency !== "no_accrual" &&
                         `accrued ${accrualFrequency}`}
                     </p>
                   </div>

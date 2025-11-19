@@ -61,7 +61,7 @@ const renderApplicableFor = (
   applicableFor: LeaveTypes["applicable_for"],
   getRole: (roleUuid: string) => any
 ) => {
-  const roles = applicableFor.value.map((roleUuid) => getRole(roleUuid)?.name);
+  const roles = applicableFor?.value?.map((roleUuid) => getRole(roleUuid)?.name);
   return (
     <div className="flex gap-1 flex-wrap">
       {roles.slice(0, 3).map((role, index) => (
@@ -229,10 +229,7 @@ export const useLeaveTypesColumns = (
                 : ""
             }`}
           >
-            {accrual?.period
-              ? accrual?.period.charAt(0).toUpperCase() +
-                accrual?.period.slice(1)
-              : "No Accrual"}
+            {accrual?.period.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
           </Badge>
         );
       },

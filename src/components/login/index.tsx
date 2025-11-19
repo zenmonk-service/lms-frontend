@@ -54,9 +54,9 @@ export default function LoginPage() {
       });
       await dispatch(setCurrentUser(userData));
       if (userData.role == "superadmin") {
-        router.push("/organizations");
+        router.replace("/organizations");
       } else {
-        router.push("/select-organization");
+        router.replace("/select-organization");
       }
     } catch (err: any) {
       toastError(

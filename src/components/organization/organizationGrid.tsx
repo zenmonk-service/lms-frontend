@@ -13,14 +13,14 @@ import { setCurrentOrganizationUuid } from "@/features/user/user.slice";
 
 export default function OrganizationGrid({ search }: { search: string }) {
   const router = useRouter();
-  
+
   const { isLoading, organizations, total, currentPage } = useAppSelector(
     (state) => state.organizationsSlice
   );
   const dispatch = useAppDispatch();
   const handleManageMembers = (org: any) => {
     dispatch(setCurrentOrganizationUuid(org.uuid));
-      router.push(`/organizations/${org.uuid}`);
+    router.push(`/organizations/${org.uuid}`);
   };
 
   const handleEdit = (org: any) => {
@@ -33,7 +33,9 @@ export default function OrganizationGrid({ search }: { search: string }) {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div
+        className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 pr-2 pb-2 max-h-[472px] overflow-y-auto"
+      >
         {isLoading ? (
           <LoadingSkelton />
         ) : (

@@ -19,6 +19,7 @@ import {
   createOrganizationAction,
   getAllOrganizationsAction,
 } from "@/features/organizations/organizations.action";
+import { Plus } from "lucide-react";
 
 function Dashboard() {
   const [open, setOpen] = useState(false);
@@ -76,7 +77,8 @@ function Dashboard() {
           ></Input>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-orange-500 hover:bg-orange-600 text-white font-bold cursor-pointer">
+              <Button size={"sm"}  className="bg-orange-500 hover:bg-orange-600 text-white">
+                <Plus className="h-5 w-5" />
                 Add Organization
               </Button>
             </DialogTrigger>

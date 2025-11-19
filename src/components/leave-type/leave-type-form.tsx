@@ -131,29 +131,19 @@ export default function LeaveTypeForm({
   );
 
   useEffect(() => {
-    if (data && isOpen) {
-      reset({
-        name: data.name || "",
-        code: data.code || "",
-        description: data.description || "",
-        applicableRoles: data.applicableRoles || [],
-        accrualFrequency: data.accrualFrequency || "none",
-        leaveCount: String(data.leaveCount) || "",
-      });
+    if (!isOpen || !data) return;
 
-      setSelectedRoles(data.applicableRoles);
-    } else if (!isOpen) {
-      reset({
-        name: "",
-        code: "",
-        description: "",
-        applicableRoles: [],
-        accrualFrequency: "none",
-        leaveCount: "",
-      });
-      setSelectedRoles([]);
-    }
-  }, [data, isOpen, reset, organizationRoles]);
+    reset({
+      name: data.name || "",
+      code: data.code || "",
+      description: data.description || "",
+      applicableRoles: data.applicableRoles || [],
+      accrualFrequency: data.accrualFrequency || "none",
+      leaveCount: String(data.leaveCount) || "",
+    });
+
+    setSelectedRoles(data.applicableRoles);
+  }, [isOpen]);
 
   useEffect(() => {
     dispatch(getOrganizationRolesAction({ org_uuid: currentOrgUUID }));
@@ -257,7 +247,17 @@ export default function LeaveTypeForm({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        onOpenChange(open);
+        if (!open) {
+          reset();
+          setSelectedRoles([]);
+          setValue("applicableRoles", []);
+        }
+      }}
+    >
       <DialogContent className="sm:max-w-[650px]">
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
@@ -436,9 +436,7 @@ export default function LeaveTypeForm({
 
           <DialogFooter className="pt-2">
             <DialogClose asChild>
-              <Button variant="outline" className="cursor-pointer">
-                Cancel
-              </Button>
+              <Button variant="outline">Cancel</Button>
             </DialogClose>
             <Button
               type="submit"

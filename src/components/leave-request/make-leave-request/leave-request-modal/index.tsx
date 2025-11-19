@@ -182,7 +182,7 @@ export function LeaveRequestModal({
         end_date: data.end_date ?? "",
       },
     });
-  }, [open, data, reset]);
+  }, [open]);
 
   const today = useMemo(() => {
     const d = new Date();
@@ -235,7 +235,15 @@ export function LeaveRequestModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={(open) => {
+        onOpenChange(open);
+        if (!open) {
+          reset();
+        }
+      }}
+    >
       <DialogContent className="sm:max-w-[650px]">
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
@@ -481,7 +489,9 @@ export function LeaveRequestModal({
           </div>
           <DialogFooter className="pt-2">
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">
+                Cancel
+              </Button>
             </DialogClose>
             <Button
               type="submit"

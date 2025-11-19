@@ -50,8 +50,8 @@ const DescriptionCell = ({ value }: { value: string }) => (
       <Info className="cursor-pointer" height={20} width={20} />
     </HoverCardTrigger>
     <HoverCardContent align="start" className="w-full max-w-80">
-      <div className="flex space-y-1">
-        <p className="text-sm break-words">{value}</p>
+      <div className="flex break-all">
+        <p className="text-sm">{value}</p>
       </div>
     </HoverCardContent>
   </HoverCard>

@@ -50,9 +50,9 @@ const RemarkCell = ({ value }: { value: string }) => (
     <HoverCardTrigger asChild>
       <NotepadText className="cursor-pointer" height={20} width={20} />
     </HoverCardTrigger>
-    <HoverCardContent align="start" className="w-full max-w-80">
-      <div className="flex space-y-1">
-        <p className="text-sm break-words">{value}</p>
+    <HoverCardContent align="center" className="w-full max-w-80">
+      <div className="flex break-all">
+        <p className="text-sm">{value}</p>
       </div>
     </HoverCardContent>
   </HoverCard>
@@ -202,7 +202,9 @@ export const useLeaveRequestColumns = ({
             {user.length > 3 && (
               <HoverCard>
                 <HoverCardTrigger asChild>
-                  <Badge className="cursor-pointer" variant={"outline"}>+ {user.length - 3}</Badge>
+                  <Badge className="cursor-pointer" variant={"outline"}>
+                    + {user.length - 3}
+                  </Badge>
                 </HoverCardTrigger>
                 <HoverCardContent align="start" className="max-w-80">
                   <div className="space-y-1">

@@ -59,9 +59,9 @@ const ReasonCell = ({ value }: { value?: string | null }) => {
       <HoverCardTrigger asChild>
         <Info className="cursor-pointer" height={18} width={18} />
       </HoverCardTrigger>
-      <HoverCardContent align="start" className="w-full max-w-80">
-        <div>
-          <p className="text-sm break-words">{value}</p>
+      <HoverCardContent align="center" className="w-full max-w-80">
+        <div className="flex break-all">
+          <p className="text-sm">{value}</p>
         </div>
       </HoverCardContent>
     </HoverCard>

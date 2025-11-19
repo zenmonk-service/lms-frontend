@@ -146,6 +146,7 @@ export default function CreateUser({
     }
     reset();
     setSelectedRole("");
+    setIsUserExist(false);
   };
 
   useEffect(() => {

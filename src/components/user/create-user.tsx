@@ -70,6 +70,7 @@ export default function CreateUser({
   const { isUserExist, isExistLoading ,isLoading } = useAppSelector(
     (state) => state.userSlice
   );
+  console.log('✌️isUserExist --->', isUserExist);
 
   const [selectedRole, setSelectedRole] = useState(
     isEdited ? (userData ? userData.role.uuid : "") : ""
@@ -146,7 +147,7 @@ export default function CreateUser({
     }
     reset();
     setSelectedRole("");
-    setIsUserExist(false);
+    dispatch(setIsUserExist(false));
   };
 
   useEffect(() => {

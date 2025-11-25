@@ -9,10 +9,12 @@ import {
 } from "@/components/ui/popover";
 import { signOutUser } from "@/app/auth/sign-out.action";
 import { getSession } from "@/app/auth/get-auth.action";
-import { useAppDispatch } from "@/store";
+import { persistor, useAppDispatch } from "@/store";
 import { resetStore } from "@/store/reset-store-action";
+import { useRouter } from "next/navigation";
 
 function AppBar() {
+  const router = useRouter();
   const [isPending, startTransition] = React.useTransition();
 
   const [user, setUser] = React.useState<any>(null);
@@ -71,10 +73,12 @@ function AppBar() {
               {/* Actions */}
               <button
                 className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-white/40 transition rounded-lg"
-                onClick={() => {
-                  startTransition(() => {
-                    signOutUser();
+                onClick={async () => {
+                  startTransition(async () => {
                     dispatch(resetStore());
+                    await persistor.purge();
+                    await signOutUser();
+                    window.location.replace("/");
                   });
                 }}
               >

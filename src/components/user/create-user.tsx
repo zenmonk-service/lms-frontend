@@ -81,7 +81,7 @@ export default function CreateUser({
     name: z.string().min(1, "Name is required"),
     email: isEdited
       ? z.string().optional()
-      : z.string().email("Enter a valid email address"),
+      : z.string().nonempty("Email is required").email("Enter a valid email address"),
     password:
       isUserExist || isEdited
         ? z.string().optional()

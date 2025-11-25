@@ -56,10 +56,7 @@ function App() {
           isCurrentUser: true,
         })
       );
-      (async () => {
-        await update({ org_uuid: uuid });
-        router.refresh();
-      })();
+      await update({ org_uuid: uuid });
       router.push(`/${uuid}/dashboard`);
     } catch (err) {
       console.log(err);

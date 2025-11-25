@@ -1,5 +1,5 @@
 "use client";
-
+import { persistor } from "@/store/store"
 import { useEffect, useState, useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -235,11 +235,11 @@ export function AppSidebar({ uuid }: { uuid: string }) {
 
   useEffect(() => {
     if (data?.user.email && currentUserRolePermissions?.length > 0) {
-     (async () => {
-      await update({ permissions: currentUserRolePermissions });
+      (async () => {
+        await update({ permissions: currentUserRolePermissions });
 
-      router.refresh();
-    })();
+        router.refresh();
+      })();
     }
   }, [currentUserRolePermissions]);
 
@@ -320,10 +320,12 @@ export function AppSidebar({ uuid }: { uuid: string }) {
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              onClick={() => {
-                startTransition(() => {
-                  signOutUser();
+              onClick={async () => {
+                startTransition(async () => {
                   dispatch(resetStore());
+                  await persistor.purge();
+                  await signOutUser();
+                  window.location.replace("/");
                 });
               }}
             >

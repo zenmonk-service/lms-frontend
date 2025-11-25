@@ -1,11 +1,9 @@
 import { organizationsReducer } from "@/features/organizations/organizations.slice";
 import { rolesReducer } from "@/features/role/role.slice";
 import { userReducer } from "@/features/user/user.slice";
-import type { Action, ThunkAction } from "@reduxjs/toolkit";
-import { combineSlices, configureStore } from "@reduxjs/toolkit";
 import leaveTypeReducer from "@/features/leave-types/leave-types.slice";
 import leaveRequestReducer from "@/features/leave-requests/leave-requests.slice";
-
+import { permissionsReducer } from "@/features/permissions/permission.slice";
 import {
   FLUSH,
   PAUSE,
@@ -16,8 +14,10 @@ import {
 } from "redux-persist";
 import persistReducer from "redux-persist/es/persistReducer";
 import createWebStorage from "redux-persist/es/storage/createWebStorage";
-import { permissionsReducer } from "@/features/permissions/permission.slice";
 import { resetStore } from "./reset-store-action";
+import { combineSlices, configureStore } from "@reduxjs/toolkit";
+import { persistStore } from "redux-persist";
+import type { Action } from "@reduxjs/toolkit";
 
 const storage = createWebStorage("local");
 
@@ -26,23 +26,11 @@ const userPersistConfig = {
   storage,
   whitelist: ["currentOrganizationUuid", "currentUser"],
 };
+
 const permissionPersistConfig = {
   key: "permission",
   storage,
   whitelist: ["currentUserRolePermissions"],
-};
-
-const persistConfig = {
-  key: "root",
-  storage,
-  blacklist: [
-    "userSlice",
-    "organizationsSlice",
-    "rolesSlice",
-    "leaveTypeSlice",
-    "leaveRequestSlice",
-    "permissionSlice"
-  ],
 };
 
 const combinedReducer = combineSlices({
@@ -54,38 +42,32 @@ const combinedReducer = combineSlices({
   leaveRequestSlice: leaveRequestReducer,
 });
 
-const rootReducer = (
+export const rootReducer = (
   state: ReturnType<typeof combinedReducer> | undefined,
   action: Action
 ) => {
-    if (action.type === resetStore.type) {
+  if (action.type === resetStore.type) {
     state = undefined;
   }
   return combinedReducer(state, action);
 };
 
+export const store = configureStore({
+  reducer: rootReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
+    }),
+});
 
-
+export const persistor = persistStore(store);
 export type RootState = ReturnType<typeof rootReducer>;
-const persistedReducer = persistReducer(persistConfig, rootReducer);
-
-export const makeStore = () => {
-  return configureStore({
-    reducer: persistedReducer,
-    middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware({
-        serializableCheck: {
-          ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-        },
-      }),
-  });
-};
-export type AppStore = ReturnType<typeof makeStore>;
-
+export type AppStore = typeof store;
 export type AppDispatch = AppStore["dispatch"];
-export type AppThunk<ThunkReturnType = void> = ThunkAction<
-  ThunkReturnType,
-  RootState,
-  unknown,
-  Action
->;
+
+
+
+
+

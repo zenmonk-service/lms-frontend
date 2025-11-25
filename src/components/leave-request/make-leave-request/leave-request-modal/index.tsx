@@ -258,7 +258,7 @@ export function LeaveRequestModal({
                 name="leave_type_uuid"
                 control={control}
                 render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid} className="gap-1">
+                  <Field className="gap-1">
                     <FieldLabel>Leave Type</FieldLabel>
                     <CustomSelect
                       ref={field.ref}
@@ -289,7 +289,7 @@ export function LeaveRequestModal({
                 name="date_range"
                 control={control}
                 render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid} className="gap-1">
+                  <Field className="gap-1">
                     <FieldLabel>Date Range</FieldLabel>
                     <DateRangePicker
                       ref={field.ref}
@@ -324,7 +324,7 @@ export function LeaveRequestModal({
                   name="type"
                   control={control}
                   render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid} className="gap-1">
+                    <Field className="gap-1">
                       <FieldLabel>Type</FieldLabel>
                       <CustomSelect
                         ref={field.ref}
@@ -359,7 +359,7 @@ export function LeaveRequestModal({
                   name="range"
                   control={control}
                   render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid} className="gap-1">
+                    <Field className="gap-1">
                       <FieldLabel>Range</FieldLabel>
                       <CustomSelect
                         ref={field.ref}
@@ -393,7 +393,6 @@ export function LeaveRequestModal({
                 control={control}
                 render={({ field, fieldState }) => (
                   <Field
-                    data-invalid={fieldState.invalid}
                     className="gap-1 col-span-2"
                   >
                     <FieldLabel>Apply To</FieldLabel>
@@ -454,7 +453,6 @@ export function LeaveRequestModal({
                 control={control}
                 render={({ field, fieldState }) => (
                   <Field
-                    data-invalid={fieldState.invalid}
                     className="gap-1 truncate"
                   >
                     <FieldLabel htmlFor="form-rhf-demo-reason">

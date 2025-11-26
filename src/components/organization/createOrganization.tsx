@@ -27,10 +27,9 @@ const orgSchema = z.object({
   name: z.string().min(2, "Organization name is required"),
   domain: z
     .string()
-    .regex(/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, "Invalid domain format")
-    .optional()
-    .optional(),
-  website: z.string().url("Invalid website URL").optional(),
+    .nonempty("Domain is required")
+    .regex(/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, "Invalid domain format"),
+  website: z.string().nonempty("Website is required").url("Invalid website URL"),
   description: z.string().optional(),
 });
 

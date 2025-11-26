@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Building2, LoaderCircle } from "lucide-react";
+import { ArrowUpRight, Building2, LoaderCircle } from "lucide-react";
 import AppBar from "@/components/app-bar";
 import { useAppDispatch, useAppSelector } from "@/store";
 import {
@@ -14,15 +14,21 @@ import { getSession } from "../auth/get-auth.action";
 import { listUserAction } from "@/features/user/user.action";
 import { Organization } from "@/features/organizations/organizations.slice";
 import { useSession } from "next-auth/react";
+import { Separator } from "@/components/ui/separator";
+import { SelectOrganizationLoadingSkeleton } from "./loading-skeleton";
+import InfiniteScroll from "react-infinite-scroll-component";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function App() {
-  const { isOrgLoading, organizations } = useAppSelector(
+  const { isOrgLoading, organizations, currentPage, count } = useAppSelector(
     (state) => state.organizationsSlice
   );
   const { data, update } = useSession();
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [sessionData, setSessionData] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
 
   async function getSessionData() {
     setSessionData(await getSession());
@@ -34,6 +40,8 @@ function App() {
       dispatch(
         getOrganizationsAction({
           uuid: sessionData?.user?.uuid,
+          page: 1,
+          limit: 10,
         })
       );
     }
@@ -41,6 +49,7 @@ function App() {
 
   const handleOrgSelect = async (uuid: string) => {
     try {
+      setLoading(true);
       await dispatch(
         getOrganizationById({
           organizationId: uuid,
@@ -57,97 +66,140 @@ function App() {
         })
       );
       await update({ org_uuid: uuid });
+      setLoading(false);
       router.push(`/${uuid}/dashboard`);
     } catch (err) {
       console.log(err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const getOrgInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((word) => word[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
+  const loadMore = async () => {
+    if (!sessionData?.user?.uuid) return;
+    try {
+      setIsLoadingMore(true);
+      await dispatch(
+        getOrganizationsAction({
+          uuid: sessionData?.user?.uuid,
+          page: currentPage + 1,
+          limit: 10,
+        })
+      );
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setIsLoadingMore(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
-      {/* Header */}
+    <div className="flex flex-col min-h-screen">
+      {loading && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-white rounded-sm p-8 flex flex-col items-center gap-4 shadow-xl">
+            <LoaderCircle className="w-12 h-12 text-orange-500 animate-spin" />
+            <div className="text-center">
+              <p className="text-lg font-semibold text-gray-900">
+                Loading workspace...
+              </p>
+              <p className="text-sm text-gray-600">
+                Please wait while we set up your environment
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
       <AppBar />
-
-      {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-6 py-12">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Choose your workspace
-          </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Select the organization you'd like to work in. You can always switch
-            between workspaces later.
-          </p>
-        </div>
-
-        {/* Organizations Grid */}
-        {isOrgLoading ? (
-          <div className="flex items-center justify-center">
-            <LoaderCircle className="animate-spin h-10 w-10" />
+      <div className="flex-1 flex justify-center">
+        <div className="lg:w-8/12 w-11/12 py-6 px-4 flex flex-col gap-4">
+          <div className="flex flex-col items-center">
+            <p className="text-4xl font-bold">Choose your workspace</p>
+            <p className="text-sm text-gray-600 max-w-2xl">
+              Select the organization you'd like to work in. You can always
+              switch between workspaces later.
+            </p>
           </div>
-        ) : (
-          <div className="grid gap-4 max-w-2xl mx-auto">
-            {organizations.length === 0 && !isOrgLoading && sessionData ? (
-              <div className="text-center py-12">
-                <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500">
-                  No workspaces found matching your search.
-                </p>
-              </div>
-            ) : (
-              organizations.map((org: Organization) => (
-                <div
-                  key={org.id}
-                  onClick={() => handleOrgSelect(org.uuid)}
-                  className={`group cursor-pointer bg-white rounded-xl border-2 p-6 transition-all duration-200 hover:border-orange-300 hover:shadow-lg hover:shadow-orange-100 ${"border-gray-200 hover:scale-[1.01]"}`}
+
+          <div className="border-x border-[#ddd]">
+            <div className="h-4" />
+            <div
+              id="scrollableDiv"
+              className="max-h-[600px] overflow-y-auto no-scrollbar"
+            >
+              {isOrgLoading && !organizations.length ? (
+                <SelectOrganizationLoadingSkeleton />
+              ) : (
+                <InfiniteScroll
+                  dataLength={organizations.length}
+                  hasMore={organizations.length < count}
+                  next={loadMore}
+                  loader={
+                    isLoadingMore && (
+                      <div className="p-2">
+                        <div className="flex items-center gap-2">
+                          <Skeleton className="w-8 h-8 rounded-lg" />
+                          <div className="flex flex-col flex-1">
+                            <div className="flex justify-between items-center">
+                              <Skeleton className="h-5 w-48" />
+                              <Skeleton className="w-5 h-5" />
+                            </div>
+                            <Skeleton className="h-3 w-32 mt-1" />
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  }
+                  scrollableTarget="scrollableDiv"
+                  className="space-y-0"
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      {/* Organization Avatar */}
-                      <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-sm">
-                        {getOrgInitials(org.name)}
-                      </div>
+                  {organizations.map((org: Organization, index: number) => (
+                    <React.Fragment key={org.id}>
+                      {index === 0 && <Separator />}
+                      <div
+                        onClick={() => handleOrgSelect(org.uuid)}
+                        className="bg-[#f5f5f5] p-2 cursor-pointer group"
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
+                            <Building2 className="w-5 h-5 text-white" />
+                          </div>
 
-                      {/* Organization Info */}
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <h3 className="font-semibold text-gray-900 text-lg group-hover:text-orange-700 transition-colors">
-                            {org.name}
-                          </h3>
-                        </div>
-                        <div className="flex items-center space-x-4 text-sm text-gray-500">
-                          <span className="flex items-center space-x-1">
-                            <span className="font-medium">@{org.domain}</span>
-                          </span>
+                          <div className="flex flex-col flex-1">
+                            <div className="flex justify-between items-center">
+                              <p className="text-lg font-semibold">
+                                {org.name}
+                              </p>
+                              <div className="flex-1 h-[1px] bg-[#eee] mx-2 group-hover:bg-orange-500 transition-all duration-300 ease-in-out" />
+                              <ArrowUpRight
+                                height={20}
+                                width={20}
+                                className="text-gray-500 group-hover:text-inherit transition-all duration-300 ease-in-out"
+                              />
+                            </div>
+                            <p className="text-xs text-gray-600">
+                              {org.domain}
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
+                      <Separator />
+                    </React.Fragment>
+                  ))}
+                </InfiniteScroll>
+              )}
+            </div>
+            <div className="h-4" />
           </div>
-        )}
 
-        {/* Footer */}
-        <div className="text-center mt-12 pt-8 border-t border-gray-100">
-          <p className="text-sm text-gray-500 mb-4">
-            Can't find your workspace?
-          </p>
-          <span className="text-orange-600 font-medium transition-colors">
-            Contact your admin to get access to an organization
-          </span>
+          <div className="text-center mt-auto">
+            <p className="text-sm text-gray-500">Can't find your workspace?</p>
+            <span className="text-orange-600 font-medium transition-colors">
+              Contact your admin to get access to an organization
+            </span>
+          </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

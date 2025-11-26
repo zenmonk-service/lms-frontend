@@ -27,6 +27,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useAppSelector } from "@/store";
 
 export type LeaveRequest = {
   uuid: string;
@@ -48,6 +49,7 @@ export type LeaveRequest = {
   leave_duration?: number | null;
   reason?: string | null;
   status?: LeaveRequestStatus;
+  status_changed_by?: string;
   created_at?: string;
   updated_at?: string;
 };
@@ -74,6 +76,7 @@ export const useLeaveRequestsColumns = (opts?: {
   onRecommend?: (lr: LeaveRequest) => void;
 }): ColumnDef<LeaveRequest>[] => {
   const { onApprove, onReject, onRecommend } = opts || {};
+  const { currentUser } = useAppSelector((state) => state.userSlice);
 
   return [
     {
@@ -196,8 +199,11 @@ export const useLeaveRequestsColumns = (opts?: {
       cell: ({ row }) => {
         const lr = row.original;
         const isPending = lr.status === LeaveRequestStatus.PENDING;
+        const isRecommended = lr.status === LeaveRequestStatus.RECOMMENDED;
+        const status_changed_by_you =
+          lr.status_changed_by === currentUser?.email;
 
-        return isPending ? (
+        return !status_changed_by_you && (isPending || isRecommended) ? (
           <div className="flex gap-2 items-center">
             <Tooltip>
               <TooltipTrigger asChild>

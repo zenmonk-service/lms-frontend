@@ -26,7 +26,10 @@ export const getOrganizationsAction = createAsyncThunk(
   async (payload: OrganizationFetchPayload, thunkAPI) => {
     try {
       const response = await getOrganizations(payload);
-      return response.data;
+      return {
+        ...response.data,
+        page: payload.page || 1,
+      };
     } catch (err: any) {
       toastError(err.response.data.error ?? "Something went wrong.");
       const error = err as AxiosError;

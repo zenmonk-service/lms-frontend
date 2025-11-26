@@ -26,6 +26,7 @@ interface OrganizationState {
   currentOrganizationAndUser?: Organization;
   error: string | null;
   total: number;
+  count: number;
   currentPage: number;
   isOrgLoading?: boolean;
 }
@@ -36,6 +37,7 @@ const initialState: OrganizationState = {
   currentOrganizationAndUser: undefined,
   error: null,
   total: 100,
+  count: 0,
   currentPage: 1,
   isOrgLoading:false
 };
@@ -56,7 +58,12 @@ export const organizationsSlice = createSlice({
       })
       .addCase(getOrganizationsAction.fulfilled, (state, action) => {
         state.isOrgLoading = false;
-        state.organizations = action.payload.rows || [];
+        if(action.payload.page === 1) {
+          state.organizations = action.payload.rows || [];
+        }else {
+          state.organizations = [...state.organizations, ...(action.payload.rows || [])];
+        }
+        state.count = action.payload.count || 0;
         state.total = action.payload.total || 0;
         state.currentPage = action.payload.current_page || 0;
       })

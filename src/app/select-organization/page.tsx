@@ -112,7 +112,7 @@ function App() {
       )}
       <AppBar />
       <div className="flex-1 flex justify-center">
-        <div className="lg:w-8/12 w-11/12 py-6 px-4 flex flex-col gap-4">
+        <div className="lg:w-1/2 w-11/12 py-6 px-4 flex flex-col gap-4">
           <div className="flex flex-col items-center">
             <p className="text-4xl font-bold">Choose your workspace</p>
             <p className="text-sm text-gray-600 max-w-2xl">
@@ -125,7 +125,7 @@ function App() {
             <div className="h-4" />
             <div
               id="scrollableDiv"
-              className="max-h-[600px] overflow-y-auto no-scrollbar"
+              className="max-h-[575px] overflow-y-auto no-scrollbar"
             >
               {isOrgLoading && !organizations.length ? (
                 <SelectOrganizationLoadingSkeleton />
@@ -158,7 +158,7 @@ function App() {
                       {index === 0 && <Separator />}
                       <div
                         onClick={() => handleOrgSelect(org.uuid)}
-                        className="bg-[#f5f5f5] p-2 cursor-pointer group"
+                        className="bg-[#fcfcfc] p-2 cursor-pointer group"
                       >
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
@@ -166,17 +166,8 @@ function App() {
                           </div>
 
                           <div className="flex flex-col flex-1">
-                            <div className="flex justify-between items-center">
-                              <p className="text-lg font-semibold">
-                                {org.name}
-                              </p>
-                              <div className="flex-1 h-[1px] bg-[#eee] mx-2 group-hover:bg-orange-500 transition-all duration-300 ease-in-out" />
-                              <ArrowUpRight
-                                height={20}
-                                width={20}
-                                className="text-gray-500 group-hover:text-inherit transition-all duration-300 ease-in-out"
-                              />
-                            </div>
+                            <p className="font-semibold">{org.name}</p>
+                            <div className="h-[1px] bg-[#eee] group-hover:bg-orange-500 transition-all duration-300 ease-in-out" />
                             <p className="text-xs text-gray-600">
                               {org.domain}
                             </p>

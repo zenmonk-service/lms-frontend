@@ -49,6 +49,11 @@ import {
 import { signOutUser } from "@/app/auth/sign-out.action";
 import { resetStore } from "@/store/reset-store-action";
 
+interface Organization {
+  name: string
+  domain: string
+}
+
 export function AppSidebar({ uuid }: { uuid: string }) {
   const { isMobile } = useSidebar();
   const [isPending, startTransition] = useTransition();
@@ -56,10 +61,14 @@ export function AppSidebar({ uuid }: { uuid: string }) {
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { currentUser } = useAppSelector((state) => state.userSlice);
+  const { currentUser, currentOrganizationUuid } = useAppSelector((state) => state.userSlice);
   const { currentUserRolePermissions } = useAppSelector(
     (state) => state.permissionSlice
   );
+  const { organizations } = useAppSelector((state) => state.organizationsSlice);
+
+  const [organizationDetails, setOrganizationDetails] = useState<Organization>({} as Organization);
+
   function hasPagePermission(tag: string) {
     return currentUserRolePermissions?.some((perm) => perm.tag === tag);
   }
@@ -97,6 +106,7 @@ export function AppSidebar({ uuid }: { uuid: string }) {
   };
 
   const [user, setUser] = useState<any>(null);
+  
   async function getAuth() {
     const session = await getSession();
     setUser(session?.user);
@@ -105,6 +115,15 @@ export function AppSidebar({ uuid }: { uuid: string }) {
   useEffect(() => {
     getAuth();
   }, []);
+
+  useEffect(() => {
+    if (currentOrganizationUuid) {
+      const organization = organizations.find(org => org.uuid === currentOrganizationUuid);
+      if (organization) {
+        setOrganizationDetails(organization);
+      }
+    }
+  }, [currentOrganizationUuid, organizations]);
 
   const items = filterItemsByPermission([
     {
@@ -256,8 +275,8 @@ export function AppSidebar({ uuid }: { uuid: string }) {
             </div>
           </div>
           <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="truncate font-medium">LMS</span>
-            <span className="truncate text-xs">Leave Management System</span>
+            <span className="truncate font-medium">{organizationDetails?.name}</span>
+            <span className="truncate text-xs">{organizationDetails?.domain}</span>
           </div>
         </SidebarMenuButton>
       </SidebarHeader>

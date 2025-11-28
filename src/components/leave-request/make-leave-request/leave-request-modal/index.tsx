@@ -95,19 +95,24 @@ const leaveRequestSchema = z
       .trim()
       .max(255, "Reason must be at most 255 characters long")
       .optional(),
-    date_range: z
-      .object({
-        start_date: z.string().nonempty("Start date is required."),
-        end_date: z.string().nonempty("End date is required."),
-      })
-      .refine((r) => !!(r && r.start_date && r.end_date), {
-        message: "Please select a date range.",
-      }),
+    date_range: z.object({
+      start_date: z.string().nonempty({ error: "Date range is required." }),
+      end_date: z.string().nonempty({ error: "Date range is required." }),
+    }),
   })
   .refine(
     (data) => {
+      if (!data.date_range.start_date || !data.date_range.end_date) {
+        return true;
+      }
+
       const startDate = new Date(data.date_range.start_date);
       const endDate = new Date(data.date_range.end_date);
+
+      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+        return false;
+      }
+
       return startDate <= endDate;
     },
     {
@@ -133,18 +138,24 @@ export function LeaveRequestModal({
   const { isLoading } = useAppSelector((state) => state.leaveRequestSlice);
   const dispatch = useAppDispatch();
 
-  const { control, handleSubmit, reset, setValue, watch } =
-    useForm<LeaveRequestFormData>({
-      resolver: zodResolver(leaveRequestSchema),
-      defaultValues: {
-        leave_type_uuid: "",
-        reason: "",
-        managers: [],
-        date_range: { start_date: "", end_date: "" },
-        type: "",
-        range: "",
-      },
-    });
+  const {
+    control,
+    handleSubmit,
+    reset,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<LeaveRequestFormData>({
+    resolver: zodResolver(leaveRequestSchema),
+    defaultValues: {
+      leave_type_uuid: "",
+      reason: "",
+      managers: [],
+      date_range: { start_date: "", end_date: "" },
+      type: "",
+      range: "",
+    },
+  });
 
   const dateRange = watch("date_range");
   const type = watch("type");
@@ -169,19 +180,19 @@ export function LeaveRequestModal({
   }, []);
 
   useEffect(() => {
-    if (!open || !data) return;
-
-    reset({
-      leave_type_uuid: data.leave_type?.uuid ?? "",
-      type: data.type ?? "",
-      range: data.range ?? "",
-      managers: (data.managers || []).map((m: any) => m.user.user_id),
-      reason: data.reason ?? "",
-      date_range: {
-        start_date: data.start_date ?? "",
-        end_date: data.end_date ?? "",
-      },
-    });
+    if (open) {
+      reset({
+        leave_type_uuid: data?.leave_type?.uuid ?? "",
+        type: data?.type ?? "",
+        range: data?.range ?? "",
+        managers: (data?.managers || []).map((m: any) => m.user.user_id),
+        reason: data?.reason ?? "",
+        date_range: {
+          start_date: data?.start_date ?? "",
+          end_date: data?.end_date ?? "",
+        },
+      });
+    }
   }, [open]);
 
   const today = useMemo(() => {
@@ -235,15 +246,7 @@ export function LeaveRequestModal({
   };
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(open) => {
-        onOpenChange(open);
-        if (!open) {
-          reset();
-        }
-      }}
-    >
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[650px]">
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
@@ -288,33 +291,46 @@ export function LeaveRequestModal({
               <Controller
                 name="date_range"
                 control={control}
-                render={({ field, fieldState }) => (
-                  <Field className="gap-1">
-                    <FieldLabel>Date Range</FieldLabel>
-                    <DateRangePicker
-                      ref={field.ref}
-                      minDate={today}
-                      setDateRange={field.onChange}
-                      initialStartDate={data?.start_date}
-                      initialEndDate={data?.end_date}
-                      className={
-                        fieldState.invalid
-                          ? "border-destructive ring-destructive focus-visible:ring-destructive text-destructive"
-                          : ""
-                      }
-                      onReset={() => {
-                        setValue("type", "");
-                        setValue("range", "");
-                      }}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError
-                        errors={[fieldState.error]}
-                        className="text-xs"
+                render={({ field, fieldState }) => {
+                  const hasError =
+                    fieldState.invalid ||
+                    errors.date_range?.start_date ||
+                    errors.date_range?.end_date;
+                  return (
+                    <Field className="gap-1">
+                      <FieldLabel>Date Range</FieldLabel>
+                      <DateRangePicker
+                        ref={field.ref}
+                        minDate={today}
+                        setDateRange={field.onChange}
+                        initialStartDate={data?.start_date}
+                        initialEndDate={data?.end_date}
+                        className={
+                          fieldState.invalid
+                            ? "border-destructive ring-destructive focus-visible:ring-destructive text-destructive"
+                            : ""
+                        }
+                        onReset={() => {
+                          setValue("type", "");
+                          setValue("range", "");
+                        }}
                       />
-                    )}
-                  </Field>
-                )}
+                      {hasError && (
+                        <FieldError
+                          errors={[
+                            {
+                              message:
+                                errors.date_range?.start_date?.message ||
+                                errors.date_range?.end_date?.message ||
+                                fieldState.error?.message,
+                            },
+                          ]}
+                          className="text-xs"
+                        />
+                      )}
+                    </Field>
+                  );
+                }}
               />
             </div>
 
@@ -392,9 +408,7 @@ export function LeaveRequestModal({
                 name="managers"
                 control={control}
                 render={({ field, fieldState }) => (
-                  <Field
-                    className="gap-1 col-span-2"
-                  >
+                  <Field className="gap-1 col-span-2">
                     <FieldLabel>Apply To</FieldLabel>
                     <MultiSelect
                       values={field.value}
@@ -452,9 +466,7 @@ export function LeaveRequestModal({
                 name="reason"
                 control={control}
                 render={({ field, fieldState }) => (
-                  <Field
-                    className="gap-1 truncate"
-                  >
+                  <Field className="gap-1 truncate">
                     <FieldLabel htmlFor="form-rhf-demo-reason">
                       Reason
                     </FieldLabel>
@@ -487,9 +499,7 @@ export function LeaveRequestModal({
           </div>
           <DialogFooter className="pt-2">
             <DialogClose asChild>
-              <Button variant="outline">
-                Cancel
-              </Button>
+              <Button variant="outline">Cancel</Button>
             </DialogClose>
             <Button
               type="submit"

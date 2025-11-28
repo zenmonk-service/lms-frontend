@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -26,17 +28,26 @@ import {
   InputGroupText,
 } from "@/components/ui/input-group";
 
-import { Users, UserPlus } from "lucide-react";
+import { UserPlus } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/store";
 import {
   createOrganizationRoleAction,
   getOrganizationRolesAction,
 } from "@/features/role/role.action";
+import { Input } from "../ui/input";
 
-type FormData = {
-  name: string;
-  description: string;
-};
+const roleSchema = z.object({
+  name: z
+    .string()
+    .trim().nonempty("Role name is required"),
+  description: z
+    .string()
+    .trim()
+    .min(1, "Description is required")
+    .max(200, "Description must be at most 200 characters"),
+});
+
+type FormData = z.infer<typeof roleSchema>;
 
 export default function CreateRole({ org_uuid }: { org_uuid: string }) {
   const dispatch = useAppDispatch();
@@ -50,6 +61,7 @@ export default function CreateRole({ org_uuid }: { org_uuid: string }) {
     watch,
     formState: { errors },
   } = useForm<FormData>({
+    resolver: zodResolver(roleSchema),
     defaultValues: {
       name: "",
       description: "",
@@ -77,8 +89,15 @@ export default function CreateRole({ org_uuid }: { org_uuid: string }) {
     reset();
   };
 
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    if (!newOpen) {
+      reset();
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={() => setOpen(!open)}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <Button
         onClick={() => setOpen(true)}
         className="bg-orange-500 hover:bg-orange-600 text-white"
@@ -100,57 +119,48 @@ export default function CreateRole({ org_uuid }: { org_uuid: string }) {
           {/* Content */}
           <div className="grid gap-4 overflow-y-auto max-h-96 no-scrollbar py-2">
             {/* Role Name */}
-            <Field data-invalid={!!errors.name} className="gap-1">
-              <FieldLabel>Role Name</FieldLabel>
-              <InputGroup>
-                <InputGroupTextarea
-                  {...register("name", { required: true })}
-                  placeholder="Enter role name"
-                  rows={1}
-                  className="min-h-10 resize-none"
-                />
-              </InputGroup>
+            <Field className="gap-1">
+              <FieldLabel htmlFor="role-name">Role Name</FieldLabel>
+              <Input
+                {...register("name")}
+                id="role-name"
+                placeholder="Enter Role Name"
+                aria-invalid={!!errors.name}
+                className={
+                  errors.name
+                    ? "border-destructive ring-destructive focus-visible:ring-destructive"
+                    : ""
+                }
+              />
               {errors.name && (
-                <FieldError
-                  errors={[{ message: "Role name is required" }]}
-                  className="text-xs"
-                />
+                <FieldError errors={[errors.name]} className="text-xs" />
               )}
             </Field>
 
             {/* Role Description */}
-            <Field data-invalid={!!errors.description} className="gap-1">
-              <FieldLabel>Description</FieldLabel>
+            <Field className="gap-1">
+              <FieldLabel htmlFor="role-description">Description</FieldLabel>
               <InputGroup>
                 <InputGroupTextarea
-                  {...register("description", {
-                    required: true,
-                    maxLength: {
-                      value: 200,
-                      message: "Description cannot be more than 200 characters.",
-                    },
-                  })}
-                  placeholder="Enter description..."
+                  {...register("description")}
+                  id="role-description"
+                  placeholder="Describe the purpose of this role..."
                   rows={4}
                   className="min-h-20 resize-none"
+                  aria-invalid={!!errors.description}
                   maxLength={200}
                 />
                 <InputGroupAddon align="block-end">
                   <InputGroupText className="tabular-nums">
-                    {descriptionValue?.length || 0}/200
+                    {descriptionValue?.length || 0}/200 characters
                   </InputGroupText>
                 </InputGroupAddon>
               </InputGroup>
-
               <FieldDescription>
                 Describe the purpose of this role briefly.
               </FieldDescription>
-
               {errors.description && (
-                <FieldError
-                  errors={[errors.description]}
-                  className="text-xs"
-                />
+                <FieldError errors={[errors.description]} className="text-xs" />
               )}
             </Field>
           </div>
@@ -163,7 +173,7 @@ export default function CreateRole({ org_uuid }: { org_uuid: string }) {
             <Button
               disabled={isLoading}
               type="submit"
-              className="bg-gradient-to-r from-orange-500 to-amber-500 text-white"
+              className="bg-orange-500 hover:bg-orange-600 text-white"
             >
               {isLoading ? "Creating..." : "Create Role"}
             </Button>

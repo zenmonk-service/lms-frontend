@@ -19,7 +19,7 @@ export default function ListLeaveTypes() {
     (state) => state.permissionSlice
   );
 
-  const {currentOrganizationUuid ,currentUser} = useAppSelector(
+  const {userCurrentOrganization ,currentUser} = useAppSelector(
     (state) => state.userSlice
   );
 
@@ -38,20 +38,20 @@ export default function ListLeaveTypes() {
     setEditDialogOpen(true);
   };
 
-  const columns = useLeaveTypesColumns(handleEdit, currentOrganizationUuid);
+  const columns = useLeaveTypesColumns(handleEdit, userCurrentOrganization.uuid);
 
   useEffect(() => {
-    if (currentOrganizationUuid) {
+    if (userCurrentOrganization.uuid) {
       dispatch(
         getLeaveTypesAction({
-          org_uuid: currentOrganizationUuid,
+          org_uuid: userCurrentOrganization.uuid,
           page: pagination.page,
           limit: pagination.limit,
           search: pagination.search,
         })
       );
     }
-  }, [dispatch, currentOrganizationUuid, pagination]);
+  }, [dispatch, userCurrentOrganization, pagination]);
 
   const handlePaginationChange = (newPagination: Partial<PaginationState>) => {
     setPagination((prev) => ({ ...prev, ...newPagination }));

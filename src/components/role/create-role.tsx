@@ -28,7 +28,7 @@ import {
   InputGroupText,
 } from "@/components/ui/input-group";
 
-import { UserPlus } from "lucide-react";
+import { LoaderCircle, UserPlus } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/store";
 import {
   createOrganizationRoleAction,
@@ -156,9 +156,6 @@ export default function CreateRole({ org_uuid }: { org_uuid: string }) {
                   </InputGroupText>
                 </InputGroupAddon>
               </InputGroup>
-              <FieldDescription>
-                Describe the purpose of this role briefly.
-              </FieldDescription>
               {errors.description && (
                 <FieldError errors={[errors.description]} className="text-xs" />
               )}
@@ -175,7 +172,7 @@ export default function CreateRole({ org_uuid }: { org_uuid: string }) {
               type="submit"
               className="bg-orange-500 hover:bg-orange-600 text-white"
             >
-              {isLoading ? "Creating..." : "Create Role"}
+              {isLoading ? <LoaderCircle className="animate-spin"/> : "Create Role"}
             </Button>
           </DialogFooter>
         </form>

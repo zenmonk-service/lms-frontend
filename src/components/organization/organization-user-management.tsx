@@ -42,7 +42,7 @@ export default function ManageOrganizationsUser({
   const router = useRouter();
   const dispatch = useAppDispatch();
   const currentOrgUUID = useAppSelector(
-    (state) => state.userSlice.currentOrganizationUuid
+    (state) => state.userSlice.userCurrentOrganization.uuid
   );
 
   const { currentUserRolePermissions } = useAppSelector(

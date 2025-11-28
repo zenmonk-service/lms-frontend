@@ -132,7 +132,7 @@ export function LeaveRequestModal({
 }: LeaveRequestModalProps) {
   const { leaveTypes } = useAppSelector((state) => state.leaveTypeSlice);
   const currentOrganizationUuid = useAppSelector(
-    (state) => state.userSlice.currentOrganizationUuid
+    (state) => state.userSlice.userCurrentOrganization.uuid
   );
   const { users } = useAppSelector((state) => state.userSlice);
   const { isLoading } = useAppSelector((state) => state.leaveRequestSlice);

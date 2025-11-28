@@ -24,7 +24,7 @@ const storage = createWebStorage("local");
 const userPersistConfig = {
   key: "user",
   storage,
-  whitelist: ["currentOrganizationUuid", "currentUser"],
+  whitelist: ["userCurrentOrganization", "currentUser"],
 };
 
 const permissionPersistConfig = {

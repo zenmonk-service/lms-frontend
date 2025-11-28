@@ -32,7 +32,7 @@ export default function ApproveLeaveRequests() {
   );
 
   const currentOrgUUID = useAppSelector(
-    (state) => state.userSlice.currentOrganizationUuid
+    (state) => state.userSlice.userCurrentOrganization.uuid
   );
 
   const { leaveTypes } = useAppSelector((s) => s.leaveTypeSlice);
@@ -41,10 +41,6 @@ export default function ApproveLeaveRequests() {
     currentUser,
     isLoading: isUsersLoading,
   } = useAppSelector((state) => state.userSlice);
-
-  const currentOrganizationUuid = useAppSelector(
-    (state) => state.userSlice.currentOrganizationUuid
-  );
 
   const [session, setSession] = useState<Session | null>(null);
   const [pagination, setPagination] = useState<PaginationState>({
@@ -102,7 +98,7 @@ export default function ApproveLeaveRequests() {
 
   useEffect(() => {
     setUserSession();
-    dispatch(getLeaveTypesAction({ org_uuid: currentOrganizationUuid }));
+    dispatch(getLeaveTypesAction({ org_uuid: currentOrgUUID }));
   }, []);
 
   useEffect(() => {

@@ -32,10 +32,16 @@ export interface PaginationState {
   search: string;
 }
 
+interface UserCurrentOrganizationInterface {
+  uuid: string;
+  name: string;
+  domain: string;
+}
+
 type UserState = {
   isLoading: boolean;
   organizations: any[];
-  currentOrganizationUuid: string;
+  userCurrentOrganization: UserCurrentOrganizationInterface;
   users: UserInterface[];
   pagination: PaginationState;
   total: number;
@@ -51,7 +57,11 @@ const initialState: UserState = {
   isExistLoading: false,
   organizations: [],
   isUserExist: false,
-  currentOrganizationUuid: "",
+  userCurrentOrganization: {
+    uuid: "",
+    name: "",
+    domain: "",
+  },
   currentUser: null,
   users: [],
   total: 0,
@@ -68,8 +78,8 @@ export const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    setCurrentOrganizationUuid: (state, action) => {
-      state.currentOrganizationUuid = action.payload || "";
+    setUserCurrentOrganization: (state, action) => {
+      state.userCurrentOrganization = action.payload
     },
     setPagination: (state, action) => {
       state.pagination = action.payload || initialState.pagination;
@@ -145,7 +155,7 @@ export const userSlice = createSlice({
 
 export const userReducer = userSlice.reducer;
 export const {
-  setCurrentOrganizationUuid,
+  setUserCurrentOrganization,
   setPagination,
   setIsUserExist,
   setCurrentUser,

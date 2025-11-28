@@ -61,7 +61,7 @@ const LeaveRequest = () => {
   const { leaveTypes } = useAppSelector((state) => state.leaveTypeSlice);
 
   const currentOrganizationUuid = useAppSelector(
-    (state) => state.userSlice.currentOrganizationUuid
+    (state) => state.userSlice.userCurrentOrganization.uuid
   );
   const [pagination, setPagination] = useState<PaginationState>({
     page: 1,

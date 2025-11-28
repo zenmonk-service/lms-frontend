@@ -9,7 +9,6 @@ import {
   getOrganizationsAction,
 } from "@/features/organizations/organizations.action";
 import { useRouter } from "next/navigation";
-import { setCurrentOrganizationUuid } from "@/features/user/user.slice";
 import { getSession } from "../auth/get-auth.action";
 import { listUserAction } from "@/features/user/user.action";
 import { Organization } from "@/features/organizations/organizations.slice";
@@ -18,6 +17,7 @@ import { Separator } from "@/components/ui/separator";
 import { SelectOrganizationLoadingSkeleton } from "./loading-skeleton";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { Skeleton } from "@/components/ui/skeleton";
+import { setUserCurrentOrganization } from "@/features/user/user.slice";
 
 function App() {
   const { isOrgLoading, organizations, currentPage, count } = useAppSelector(
@@ -47,27 +47,27 @@ function App() {
     }
   }, [sessionData?.user?.uuid]);
 
-  const handleOrgSelect = async (uuid: string) => {
+  const handleOrgSelect = async (org: Organization) => {
     try {
       setLoading(true);
       await dispatch(
         getOrganizationById({
-          organizationId: uuid,
+          organizationId: org.uuid,
           email: sessionData?.user?.email || "",
         })
       );
 
-      dispatch(setCurrentOrganizationUuid(uuid));
+      dispatch(setUserCurrentOrganization(org));
       dispatch(
         listUserAction({
-          org_uuid: uuid,
+          org_uuid: org.uuid,
           pagination: { page: 1, limit: 10, search: sessionData?.user?.email },
           isCurrentUser: true,
         })
       );
-      await update({ org_uuid: uuid });
+      await update({ org_uuid: org.uuid });
       setLoading(false);
-      router.push(`/${uuid}/dashboard`);
+      router.push(`/${org.uuid}/dashboard`);
     } catch (err) {
       console.log(err);
     } finally {
@@ -157,7 +157,7 @@ function App() {
                     <React.Fragment key={org.id}>
                       {index === 0 && <Separator />}
                       <div
-                        onClick={() => handleOrgSelect(org.uuid)}
+                        onClick={() => handleOrgSelect(org)}
                         className="bg-[#fcfcfc] p-2 cursor-pointer group"
                       >
                         <div className="flex items-center gap-2">

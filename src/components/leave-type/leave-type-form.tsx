@@ -102,7 +102,7 @@ export default function LeaveTypeForm({
   const organizationRoles = selector.roles || [];
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const currentOrgUUID = useAppSelector(
-    (state) => state.userSlice.currentOrganizationUuid
+    (state) => state.userSlice.userCurrentOrganization.uuid
   );
 
   useEffect(() => {

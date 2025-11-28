@@ -41,7 +41,7 @@ export default function RoleManagement() {
   const [selectedRoleId, setSelectedRoleId] = React.useState<string>("");
 
   const currentOrgUUID = useAppSelector(
-    (state) => state.userSlice.currentOrganizationUuid
+    (state) => state.userSlice.userCurrentOrganization.uuid
   );
   const { roles, isLoading, total, pagination } = useAppSelector(
     (state) => state.rolesSlice

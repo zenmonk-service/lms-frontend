@@ -9,7 +9,7 @@ import LoadingSkelton from "./loadingSkelton";
 import { getAllOrganizationsAction } from "@/features/organizations/organizations.action";
 import { useRouter } from "next/navigation";
 import { Organization } from "@/features/organizations/organizations.slice";
-import { setCurrentOrganizationUuid } from "@/features/user/user.slice";
+import { setUserCurrentOrganization } from "@/features/user/user.slice";
 
 export default function OrganizationGrid({ search }: { search: string }) {
   const router = useRouter();
@@ -19,7 +19,7 @@ export default function OrganizationGrid({ search }: { search: string }) {
   );
   const dispatch = useAppDispatch();
   const handleManageMembers = (org: any) => {
-    dispatch(setCurrentOrganizationUuid(org.uuid));
+    dispatch(setUserCurrentOrganization(org));
     router.push(`/organizations/${org.uuid}`);
   };
 

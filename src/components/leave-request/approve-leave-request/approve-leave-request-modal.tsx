@@ -1,6 +1,21 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupText,
+  InputGroupTextarea,
+} from "@/components/ui/input-group";
+import { LoaderCircle } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 
 export type LeaveAction = "approve" | "reject" | "recommend" | null;
 
@@ -10,7 +25,6 @@ export interface LeaveActionModalProps {
   initialRemark?: string;
   submitting?: boolean;
   onClose: () => void;
-
   onConfirm: (remark: string) => Promise<void> | void;
 }
 
@@ -22,12 +36,27 @@ export default function LeaveActionModal({
   onClose,
   onConfirm,
 }: LeaveActionModalProps) {
-  const [remark, setRemark] = useState(initialRemark);
   const [localLoading, setLocalLoading] = useState(false);
 
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    formState: { errors },
+  } = useForm<{ remark: string }>({
+    defaultValues: {
+      remark: initialRemark,
+    },
+  });
+
+  const remarkValue = watch("remark");
+
   useEffect(() => {
-    if (open) setRemark(initialRemark);
-  }, [open, initialRemark, action]);
+    if (open) {
+      reset({ remark: initialRemark });
+    }
+  }, [open, initialRemark, action, reset]);
 
   if (!open || !action) return null;
 
@@ -39,14 +68,18 @@ export default function LeaveActionModal({
       : "Recommend Leave Request";
 
   const buttonText =
-    action === "approve" ? "Approve" : action === "reject" ? "Reject" : "Recommend";
+    action === "approve"
+      ? "Approve"
+      : action === "reject"
+      ? "Reject"
+      : "Recommend";
 
   const isLoading = submitting || localLoading;
 
-  const handleConfirm = async () => {
+  const onSubmit = async (data: { remark: string }) => {
     try {
       setLocalLoading(true);
-      await Promise.resolve(onConfirm(remark));
+      await Promise.resolve(onConfirm(data.remark));
       onClose();
     } catch (err) {
       console.error("LeaveActionModal onConfirm error:", err);
@@ -60,35 +93,55 @@ export default function LeaveActionModal({
       <div className="w-full max-w-lg rounded-lg bg-white p-6 shadow-lg">
         <h3 className="text-lg font-semibold mb-2">{title}</h3>
         <p className="text-sm text-gray-600 mb-4">
-          Please add remarks (optional). This will be saved for this manager's decision.
+          Please add remarks (optional). This will be saved for this manager's
+          decision.
         </p>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Field className="gap-1">
+            <InputGroup>
+              <InputGroupTextarea
+                {...register("remark")}
+                id="remark"
+                placeholder="Add your remarks here..."
+                rows={4}
+                className="min-h-20 resize-none"
+                aria-invalid={!!errors.remark}
+                maxLength={255}
+              />
+              <InputGroupAddon align="block-end">
+                <InputGroupText className="tabular-nums">
+                  {remarkValue?.length || 0}/255 characters
+                </InputGroupText>
+              </InputGroupAddon>
+            </InputGroup>
+            {errors.remark && (
+              <FieldError errors={[errors.remark]} className="text-xs" />
+            )}
+          </Field>
 
-        <textarea
-          value={remark}
-          onChange={(e) => setRemark(e.target.value)}
-          rows={5}
-          className="w-full mb-4 rounded border p-2"
-          placeholder="Enter remarks (optional)"
-        />
-
-        <div className="flex justify-end gap-2">
-          <button
-            className="rounded border px-4 py-2"
-            onClick={onClose}
-            type="button"
-            disabled={isLoading}
-          >
-            Cancel
-          </button>
-          <button
-            className="rounded bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
-            onClick={handleConfirm}
-            type="button"
-            disabled={isLoading}
-          >
-            {isLoading ? `${buttonText}...` : buttonText}
-          </button>
-        </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              onClick={onClose}
+              type="button"
+              size="sm"
+              disabled={isLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              className="bg-orange-500 hover:bg-orange-600 text-white"
+              size="sm"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <LoaderCircle className="animate-spin" />
+              ) : (
+                buttonText
+              )}
+            </Button>
+          </div>
+        </form>
       </div>
     </div>
   );

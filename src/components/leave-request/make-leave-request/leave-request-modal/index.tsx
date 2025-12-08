@@ -50,6 +50,7 @@ import CustomSelect from "@/shared/select";
 import { LoaderCircle } from "lucide-react";
 import { getSession } from "@/app/auth/get-auth.action";
 import { UserInterface } from "@/features/user/user.slice";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 interface LeaveRequestModalProps {
   open: boolean;
@@ -134,9 +135,15 @@ export function LeaveRequestModal({
   const currentOrganizationUuid = useAppSelector(
     (state) => state.userSlice.userCurrentOrganization.uuid
   );
-  const { users } = useAppSelector((state) => state.userSlice);
+  const {
+    users,
+    isLoading: isUsersLoading,
+    total,
+  } = useAppSelector((state) => state.userSlice);
   const { isLoading } = useAppSelector((state) => state.leaveRequestSlice);
   const dispatch = useAppDispatch();
+
+  const [searchTerm, setSearchTerm] = useState("");
 
   const {
     control,
@@ -171,13 +178,16 @@ export function LeaveRequestModal({
     getUserUuid();
     dispatch(getLeaveTypesAction({ org_uuid: currentOrganizationUuid }));
     dispatch(getOrganizationRolesAction({ org_uuid: currentOrganizationUuid }));
+  }, []);
+
+  useEffect(() => {
     dispatch(
       listUserAction({
-        pagination: { page: 1, limit: 10 },
+        pagination: { page: 1, limit: 10, search: searchTerm },
         org_uuid: currentOrganizationUuid,
       })
     );
-  }, []);
+  }, [searchTerm]);
 
   useEffect(() => {
     if (open) {
@@ -429,24 +439,47 @@ export function LeaveRequestModal({
                       </MultiSelectTrigger>
                       <MultiSelectContent
                         search={{
-                          emptyMessage: "No manager found.",
+                          emptyMessage: "No managers found.",
                           placeholder: "Search managers...",
                         }}
+                        onSearch={setSearchTerm}
+                        isLoading={isUsersLoading}
                       >
                         <MultiSelectGroup>
-                          {users
-                            .filter(
-                              (manager) =>
-                                manager.user_id !== session?.user?.uuid
-                            )
-                            .map((manager: UserInterface) => (
-                              <MultiSelectItem
-                                value={manager.user_id}
-                                key={manager.user_id}
-                              >
-                                {manager.name}
-                              </MultiSelectItem>
-                            ))}
+                          <InfiniteScroll
+                            dataLength={users.length}
+                            next={() =>
+                              dispatch(
+                                listUserAction({
+                                  pagination: {
+                                    page: Math.ceil(users.length / 10) + 1,
+                                    limit: 10,
+                                    search: searchTerm,
+                                  },
+                                  org_uuid: currentOrganizationUuid,
+                                })
+                              )
+                            }
+                            hasMore={users.length < total}
+                            loader={
+                              <LoaderCircle className="animate-spin mx-auto my-2" />
+                            }
+                            className="max-h-[200px]"
+                          >
+                            {users
+                              .filter(
+                                (manager) =>
+                                  manager.user_id !== session?.user?.uuid
+                              )
+                              .map((manager: UserInterface) => (
+                                <MultiSelectItem
+                                  value={manager.user_id}
+                                  key={manager.user_id}
+                                >
+                                  {manager.name}
+                                </MultiSelectItem>
+                              ))}
+                          </InfiniteScroll>
                         </MultiSelectGroup>
                       </MultiSelectContent>
                     </MultiSelect>

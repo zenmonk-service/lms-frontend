@@ -173,6 +173,8 @@ export function DateRangePicker({
                   setOpenStart(false);
                   onReset && onReset();
                 }}
+                fromYear={new Date().getFullYear()}
+                toYear={new Date().getFullYear() + 10}
               />
             </PopoverContent>
           </Popover>
@@ -244,6 +246,8 @@ export function DateRangePicker({
                   setOpenEnd(false);
                   onReset && onReset();
                 }}
+                fromYear={new Date().getFullYear()}
+                toYear={new Date().getFullYear() + 10}
               />
             </PopoverContent>
           </Popover>

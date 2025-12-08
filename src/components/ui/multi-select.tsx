@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckIcon, XIcon } from "lucide-react";
+import { CheckIcon, LoaderCircle, XIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -252,13 +252,34 @@ export function MultiSelectValue({
 
 export function MultiSelectContent({
   search = true,
+  onSearch,
+  isLoading = false,
   children,
   ...props
 }: {
-  search?: boolean | { placeholder?: string; emptyMessage?: string };
+  search?:
+    | boolean
+    | { placeholder?: string; emptyMessage?: string };
+  onSearch?: React.Dispatch<React.SetStateAction<string>>;
+  isLoading?: boolean;
   children: ReactNode;
 } & Omit<ComponentPropsWithoutRef<typeof Command>, "children">) {
   const canSearch = typeof search === "object" ? true : search;
+  const [searchTerm, setSearchTerm] = useState("");
+
+  React.useEffect(() => {
+    if (!onSearch) return;
+
+    const trimmedSearchTerm = searchTerm.trim();
+
+    const handler = setTimeout(() => {
+      onSearch(trimmedSearchTerm);
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchTerm, onSearch]);
 
   return (
     <>
@@ -268,12 +289,13 @@ export function MultiSelectContent({
         </Command>
       </div>
       <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
-        <Command {...props}>
+        <Command {...props} shouldFilter={!onSearch}>
           {canSearch ? (
             <CommandInput
               placeholder={
                 typeof search === "object" ? search.placeholder : undefined
               }
+              onValueChange={(value) => setSearchTerm(value)}
             />
           ) : (
             <button autoFocus className="sr-only" />
@@ -281,7 +303,13 @@ export function MultiSelectContent({
           <CommandList>
             {canSearch && (
               <CommandEmpty>
-                {typeof search === "object" ? search.emptyMessage : undefined}
+                {(isLoading) === true ? (
+                  <div className="flex items-center justify-center">
+                    <LoaderCircle className="animate-spin h-4 w-4" />
+                  </div>
+                ) : typeof search === "object" ? (
+                  search.emptyMessage
+                ) : undefined}
               </CommandEmpty>
             )}
             {children}
@@ -328,7 +356,7 @@ export function MultiSelectItem({
         </div>
         <div className="flex-1">{children}</div>
       </div>
-            {/* {children}
+      {/* {children}
       <CheckIcon
         className={cn("ml-2 size-4 absolute right-2", isSelected ? "opacity-100" : "opacity-0")}
       /> */}

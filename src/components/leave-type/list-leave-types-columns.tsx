@@ -51,7 +51,7 @@ const DescriptionCell = ({ value }: { value: string }) => (
     </HoverCardTrigger>
     <HoverCardContent align="start" className="w-full max-w-80">
       <div className="flex break-all">
-        <p className="text-sm">{value}</p>
+        <p className="text-sm">{value || "No description"}</p>
       </div>
     </HoverCardContent>
   </HoverCard>

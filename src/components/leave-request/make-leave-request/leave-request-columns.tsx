@@ -3,11 +3,11 @@ import {
   AlertCircleIcon,
   CheckIcon,
   ClockIcon,
+  Info,
   LoaderCircle,
   NotepadText,
   Pencil,
   Trash2,
-  TrendingUpIcon,
   XIcon,
 } from "lucide-react";
 import {
@@ -21,6 +21,12 @@ import { Button } from "../../ui/button";
 import { useAppSelector } from "@/store";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../../ui/tooltip";
 import { hasPermissions } from "@/libs/haspermissios";
+
+export interface LeaveRequestStatusChangedBy {
+  user_id: string;
+  name: string;
+  email: string;
+}
 
 interface LeaveRequest {
   uuid: string;
@@ -43,6 +49,7 @@ interface LeaveRequest {
       email: string;
     };
   }[];
+  status_changed_by: LeaveRequestStatusChangedBy[] | null;
 }
 
 const RemarkCell = ({ value }: { value: string }) => (
@@ -147,6 +154,7 @@ export const useLeaveRequestColumns = ({
       },
       cell: ({ row }) => {
         const value = row.getValue("status") as LeaveRequestStatus;
+        const status_changed_by = row.original.status_changed_by;
         let variant:
           | "default"
           | "destructive"
@@ -167,8 +175,37 @@ export const useLeaveRequestColumns = ({
             variant = "outline";
             break;
           case LeaveRequestStatus.RECOMMENDED:
-            variant = "default";
-            break;
+            return (
+              <div className="flex justify-center">
+                <HoverCard>
+                  <HoverCardTrigger asChild>
+                    <Info className="cursor-pointer" height={20} width={20} />
+                  </HoverCardTrigger>
+                  <HoverCardContent align="center" className="w-full max-w-80">
+                    <div className="flex flex-col gap-1">
+                      <p className="text-xs font-semibold text-start mb-2">
+                        Recommended by
+                      </p>
+                      {status_changed_by && status_changed_by.length > 0 ? (
+                        status_changed_by.map((user, index) => (
+                          <Badge
+                            variant="outline"
+                            className="text-xs rounded-sm"
+                            key={index}
+                          >
+                            {user.name.slice(0, 1).toUpperCase() + user.name.slice(1)}
+                            {" "}
+                            <span className="text-xs opacity-70 italic">({user.email})</span>
+                          </Badge>
+                        ))
+                      ) : (
+                        <p className="text-sm">No recommenders found.</p>
+                      )}
+                    </div>
+                  </HoverCardContent>
+                </HoverCard>
+              </div>
+            );
           default:
             variant = "outline";
         }
@@ -178,7 +215,6 @@ export const useLeaveRequestColumns = ({
               {variant === "secondary" && <ClockIcon />}
               {variant === "destructive" && <XIcon />}
               {variant === "success" && <CheckIcon />}
-              {variant === "default" && <TrendingUpIcon />}
               {variant === "outline" && <AlertCircleIcon />}
               {value}
             </Badge>

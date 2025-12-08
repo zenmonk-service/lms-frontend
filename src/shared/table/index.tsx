@@ -25,7 +25,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import Image from "next/image";
 import { useRef } from "react";
 
 export interface PaginationState {
@@ -69,7 +68,7 @@ export default function DataTable({
 
     searchTimeout.current = setTimeout(() => {
       handleSearchChange(value);
-    }, 500); // ← debounce delay (500ms)
+    }, 500);
   };
   const handleSearchChange = (value: string) => {
     if (value?.trim() === pagination.search) return;
@@ -85,7 +84,7 @@ export default function DataTable({
   };
 
   return (
-    <div className="h-[calc(100vh-250px)]">
+    <>
       <div className="flex items-center justify-between mb-4 ">
         <div>
           {searchable && (
@@ -98,7 +97,7 @@ export default function DataTable({
         </div>
       </div>
 
-      <div className="bg-white border rounded-lg p-4 min-h-[160px] h-full overflow-auto flex flex-col justify-between">
+      <div className="bg-white border rounded-lg p-4 max-h-[calc(100vh-220px)] overflow-auto flex flex-col justify-between">
         <div className="relative overflow-auto rounded-md border">
           <Table>
             <TableHeader className="bg-[#eaeef1] sticky top-0 z-10">
@@ -209,6 +208,6 @@ export default function DataTable({
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -28,6 +28,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useAppSelector } from "@/store";
+import { LeaveRequestStatusChangedBy } from "../make-leave-request/leave-request-columns";
 
 export type LeaveRequest = {
   uuid: string;
@@ -49,7 +50,7 @@ export type LeaveRequest = {
   leave_duration?: number | null;
   reason?: string | null;
   status?: LeaveRequestStatus;
-  status_changed_by?: string;
+  status_changed_by?: LeaveRequestStatusChangedBy[] | null;
   created_at?: string;
   updated_at?: string;
 };
@@ -201,7 +202,7 @@ export const useLeaveRequestsColumns = (opts?: {
         const isPending = lr.status === LeaveRequestStatus.PENDING;
         const isRecommended = lr.status === LeaveRequestStatus.RECOMMENDED;
         const status_changed_by_you =
-          lr.status_changed_by === currentUser?.email;
+          lr.status_changed_by?.filter((user) => user.user_id === currentUser?.user_id);
 
         return !status_changed_by_you && (isPending || isRecommended) ? (
           <div className="flex gap-2 items-center">

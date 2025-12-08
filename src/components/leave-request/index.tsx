@@ -29,13 +29,22 @@ import { LeaveRequest as LeaveRequestType } from "./approve-leave-request/approv
 import { ConfirmationDialog } from "@/shared/confirmation-dialog";
 import { type LeaveRequest } from "./approve-leave-request/approve-leave-request-columns";
 import { resetLeaveRequestState } from "@/features/leave-requests/leave-requests.slice";
+import InfiniteScroll from "react-infinite-scroll-component";
+import { listUserAction } from "@/features/user/user.action";
+import { LoaderCircle } from "lucide-react";
+import { UserInterface } from "@/features/user/user.slice";
 
 const LeaveRequest = () => {
   const [session, setSession] = useState<any>(null);
-  const { users, currentUser } = useAppSelector((state) => state.userSlice);
-
+  const {
+    users,
+    currentUser,
+    total,
+    isLoading: isUsersLoading,
+  } = useAppSelector((state) => state.userSlice);
   const [leaveTypeFilter, setLeaveTypeFilter] = useState<string>("");
   const [managerFilter, setManagerFilter] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [dateRangeFilter, setDateRangeFilter] = useState<{
     start_date?: string;
@@ -74,6 +83,16 @@ const LeaveRequest = () => {
     const session = await getSession();
     setSession(session);
   }
+
+  useEffect(() => {
+    dispatch(
+      listUserAction({
+        pagination: { page: 1, limit: 10, search: searchTerm },
+        org_uuid: currentOrganizationUuid,
+      })
+    );
+  }, [searchTerm]);
+
   useEffect(() => {
     async function fetchUserLeaves() {
       await getUserUuid();
@@ -115,7 +134,7 @@ const LeaveRequest = () => {
 
   useEffect(() => {
     return () => {
-      dispatch(resetLeaveRequestState()); 
+      dispatch(resetLeaveRequestState());
     };
   }, []);
 
@@ -183,28 +202,51 @@ const LeaveRequest = () => {
                   <MultiSelectTrigger className="w-[180px] hover:bg-transparent">
                     <MultiSelectValue
                       overflowBehavior="cutoff"
-                      placeholder="Select managers"
+                      placeholder="Select managers..."
                     />
                   </MultiSelectTrigger>
                   <MultiSelectContent
                     search={{
-                      emptyMessage: "No manager found.",
+                      emptyMessage: "No managers found.",
                       placeholder: "Search managers...",
                     }}
+                    onSearch={setSearchTerm}
+                    isLoading={isUsersLoading}
                   >
                     <MultiSelectGroup>
-                      {users
-                        .filter(
-                          (manager) => manager.user_id !== currentUser?.user_id
-                        )
-                        .map((manager) => (
-                          <MultiSelectItem
-                            value={manager.user_id}
-                            key={manager.user_id}
-                          >
-                            {manager.name}
-                          </MultiSelectItem>
-                        ))}
+                      <InfiniteScroll
+                        dataLength={users.length}
+                        next={() =>
+                          dispatch(
+                            listUserAction({
+                              pagination: {
+                                page: Math.ceil(users.length / 10) + 1,
+                                limit: 10,
+                                search: searchTerm,
+                              },
+                              org_uuid: currentOrganizationUuid,
+                            })
+                          )
+                        }
+                        hasMore={users.length < total}
+                        loader={
+                          <LoaderCircle className="animate-spin mx-auto my-2" />
+                        }
+                        className="max-h-[200px]"
+                      >
+                        {users
+                          .filter(
+                            (manager) => manager.user_id !== session?.user?.uuid
+                          )
+                          .map((manager: UserInterface) => (
+                            <MultiSelectItem
+                              value={manager.user_id}
+                              key={manager.user_id}
+                            >
+                              {manager.name}
+                            </MultiSelectItem>
+                          ))}
+                      </InfiniteScroll>
                     </MultiSelectGroup>
                   </MultiSelectContent>
                 </MultiSelect>

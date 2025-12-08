@@ -79,7 +79,7 @@ export const userSlice = createSlice({
   initialState,
   reducers: {
     setUserCurrentOrganization: (state, action) => {
-      state.userCurrentOrganization = action.payload
+      state.userCurrentOrganization = action.payload;
     },
     setPagination: (state, action) => {
       state.pagination = action.payload || initialState.pagination;
@@ -106,7 +106,18 @@ export const userSlice = createSlice({
             }
           });
         } else {
-          state.users = action.payload.rows || [];
+          const isFirstPage = action.payload.current_page === 1;
+
+          if (isFirstPage) {
+            state.users = action.payload.rows || [];
+          } else {
+            const newUsers = action.payload.rows || [];
+            const existingIds = new Set(state.users.map((u) => u.user_id));
+            const uniqueNewUsers = newUsers.filter(
+              (u: any) => !existingIds.has(u.user_id)
+            );
+            state.users = [...state.users, ...uniqueNewUsers];
+          }
           state.total = action.payload.count || 0;
           state.currentPage = action.payload.current_page || 0;
         }

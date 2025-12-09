@@ -201,10 +201,14 @@ export const useLeaveRequestsColumns = (opts?: {
         const lr = row.original;
         const isPending = lr.status === LeaveRequestStatus.PENDING;
         const isRecommended = lr.status === LeaveRequestStatus.RECOMMENDED;
-        const status_changed_by_you =
-          lr.status_changed_by?.filter((user) => user.user_id === currentUser?.user_id);
+        const status_changed_by_you = lr.status_changed_by?.filter(
+          (user) => user.user_id === currentUser?.user_id
+        ) ?? [];
 
-        return !status_changed_by_you && (isPending || isRecommended) ? (
+        const hasNotActedYet = status_changed_by_you.length === 0;
+        const canTakeAction = (isPending || isRecommended) && hasNotActedYet;
+
+        return canTakeAction ? (
           <div className="flex gap-2 items-center">
             <Tooltip>
               <TooltipTrigger asChild>
@@ -239,10 +243,7 @@ export const useLeaveRequestsColumns = (opts?: {
                   size="icon"
                   onClick={() => onRecommend && onRecommend(lr)}
                 >
-                  <TrendingUpIcon
-                    height={16}
-                    width={16}
-                  />
+                  <TrendingUpIcon height={16} width={16} />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Recommend Leave Request</TooltipContent>

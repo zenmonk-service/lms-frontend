@@ -1,36 +1,19 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MVP-1: Leave Management System
 
-## Getting Started
+This document outlines the core features included in the first release (MVP-1) of the HR Management System. This release focuses on foundational User, Role, and Leave Management capabilities, enforced by a robust Role-Based Access Control (RBAC) system.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### ✨ Core System Capabilities
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+| Feature Area | Key Functionality | Description |
+| :--- | :--- | :--- |
+| **👤 User Management** | Create, Edit, Delete Users & Assign Roles | View all users in an organized dashboard with improved filtering and searching UX. |
+| **🔐 Role Management** | Create and Manage Custom Roles (Admin, Manager, Employee) | Assign permissions tied to user actions; UI fully adapts based on assigned role. |
+| **📝 Leave Request Management** | Create, Review, Approve, or Reject Requests | Employees can create requests; Managers/Admins can action them. Features automatic state updates and full history view. |
+| **📂 Leave Type Management** | Create, Activate, Deactivate Leave Categories | Manage various leave types (Sick Leave, Casual Leave, Paid Leave). |
+| **✔️ Leave Approval Workflow** | Role-Based Flow (Employee → Manager → Admin) | Provides notifications, status badges on UI, and consistent updates across all views. |
+| **🛡️ Role-Based Access Control (RBAC)** | Permission-Driven Access | Every module and action is permission-driven. Unauthorized users cannot access restricted screens; UI renders dynamically. |
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

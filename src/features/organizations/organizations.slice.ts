@@ -18,6 +18,7 @@ export interface Organization {
   domain: string;
   description: string;
   roles: any[];
+  is_active: boolean;
 }
 
 interface OrganizationState {
@@ -58,11 +59,7 @@ export const organizationsSlice = createSlice({
       })
       .addCase(getOrganizationsAction.fulfilled, (state, action) => {
         state.isOrgLoading = false;
-        if(action.payload.page === 1) {
-          state.organizations = action.payload.rows || [];
-        }else {
-          state.organizations = [...state.organizations, ...(action.payload.rows || [])];
-        }
+        state.organizations = action.payload.rows || [];
         state.count = action.payload.count || 0;
         state.total = action.payload.total || 0;
         state.currentPage = action.payload.current_page || 0;

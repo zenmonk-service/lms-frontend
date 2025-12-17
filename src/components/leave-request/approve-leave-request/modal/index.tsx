@@ -3,9 +3,7 @@
 import { Button } from "@/components/ui/button";
 import {
   Field,
-  FieldDescription,
   FieldError,
-  FieldLabel,
 } from "@/components/ui/field";
 import {
   InputGroup,
@@ -17,7 +15,7 @@ import { LoaderCircle } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
-export type LeaveAction = "approve" | "reject" | "recommend" | null;
+type LeaveAction = "approve" | "reject" | "recommend" | null;
 
 export interface LeaveActionModalProps {
   open: boolean;

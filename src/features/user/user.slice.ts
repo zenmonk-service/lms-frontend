@@ -90,6 +90,11 @@ export const userSlice = createSlice({
     setCurrentUser: (state, action) => {
       state.currentUser = action.payload || null;
     },
+    resetUsers: (state) => {
+      state.users = [];
+      state.total = 0;
+      state.currentPage = 0;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -106,18 +111,24 @@ export const userSlice = createSlice({
             }
           });
         } else {
+          const isInfiniteScroll = action.payload.isInfiniteScroll || false;
           const isFirstPage = action.payload.current_page === 1;
 
-          if (isFirstPage) {
-            state.users = action.payload.rows || [];
+          if (isInfiniteScroll) {
+            if (isFirstPage) {
+              state.users = action.payload.rows || [];
+            } else {
+              const newUsers = action.payload.rows || [];
+              const existingIds = new Set(state.users.map((u) => u.user_id));
+              const uniqueNewUsers = newUsers.filter(
+                (u: any) => !existingIds.has(u.user_id)
+              );
+              state.users = [...state.users, ...uniqueNewUsers];
+            }
           } else {
-            const newUsers = action.payload.rows || [];
-            const existingIds = new Set(state.users.map((u) => u.user_id));
-            const uniqueNewUsers = newUsers.filter(
-              (u: any) => !existingIds.has(u.user_id)
-            );
-            state.users = [...state.users, ...uniqueNewUsers];
+            state.users = action.payload.rows || [];
           }
+
           state.total = action.payload.count || 0;
           state.currentPage = action.payload.current_page || 0;
         }
@@ -170,4 +181,5 @@ export const {
   setPagination,
   setIsUserExist,
   setCurrentUser,
+  resetUsers,
 } = userSlice.actions;

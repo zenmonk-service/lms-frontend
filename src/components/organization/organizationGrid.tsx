@@ -2,7 +2,6 @@
 
 import React from "react";
 import OrganizationCard from "./organizationCard";
-import { AdminTablePagination } from "./pagination";
 import { useAppDispatch, useAppSelector } from "@/store";
 
 import LoadingSkelton from "./loadingSkelton";
@@ -10,6 +9,7 @@ import { getAllOrganizationsAction } from "@/features/organizations/organization
 import { useRouter } from "next/navigation";
 import { Organization } from "@/features/organizations/organizations.slice";
 import { setUserCurrentOrganization } from "@/features/user/user.slice";
+import { PaginationComponent } from "@/shared/pagination";
 
 export default function OrganizationGrid({ search }: { search: string }) {
   const router = useRouter();
@@ -56,7 +56,7 @@ export default function OrganizationGrid({ search }: { search: string }) {
         )}
       </div>
       {organizations.length !== 0 && currentPage && total && (
-        <AdminTablePagination
+        <PaginationComponent
           total={total}
           currentPage={currentPage}
           pageSize={10}

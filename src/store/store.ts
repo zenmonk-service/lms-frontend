@@ -33,9 +33,15 @@ const permissionPersistConfig = {
   whitelist: ["currentUserRolePermissions"],
 };
 
+const organizationsPersistConfig = {
+  key: "organizations",
+  storage,
+  whitelist: ["organizations"],
+};
+
 const combinedReducer = combineSlices({
   userSlice: persistReducer(userPersistConfig, userReducer),
-  organizationsSlice: organizationsReducer,
+  organizationsSlice: persistReducer(organizationsPersistConfig, organizationsReducer),
   rolesSlice: rolesReducer,
   permissionSlice: persistReducer(permissionPersistConfig, permissionsReducer),
   leaveTypeSlice: leaveTypeReducer,

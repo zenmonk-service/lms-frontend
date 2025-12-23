@@ -134,6 +134,12 @@ export function AppSidebar({ uuid }: { uuid: string }) {
       icon: Users,
     },
     {
+      tag: "org_management",
+      title: "Organization Management",
+      url: `/${uuid}/organization-management`,
+      icon: Users,
+    },
+    {
       title: "Leave Management",
       icon: Calendar,
       items: [
@@ -320,7 +326,9 @@ export function AppSidebar({ uuid }: { uuid: string }) {
                     {userCurrentOrganization?.domain}
                   </span>
                 </div>
-                {organizations.length > 1 && <ChevronsUpDown className="ml-auto size-4" />}
+                {organizations.length > 1 && (
+                  <ChevronsUpDown className="ml-auto size-4" />
+                )}
               </SidebarMenuButton>
             </DropdownMenuTrigger>
             <DropdownMenuContent
@@ -339,21 +347,23 @@ export function AppSidebar({ uuid }: { uuid: string }) {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuGroup className="max-h-[300px] overflow-y-auto">
-                {organizations.filter((org) => org.uuid !== userCurrentOrganization?.uuid).map((org) => (
-                  <DropdownMenuItem
-                    key={org.uuid}
-                    onClick={() => handleSwitchOrganization(org)}
-                    disabled={isLoadingOrg || !org.is_active}
-                  >
-                    <Building2 className="h-4 w-4 mr-2 text-orange-500" />
-                    <div>
-                      <p className="text-sm">{org.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {org.domain}
-                      </p>
-                    </div>
-                  </DropdownMenuItem>
-                ))}
+                {organizations
+                  .filter((org) => org.uuid !== userCurrentOrganization?.uuid)
+                  .map((org) => (
+                    <DropdownMenuItem
+                      key={org.uuid}
+                      onClick={() => handleSwitchOrganization(org)}
+                      disabled={isLoadingOrg || !org.is_active}
+                    >
+                      <Building2 className="h-4 w-4 mr-2 text-orange-500" />
+                      <div>
+                        <p className="text-sm">{org.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {org.domain}
+                        </p>
+                      </div>
+                    </DropdownMenuItem>
+                  ))}
               </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>

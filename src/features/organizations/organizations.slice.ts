@@ -9,7 +9,10 @@ import {
   activateUserAction,
   deactivateUserAction,
   createUserAction,
+  getOrganizationSettings,
+  updateOrganizationSettings,
 } from "./organizations.action";
+import { UserIdPattern, WorkDays } from "./organizations.type";
 
 export interface Organization {
   id: string;
@@ -21,9 +24,19 @@ export interface Organization {
   is_active: boolean;
 }
 
+interface OrganizationSettings {
+  theme: {};
+  work_days: WorkDays[];
+  start_time: string;
+  end_time: string;
+  employee_id_pattern_type: UserIdPattern;
+  employee_id_pattern_value: string;
+}
+
 interface OrganizationState {
   isLoading: boolean;
   organizations: Organization[];
+  organizationSettings: OrganizationSettings | null;
   currentOrganizationAndUser?: Organization;
   error: string | null;
   total: number;
@@ -36,11 +49,12 @@ const initialState: OrganizationState = {
   isLoading: false,
   organizations: [],
   currentOrganizationAndUser: undefined,
+  organizationSettings: null,
   error: null,
   total: 100,
   count: 0,
   currentPage: 1,
-  isOrgLoading:false
+  isOrgLoading: false,
 };
 
 export const organizationsSlice = createSlice({
@@ -175,7 +189,8 @@ export const organizationsSlice = createSlice({
       .addCase(deactivateUserAction.rejected, (state, action: any) => {
         state.isLoading = false;
         state.error = action.payload?.message;
-      }).addCase(createUserAction.pending, (state) => {
+      })
+      .addCase(createUserAction.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
@@ -185,11 +200,32 @@ export const organizationsSlice = createSlice({
       .addCase(createUserAction.rejected, (state, action: any) => {
         state.isLoading = false;
         state.error = action.payload?.message;
+      })
+      .addCase(getOrganizationSettings.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(getOrganizationSettings.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.organizationSettings = action.payload;
+      })
+      .addCase(getOrganizationSettings.rejected, (state, action: any) => {
+        state.isLoading = false;
+        state.error = action.payload?.message;
+      })
+      .addCase(updateOrganizationSettings.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(updateOrganizationSettings.fulfilled, (state, action) => {
+        state.isLoading = false;
+      })
+      .addCase(updateOrganizationSettings.rejected, (state, action: any) => {
+        state.isLoading = false;
+        state.error = action.payload?.message;
       });
-
   },
 });
 
 export const organizationsReducer = organizationsSlice.reducer;
-export const { resetOrganizationsState } =
-  organizationsSlice.actions;
+export const { resetOrganizationsState } = organizationsSlice.actions;

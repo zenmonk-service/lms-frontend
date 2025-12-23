@@ -110,3 +110,22 @@ export const deactivateUser = (org_uuid: string, user_uuid: string) => {
     }
   );
 };
+
+export const getOrganizationSettingsService = (org_uuid: string) => {
+  return axiosInterceptorInstance.get(`/organizations/settings`, {
+    headers: {
+      org_uuid: org_uuid,
+    },
+  });
+};
+
+export const updateOrganizationSettingsService = (
+  org_uuid: string,
+  settings: any
+) => {
+  return axiosInterceptorInstance.put(`/organizations/settings`, settings, {
+    headers: {
+      org_uuid: org_uuid,
+    },
+  });
+};

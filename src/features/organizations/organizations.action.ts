@@ -12,6 +12,8 @@ import {
   getAllOrganizations,
   activateUser,
   deactivateUser,
+  getOrganizationSettingsService,
+  updateOrganizationSettingsService,
 } from "./organizations.service";
 import { OrganizationFetchPayload } from "./organizations.type";
 import { createUser } from "../user/user.service";
@@ -207,6 +209,35 @@ export const deactivateUserAction = createAsyncThunk(
   async (data: any, thunkAPI) => {
     try {
       const response = await deactivateUser(data.org_uuid, data.user_uuid);
+      return response.data;
+    } catch (err: any) {
+      toastError(err.response.data.error ?? "Something went wrong.");
+      const error = err as AxiosError;
+      return thunkAPI.rejectWithValue(error.response?.data);
+    }
+  }
+);
+
+export const getOrganizationSettings = createAsyncThunk(
+  "organizations/get-settings",
+  async (org_uuid: string, thunkAPI) => {
+    try {
+      const response = await getOrganizationSettingsService(org_uuid);
+      return response.data;
+    } catch (err: any) {
+      toastError(err.response.data.error ?? "Something went wrong.");
+      const error = err as AxiosError;
+      return thunkAPI.rejectWithValue(error.response?.data);
+    }
+  }
+);
+
+export const updateOrganizationSettings = createAsyncThunk(
+  "organizations/update-settings",
+  async (data: any, thunkAPI) => {
+    try {
+      const {org_uuid, settings} = data;
+      const response = await updateOrganizationSettingsService(org_uuid, settings);
       return response.data;
     } catch (err: any) {
       toastError(err.response.data.error ?? "Something went wrong.");

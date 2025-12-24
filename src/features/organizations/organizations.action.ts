@@ -8,12 +8,13 @@ import {
   getOrganizationUsers,
   updateOrganizationUser,
   deleteOrganizationUser,
-  getOrganizationsById,
+  getOrganizationUserData,
   getAllOrganizations,
   activateUser,
   deactivateUser,
   getOrganizationSettingsService,
   updateOrganizationSettingsService,
+  getOrganizationById,
 } from "./organizations.service";
 import { OrganizationFetchPayload } from "./organizations.type";
 import { createUser } from "../user/user.service";
@@ -53,12 +54,26 @@ export const getAllOrganizationsAction = createAsyncThunk(
     }
   }
 );
-// Get organization by id
-export const getOrganizationById = createAsyncThunk(
+
+export const getOrganizationUserDataAction = createAsyncThunk(
   "organizations/get",
   async (payload: { organizationId: string; email: string }, thunkAPI) => {
     try {
-      const response = await getOrganizationsById(payload);
+      const response = await getOrganizationUserData(payload);
+      return response.data;
+    } catch (err: any) {
+      toastError(err.response.data.error ?? "Something went wrong.");
+      const error = err as AxiosError;
+      return thunkAPI.rejectWithValue(error.response?.data);
+    }
+  }
+);
+
+export const getOrganizationByIdAction = createAsyncThunk(
+  "organizations/getById",
+  async (org_uuid: string, thunkAPI) => {
+    try {
+      const response = await getOrganizationById(org_uuid);
       return response.data;
     } catch (err: any) {
       toastError(err.response.data.error ?? "Something went wrong.");
@@ -246,3 +261,18 @@ export const updateOrganizationSettings = createAsyncThunk(
     }
   }
 );
+
+// export const updateOrganization = createAsyncThunk(
+//   "organizations/update-organization",
+//   async (data: any, thunkAPI) => {
+//     try {
+//       const {org_uuid, settings} = data;
+//       const response = await updateOrganizationSettingsService(org_uuid, settings);
+//       return response.data;
+//     } catch (err: any) {
+//       toastError(err.response.data.error ?? "Something went wrong.");
+//       const error = err as AxiosError;
+//       return thunkAPI.rejectWithValue(error.response?.data);
+//     }
+//   }
+// ); 

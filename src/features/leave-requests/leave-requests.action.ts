@@ -158,8 +158,8 @@ export const recommendLeaveRequestAction = createAsyncThunk(
         data.status_changed_to,
         data.remark
       );
-      const org_uuid = (thunkAPI.getState() as any).userSlice
-        ?.userCurrentOrganization.uuid;
+      const org_uuid = (thunkAPI.getState() as any).organizationsSlice
+        .currentOrganization.uuid;
       if (org_uuid) {
         thunkAPI.dispatch(
           getLeaveRequestsAction({
@@ -201,8 +201,8 @@ export const rejectLeaveRequestAction = createAsyncThunk(
         data.remark
       );
       try {
-        const org_uuid = (thunkAPI.getState() as any).userSlice
-          .userCurrentOrganization.uuid;
+        const org_uuid = (thunkAPI.getState() as any).organizationsSlice
+          .currentOrganization.uuid;
         if (org_uuid) {
           thunkAPI.dispatch(
             getLeaveRequestsAction({

@@ -4,15 +4,20 @@ import {
   createOrganizationAction,
   updateOrganizationAction,
   deleteOrganizationAction,
-  getOrganizationById,
+  getOrganizationUserDataAction,
   getAllOrganizationsAction,
   activateUserAction,
   deactivateUserAction,
   createUserAction,
   getOrganizationSettings,
   updateOrganizationSettings,
+  getOrganizationByIdAction,
 } from "./organizations.action";
-import { UserIdPattern, WorkDays } from "./organizations.type";
+import {
+  OrgAttendanceMethod,
+  UserIdPattern,
+  WorkDays,
+} from "./organizations.type";
 
 export interface Organization {
   id: string;
@@ -22,6 +27,7 @@ export interface Organization {
   description: string;
   roles: any[];
   is_active: boolean;
+  logo_url: string | null;
 }
 
 interface OrganizationSettings {
@@ -31,6 +37,7 @@ interface OrganizationSettings {
   end_time: string;
   employee_id_pattern_type: UserIdPattern;
   employee_id_pattern_value: string;
+  attendance_method: OrgAttendanceMethod;
 }
 
 interface OrganizationState {
@@ -38,23 +45,36 @@ interface OrganizationState {
   organizations: Organization[];
   organizationSettings: OrganizationSettings | null;
   currentOrganizationAndUser?: Organization;
+  currentOrganization: Organization;
   error: string | null;
   total: number;
   count: number;
   currentPage: number;
   isOrgLoading?: boolean;
+  isOrgUpdating?: boolean;
 }
 
 const initialState: OrganizationState = {
   isLoading: false,
   organizations: [],
   currentOrganizationAndUser: undefined,
+  currentOrganization: {
+    id: "",
+    uuid: "",
+    name: "",
+    domain: "",
+    description: "",
+    roles: [],
+    is_active: false,
+    logo_url: null,
+  },
   organizationSettings: null,
   error: null,
   total: 100,
   count: 0,
   currentPage: 1,
   isOrgLoading: false,
+  isOrgUpdating: false,
 };
 
 export const organizationsSlice = createSlice({
@@ -64,6 +84,9 @@ export const organizationsSlice = createSlice({
     resetOrganizationsState: (state, action) => {
       if (state.organizations) state.organizations = [];
     },
+    setCurrentOrganization: (state, action) => {
+      state.currentOrganization = action.payload;
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -98,15 +121,28 @@ export const organizationsSlice = createSlice({
         state.error =
           action.payload?.message || "Failed to fetch organizations";
       })
-      .addCase(getOrganizationById.pending, (state) => {
+      .addCase(getOrganizationUserDataAction.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(getOrganizationById.fulfilled, (state, action) => {
+      .addCase(getOrganizationUserDataAction.fulfilled, (state, action) => {
         state.isLoading = false;
         state.currentOrganizationAndUser = action.payload;
       })
-      .addCase(getOrganizationById.rejected, (state, action: any) => {
+      .addCase(getOrganizationUserDataAction.rejected, (state, action: any) => {
+        state.isLoading = false;
+        state.error =
+          action.payload?.message || "Failed to fetch organizations";
+      })
+      .addCase(getOrganizationByIdAction.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(getOrganizationByIdAction.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.currentOrganization = action.payload;
+      })
+      .addCase(getOrganizationByIdAction.rejected, (state, action: any) => {
         state.isLoading = false;
         state.error =
           action.payload?.message || "Failed to fetch organizations";
@@ -129,21 +165,16 @@ export const organizationsSlice = createSlice({
           action.payload?.message || "Failed to create organization";
       });
 
-    // Update organization
     builder
       .addCase(updateOrganizationAction.pending, (state) => {
-        state.isLoading = true;
+        state.isOrgUpdating = true;
         state.error = null;
       })
       .addCase(updateOrganizationAction.fulfilled, (state, action) => {
-        state.isLoading = false;
-        const updatedOrg = action.payload.organization;
-        state.organizations = state.organizations.map((org) =>
-          org.id === updatedOrg.id ? updatedOrg : org
-        );
+        state.isOrgUpdating = false;
       })
       .addCase(updateOrganizationAction.rejected, (state, action: any) => {
-        state.isLoading = false;
+        state.isOrgUpdating = false;
         state.error =
           action.payload?.message || "Failed to update organization";
       });
@@ -228,4 +259,4 @@ export const organizationsSlice = createSlice({
 });
 
 export const organizationsReducer = organizationsSlice.reducer;
-export const { resetOrganizationsState } = organizationsSlice.actions;
+export const { resetOrganizationsState, setCurrentOrganization } = organizationsSlice.actions;

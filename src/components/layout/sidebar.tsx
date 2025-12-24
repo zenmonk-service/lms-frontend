@@ -48,9 +48,9 @@ import {
 } from "../ui/dropdown-menu";
 import { signOutUser } from "@/app/auth/sign-out.action";
 import { resetStore } from "@/store/reset-store-action";
-import { getOrganizationById } from "@/features/organizations/organizations.action";
-import { setUserCurrentOrganization } from "@/features/user/user.slice";
+import { getOrganizationUserDataAction } from "@/features/organizations/organizations.action";
 import { listUserAction } from "@/features/user/user.action";
+import { setCurrentOrganization } from "@/features/organizations/organizations.slice";
 
 export function AppSidebar({ uuid }: { uuid: string }) {
   const { isMobile } = useSidebar();
@@ -60,9 +60,10 @@ export function AppSidebar({ uuid }: { uuid: string }) {
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { currentUser, userCurrentOrganization } = useAppSelector(
+  const { currentUser } = useAppSelector(
     (state) => state.userSlice
   );
+  const { currentOrganization } = useAppSelector(state => state.organizationsSlice);
   const { currentUserRolePermissions } = useAppSelector(
     (state) => state.permissionSlice
   );
@@ -264,13 +265,13 @@ export function AppSidebar({ uuid }: { uuid: string }) {
       const sessionData = await getSession();
 
       await dispatch(
-        getOrganizationById({
+        getOrganizationUserDataAction({
           organizationId: org.uuid,
           email: sessionData?.user?.email || "",
         })
       );
 
-      dispatch(setUserCurrentOrganization(org));
+      dispatch(setCurrentOrganization(org));
       dispatch(
         listUserAction({
           org_uuid: org.uuid,
@@ -320,10 +321,10 @@ export function AppSidebar({ uuid }: { uuid: string }) {
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">
-                    {userCurrentOrganization?.name}
+                    {currentOrganization?.name}
                   </span>
                   <span className="truncate text-xs text-muted-foreground">
-                    {userCurrentOrganization?.domain}
+                    {currentOrganization?.domain}
                   </span>
                 </div>
                 {organizations.length > 1 && (
@@ -348,7 +349,7 @@ export function AppSidebar({ uuid }: { uuid: string }) {
               </DropdownMenuLabel>
               <DropdownMenuGroup className="max-h-[300px] overflow-y-auto">
                 {organizations
-                  .filter((org) => org.uuid !== userCurrentOrganization?.uuid)
+                  .filter((org) => org.uuid !== currentOrganization?.uuid)
                   .map((org) => (
                     <DropdownMenuItem
                       key={org.uuid}

@@ -19,3 +19,9 @@ export enum UserIdPattern {
   ALPHA_NUMERIC = "alpha_numeric",
   NUMERIC = "numeric",
 }
+
+export enum OrgAttendanceMethod {
+  MANUAL = "manual",
+  FACE = "face",
+  DUAL = "dual",
+}

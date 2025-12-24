@@ -5,16 +5,15 @@ import { Building2, Globe, LoaderCircle, SearchIcon } from "lucide-react";
 import AppBar from "@/components/app-bar";
 import { useAppDispatch, useAppSelector } from "@/store";
 import {
-  getOrganizationById,
+  getOrganizationUserDataAction,
   getOrganizationsAction,
 } from "@/features/organizations/organizations.action";
 import { useRouter } from "next/navigation";
 import { getSession } from "../auth/get-auth.action";
 import { listUserAction } from "@/features/user/user.action";
-import { Organization } from "@/features/organizations/organizations.slice";
+import { Organization, setCurrentOrganization } from "@/features/organizations/organizations.slice";
 import { useSession } from "next-auth/react";
 import { SelectOrganizationLoadingSkeleton } from "./loading-skeleton";
-import { setUserCurrentOrganization } from "@/features/user/user.slice";
 import {
   InputGroup,
   InputGroupAddon,
@@ -54,13 +53,13 @@ function App() {
     try {
       setLoading(true);
       await dispatch(
-        getOrganizationById({
+        getOrganizationUserDataAction({
           organizationId: org.uuid,
           email: sessionData?.user?.email || "",
         })
       );
 
-      dispatch(setUserCurrentOrganization(org));
+      dispatch(setCurrentOrganization(org));
       dispatch(
         listUserAction({
           org_uuid: org.uuid,

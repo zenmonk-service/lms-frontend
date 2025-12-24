@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Loader2Icon, Save } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { useEffect } from "react";
 import IdentityBranding from "./identity-branding";
 import Appearance from "./appearance";
 import OperatingHours from "./operating-hours";
@@ -17,14 +17,17 @@ import { OrgManagementSkeleton } from "./skeleton";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import {
+  OrgAttendanceMethod,
   UserIdPattern,
   WorkDays,
 } from "@/features/organizations/organizations.type";
 import { zodResolver } from "@hookform/resolvers/zod";
+import AttendanceMethod from "./attendance-method";
 
 const orgSettings = z
   .object({
     theme: z.unknown(),
+    attendance_method: z.enum(OrgAttendanceMethod),
     work_days: z
       .array(z.enum(WorkDays))
       .min(1, "At least one work day must be selected"),
@@ -48,12 +51,10 @@ const orgSettings = z
 type OrgSettingsForm = z.infer<typeof orgSettings>;
 
 const OrgManagement = () => {
-  const { organizationSettings, isLoading } = useAppSelector(
+  const { organizationSettings, isLoading, currentOrganization } = useAppSelector(
     (state) => state.organizationsSlice
   );
-  const { userCurrentOrganization } = useAppSelector(
-    (state) => state.userSlice
-  );
+
   const dispatch = useAppDispatch();
 
   const { control, handleSubmit, reset, formState } = useForm<OrgSettingsForm>({
@@ -63,6 +64,8 @@ const OrgManagement = () => {
         name: "Standard Orange",
         value: "#F97316",
       },
+      attendance_method:
+        organizationSettings?.attendance_method || OrgAttendanceMethod.MANUAL,
       work_days: organizationSettings?.work_days || [],
       start_time: organizationSettings?.start_time || "",
       end_time: organizationSettings?.end_time || "",
@@ -75,7 +78,7 @@ const OrgManagement = () => {
   });
 
   const fetchOrgSettings = async () => {
-    await dispatch(getOrganizationSettings(userCurrentOrganization.uuid));
+    await dispatch(getOrganizationSettings(currentOrganization.uuid));
   };
 
   useEffect(() => {
@@ -86,6 +89,7 @@ const OrgManagement = () => {
     if (organizationSettings) {
       reset({
         theme: organizationSettings.theme,
+        attendance_method: organizationSettings.attendance_method,
         work_days: organizationSettings.work_days,
         start_time: organizationSettings.start_time,
         end_time: organizationSettings.end_time,
@@ -97,10 +101,9 @@ const OrgManagement = () => {
   }, [organizationSettings]);
 
   const onSubmit = async (data: OrgSettingsForm) => {
-    console.log(data);
     await dispatch(
       updateOrganizationSettings({
-        org_uuid: userCurrentOrganization.uuid,
+        org_uuid: currentOrganization.uuid,
         settings: data,
       })
     );
@@ -141,8 +144,9 @@ const OrgManagement = () => {
           ) : (
             <div className="flex flex-col gap-12 mt-12">
               <IdentityBranding
-                org_name={userCurrentOrganization.name}
-                domain={userCurrentOrganization.domain}
+                org_name={currentOrganization.name}
+                domain={currentOrganization.domain}
+                logo_url={currentOrganization.logo_url}
               />
               <Separator />
               <Appearance control={control} />
@@ -150,6 +154,8 @@ const OrgManagement = () => {
               <OperatingHours control={control} />
               <Separator />
               <IdentifierPatterns control={control} />
+              <Separator />
+              <AttendanceMethod control={control} />
             </div>
           )}
         </form>

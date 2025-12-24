@@ -15,11 +15,13 @@ import {
   TrendingUpIcon,
   XIcon,
 } from "lucide-react";
-import React from "react";
 
 const UserCard = ({ leaveRequest }: any) => {
-  const { userCurrentOrganization, currentUser } = useAppSelector(
+  const { currentUser } = useAppSelector(
     (s) => s.userSlice
+  );
+  const { currentOrganization } = useAppSelector(
+    (s) => s.organizationsSlice
   );
   const { selectedLeaveRequest, selectedLeaveRequestDetails } = useAppSelector(
     (s) => s.leaveRequestSlice
@@ -33,7 +35,7 @@ const UserCard = ({ leaveRequest }: any) => {
   const fetchLeaveRequest = async (leave_request_uuid: string) => {
     await dispatch(
       getUserLeaveRequestAction({
-        org_uuid: userCurrentOrganization.uuid,
+        org_uuid: currentOrganization.uuid,
         user_uuid: currentUser?.user_id,
         leave_request_uuid,
       })

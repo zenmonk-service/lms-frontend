@@ -26,8 +26,11 @@ const LeaveRequests = () => {
   const { approvableLeaveRequests, leaveFilters, isLoading } = useAppSelector(
     (state) => state.leaveRequestSlice
   );
-  const { userCurrentOrganization, currentUser } = useAppSelector(
+  const { currentUser } = useAppSelector(
     (state) => state.userSlice
+  );
+  const { currentOrganization } = useAppSelector(
+    (state) => state.organizationsSlice
   );
   const dispatch = useAppDispatch();
 
@@ -44,7 +47,7 @@ const LeaveRequests = () => {
   }, []);
 
   const params = (page: number, isInfiniteScroll = true) => ({
-    org_uuid: userCurrentOrganization?.uuid,
+    org_uuid: currentOrganization.uuid,
     manager_uuid: currentUser?.user_id,
     page,
     limit: 10,
@@ -62,14 +65,14 @@ const LeaveRequests = () => {
   });
 
   const refreshLeaveRequests = async () => {
-    if (!userCurrentOrganization?.uuid || !currentUser?.user_id) return;
+    if (!currentOrganization.uuid || !currentUser?.user_id) return;
     dispatch(resetSelectedLeaveRequestDetails());
     dispatch(resetSelectedLeaveRequest());
     await dispatch(approvableLeaveRequestsAction(params(1, true)));
   };
 
   const fetchMoreLeaveRequests = async () => {
-    if (!userCurrentOrganization?.uuid || !currentUser?.user_id) return;
+    if (!currentOrganization.uuid || !currentUser?.user_id) return;
     setIsLoadingMore(true);
     const nextPage = (approvableLeaveRequests.current_page ?? 0) + 1;
     await dispatch(approvableLeaveRequestsAction(params(nextPage, true)));
@@ -78,7 +81,7 @@ const LeaveRequests = () => {
 
   useEffect(() => {
     refreshLeaveRequests();
-  }, [session, userCurrentOrganization?.uuid, leaveFilters]);
+  }, [session, currentOrganization.uuid, leaveFilters]);
 
   return (
     <div className="flex flex-col h-full">

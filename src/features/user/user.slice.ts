@@ -5,7 +5,6 @@ import {
   listUserAction,
   updateUserAction,
 } from "./user.action";
-import { set } from "date-fns";
 
 export interface SignInInterface {
   email: string;
@@ -36,12 +35,12 @@ interface UserCurrentOrganizationInterface {
   uuid: string;
   name: string;
   domain: string;
+  logo_url: string | null;
 }
 
 type UserState = {
   isLoading: boolean;
   organizations: any[];
-  userCurrentOrganization: UserCurrentOrganizationInterface;
   users: UserInterface[];
   pagination: PaginationState;
   total: number;
@@ -57,11 +56,6 @@ const initialState: UserState = {
   isExistLoading: false,
   organizations: [],
   isUserExist: false,
-  userCurrentOrganization: {
-    uuid: "",
-    name: "",
-    domain: "",
-  },
   currentUser: null,
   users: [],
   total: 0,
@@ -78,9 +72,6 @@ export const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    setUserCurrentOrganization: (state, action) => {
-      state.userCurrentOrganization = action.payload;
-    },
     setPagination: (state, action) => {
       state.pagination = action.payload || initialState.pagination;
     },
@@ -177,7 +168,6 @@ export const userSlice = createSlice({
 
 export const userReducer = userSlice.reducer;
 export const {
-  setUserCurrentOrganization,
   setPagination,
   setIsUserExist,
   setCurrentUser,

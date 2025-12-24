@@ -7,8 +7,7 @@ import { useAppDispatch, useAppSelector } from "@/store";
 import LoadingSkelton from "./loadingSkelton";
 import { getAllOrganizationsAction } from "@/features/organizations/organizations.action";
 import { useRouter } from "next/navigation";
-import { Organization } from "@/features/organizations/organizations.slice";
-import { setUserCurrentOrganization } from "@/features/user/user.slice";
+import { Organization, setCurrentOrganization } from "@/features/organizations/organizations.slice";
 import { PaginationComponent } from "@/shared/pagination";
 
 export default function OrganizationGrid({ search }: { search: string }) {
@@ -19,7 +18,7 @@ export default function OrganizationGrid({ search }: { search: string }) {
   );
   const dispatch = useAppDispatch();
   const handleManageMembers = (org: any) => {
-    dispatch(setUserCurrentOrganization(org));
+    dispatch(setCurrentOrganization(org));
     router.push(`/organizations/${org.uuid}`);
   };
 

@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/select";
 import { UserIdPattern } from "@/features/organizations/organizations.type";
 import { Fingerprint, Hash } from "lucide-react";
-import React from "react";
 import { Control, Controller } from "react-hook-form";
 
 interface IdentifierPatternsProps {
@@ -24,7 +23,7 @@ interface IdentifierPatternsProps {
 
 const IdentifierPatterns = ({ control }: IdentifierPatternsProps) => {
   return (
-    <div className="mb-12">
+    <div>
       <div className="mb-8">
         <h1 className="text-xl font-semibold">Identifier Patterns</h1>
         <p className="text-sm text-muted-foreground">

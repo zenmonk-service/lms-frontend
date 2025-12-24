@@ -23,13 +23,13 @@ import { resetUsers } from "@/features/user/user.slice";
 
 const LeaveRequestFilters = () => {
   const {
-    userCurrentOrganization,
     users,
     currentUser,
     currentPage,
     isLoading: isUsersLoading,
     total: userTotal,
   } = useAppSelector((s) => s.userSlice);
+  const { currentOrganization } = useAppSelector((s) => s.organizationsSlice);
   const { leaveTypes, isLoading } = useAppSelector((s) => s.leaveTypeSlice);
   const { leaveFilters } = useAppSelector((s) => s.leaveRequestSlice);
   const dispatch = useAppDispatch();
@@ -76,7 +76,7 @@ const LeaveRequestFilters = () => {
 
       dispatch(
         listUserAction({
-          org_uuid: userCurrentOrganization.uuid,
+          org_uuid: currentOrganization.uuid,
           pagination: {
             page: 1,
             limit: 10,
@@ -93,7 +93,7 @@ const LeaveRequestFilters = () => {
   const handleLoadMoreUsers = () => {
     dispatch(
       listUserAction({
-        org_uuid: userCurrentOrganization.uuid,
+        org_uuid: currentOrganization.uuid,
         pagination: {
           page: currentPage + 1,
           limit: 10,
@@ -105,7 +105,7 @@ const LeaveRequestFilters = () => {
   };
 
   useEffect(() => {
-    dispatch(getLeaveTypesAction({ org_uuid: userCurrentOrganization.uuid }));
+    dispatch(getLeaveTypesAction({ org_uuid: currentOrganization.uuid }));
   }, []);
 
   return (

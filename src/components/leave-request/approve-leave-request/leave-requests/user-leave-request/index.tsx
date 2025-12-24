@@ -50,10 +50,10 @@ const UserLeaveRequest = () => {
     isSelectedLeaveRequestLoading,
     selectedLeaveRequestDetails,
   } = useAppSelector((s) => s.leaveRequestSlice);
-  const { userCurrentOrganization, currentUser } = useAppSelector(
+  const { currentUser } = useAppSelector(
     (state) => state.userSlice
   );
-
+  const { currentOrganization } = useAppSelector(state => state.organizationsSlice);
   const [modalOpen, setModalOpen] = useState(false);
   const [leaveAction, setLeaveAction] = useState<LeaveAction>(null);
   const [actionLoading, setActionLoading] = useState(false);
@@ -69,7 +69,7 @@ const UserLeaveRequest = () => {
   };
 
   const handleModalConfirm = async (remarkText: string) => {
-    if (!selectedLeaveRequest || !leaveAction || !userCurrentOrganization?.uuid)
+    if (!selectedLeaveRequest || !leaveAction || !currentOrganization.uuid)
       return;
 
     const session = await getSession();
@@ -79,7 +79,7 @@ const UserLeaveRequest = () => {
       leave_request_uuid: selectedLeaveRequest.uuid,
       manager_uuid: session.user.uuid,
       remark: remarkText,
-      org_uuid: userCurrentOrganization.uuid,
+      org_uuid: currentOrganization.uuid,
     };
 
     try {
@@ -101,7 +101,7 @@ const UserLeaveRequest = () => {
       await dispatch(approvableLeaveRequestsAction({}));
       await dispatch(
         getUserLeaveRequestAction({
-          org_uuid: userCurrentOrganization.uuid,
+          org_uuid: currentOrganization.uuid,
           user_uuid: currentUser?.user_id,
           leave_request_uuid: selectedLeaveRequest.uuid,
         })

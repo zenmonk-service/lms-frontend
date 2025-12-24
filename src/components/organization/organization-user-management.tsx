@@ -32,6 +32,7 @@ import {
 import { hasPermissions } from "@/libs/haspermissios";
 import NoReadPermission from "@/shared/no-read-permission";
 import { useRouter } from "next/navigation";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 type Checked = DropdownMenuCheckboxItemProps["checked"];
 
 export default function ManageOrganizationsUser({
@@ -56,6 +57,11 @@ export default function ManageOrganizationsUser({
   const { isLoading: isActiveLoading } = useAppSelector(
     (state) => state.organizationsSlice
   );
+
+
+
+
+
 
   const columns: ColumnDef<UserInterface>[] = [
     ...(hasPermissions(
@@ -122,6 +128,36 @@ export default function ManageOrganizationsUser({
           },
         ]
       : []),
+
+
+      {
+        accessorKey: "image",
+        header: () => <div className="pl-12">Image</div>,
+        cell: ({ row }) => {
+          const user = row.original;
+          const initials = user.name
+            .split(" ")
+            .map((n) => n[0])
+            .join("")
+            .toUpperCase()
+            .slice(0, 2);
+          
+          return (
+            <div className="pl-12">
+              <Avatar className="h-10 w-10 border-2 border-orange-100">
+                <AvatarImage 
+                  src={user.image || ""} 
+                  alt={user.name}
+                  className="object-cover"
+                />
+                <AvatarFallback className="bg-gradient-to-br from-orange-400 to-amber-500 text-white font-semibold">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+            </div>
+          );
+        },
+      },
     {
       accessorKey: "name",
 
@@ -173,6 +209,9 @@ export default function ManageOrganizationsUser({
           },
         ]
       : []),
+
+
+      
   ];
 
   const handlePaginationChange = (newPagination: Partial<PaginationState>) => {

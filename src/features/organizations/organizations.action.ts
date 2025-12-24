@@ -140,7 +140,7 @@ export const getUsersAction = createAsyncThunk(
 // Create user
 export const createUserAction = createAsyncThunk(
   "users/create",
-  async (payload: CreateUserPayload, thunkAPI) => {
+  async (payload: CreateUserPayload , thunkAPI) => {
     try {
       const response = await createUser(payload);
       return response.data;

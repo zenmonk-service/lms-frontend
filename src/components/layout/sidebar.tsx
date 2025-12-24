@@ -18,6 +18,7 @@ import {
   LoaderCircle,
 } from "lucide-react";
 
+
 import {
   Sidebar,
   SidebarContent,
@@ -75,33 +76,33 @@ export function AppSidebar({ uuid }: { uuid: string }) {
 
   const filterItemsByPermission = (items: any[]) => {
     return items
-      .filter((item) => {
-        if (item.tag) {
-          if (item.title === "Approvals") {
-            return (
-              hasPagePermission(item.tag) &&
-              hasPermissions(
-                "leave_request_management",
-                "approve",
-                currentUserRolePermissions,
-                currentUser?.email
-              )
-            );
-          }
-          return hasPagePermission(item.tag);
-        }
-        return true;
-      })
-      .map((item) => {
-        if (item.items) {
-          const filteredChildren: any = filterItemsByPermission(item.items);
-          return filteredChildren.length > 0
-            ? { ...item, items: filteredChildren }
-            : null;
-        }
-        return item;
-      })
-      .filter(Boolean);
+      // .filter((item) => {
+      //   if (item.tag) {
+      //     if (item.title === "Approvals") {
+      //       return (
+      //         hasPagePermission(item.tag) &&
+      //         hasPermissions(
+      //           "leave_request_management",
+      //           "approve",
+      //           currentUserRolePermissions,
+      //           currentUser?.email
+      //         )
+      //       );
+      //     }
+      //     return hasPagePermission(item.tag);
+      //   }
+      //   return true;
+      // })
+      // .map((item) => {
+      //   if (item.items) {
+      //     const filteredChildren: any = filterItemsByPermission(item.items);
+      //     return filteredChildren.length > 0
+      //       ? { ...item, items: filteredChildren }
+      //       : null;
+      //   }
+      //   return item;
+      // })
+      // .filter(Boolean);
   };
 
   const [user, setUser] = useState<any>(null);
@@ -132,6 +133,27 @@ export function AppSidebar({ uuid }: { uuid: string }) {
       title: "Role Management",
       url: `/${uuid}/role-management`,
       icon: Users,
+    },
+    {
+      title: "Attendance Management",
+      url: `/${uuid}/attendance-management`,
+      icon: Users,
+      
+       items: [
+        {
+          tag: "attendance_management",
+          title: "Attendance",
+          url: `/${uuid}/attendance`,
+          icon: Users,
+        },
+         
+        {
+          tag: "attendance_management",
+          title: "My Attendance",
+          url: `/${uuid}/my-attendance`,
+          icon: Plane,
+        },
+      ],
     },
     {
       title: "Leave Management",
@@ -320,7 +342,9 @@ export function AppSidebar({ uuid }: { uuid: string }) {
                     {userCurrentOrganization?.domain}
                   </span>
                 </div>
-                {organizations.length > 1 && <ChevronsUpDown className="ml-auto size-4" />}
+                {organizations.length > 1 && (
+                  <ChevronsUpDown className="ml-auto size-4" />
+                )}
               </SidebarMenuButton>
             </DropdownMenuTrigger>
             <DropdownMenuContent
@@ -339,21 +363,23 @@ export function AppSidebar({ uuid }: { uuid: string }) {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuGroup className="max-h-[300px] overflow-y-auto">
-                {organizations.filter((org) => org.uuid !== userCurrentOrganization?.uuid).map((org) => (
-                  <DropdownMenuItem
-                    key={org.uuid}
-                    onClick={() => handleSwitchOrganization(org)}
-                    disabled={isLoadingOrg || !org.is_active}
-                  >
-                    <Building2 className="h-4 w-4 mr-2 text-orange-500" />
-                    <div>
-                      <p className="text-sm">{org.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {org.domain}
-                      </p>
-                    </div>
-                  </DropdownMenuItem>
-                ))}
+                {organizations
+                  .filter((org) => org.uuid !== userCurrentOrganization?.uuid)
+                  .map((org) => (
+                    <DropdownMenuItem
+                      key={org.uuid}
+                      onClick={() => handleSwitchOrganization(org)}
+                      disabled={isLoadingOrg || !org.is_active}
+                    >
+                      <Building2 className="h-4 w-4 mr-2 text-orange-500" />
+                      <div>
+                        <p className="text-sm">{org.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {org.domain}
+                        </p>
+                      </div>
+                    </DropdownMenuItem>
+                  ))}
               </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>

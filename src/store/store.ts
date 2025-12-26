@@ -48,7 +48,7 @@ const combinedReducer = combineSlices({
   permissionSlice: persistReducer(permissionPersistConfig, permissionsReducer),
   leaveTypeSlice: leaveTypeReducer,
   leaveRequestSlice: leaveRequestReducer,
-  imageUploadSlice: imageUploadReducer
+  imageUploadSlice: imageUploadReducer,
   attendancesSlice: attendancesReducer ,
 });
 

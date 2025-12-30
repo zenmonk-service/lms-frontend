@@ -85,7 +85,7 @@ export default function ManageOrganizationsUser({
                         <Switch
                           checked={isActive}
                           disabled={isActiveLoading}
-                          className="data-[state=checked]:bg-orange-500"
+                          className="data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
                           onClick={async () => {
                             if (isActive) {
                               await dispatch(

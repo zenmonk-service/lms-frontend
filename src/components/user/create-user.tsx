@@ -180,7 +180,7 @@ export default function CreateUser({
       }}
     >
       <Button
-        className="bg-orange-500 hover:bg-orange-600 text-white"
+        className="bg-primary hover:bg-primary/90 text-primary-foreground"
         size="sm"
         onClick={() => setOpen(true)}
       >
@@ -219,7 +219,7 @@ export default function CreateUser({
                 />
                 <InputGroupAddon>
                   <InputGroupText>
-                    <User className="w-4 h-4 text-orange-500" />
+                    <User className="w-4 h-4 text-primary"/>
                   </InputGroupText>
                 </InputGroupAddon>
               </InputGroup>
@@ -241,7 +241,7 @@ export default function CreateUser({
                   />
                   <InputGroupAddon>
                     <InputGroupText className="flex items-center gap-2">
-                      <Mail className="w-4 h-4 text-orange-500" />
+                      <Mail className="w-4 h-4 text-primary"/>
                     </InputGroupText>
                   </InputGroupAddon>
 
@@ -249,7 +249,7 @@ export default function CreateUser({
                     <InputGroupText className="flex items-center gap-2">
                       {isExistLoading && (
                         <>
-                          <Loader2 className="w-4 h-4 text-orange-500 animate-spin" />
+                          <Loader2 className="w-4 h-4 text-primary animate-spin" />
                           <span className="text-xs text-gray-600">
                             Checking!
                           </span>
@@ -277,7 +277,7 @@ export default function CreateUser({
                   />
                   <InputGroupAddon>
                     <InputGroupText>
-                      <Lock className="w-4 h-4 text-orange-500" />
+                      <Lock className="w-4 h-4 text-primary"/>
                     </InputGroupText>
                   </InputGroupAddon>
                   <InputGroupAddon align="inline-end">
@@ -288,9 +288,9 @@ export default function CreateUser({
                       aria-label={showPassword ? "Hide password" : "Show password"}
                     >
                       {showPassword ? (
-                        <EyeOff className="w-4 h-4 text-orange-500" />
+                        <EyeOff className="w-4 h-4 text-primary"/>
                       ) : (
-                        <Eye className="w-4 h-4 text-orange-500" />
+                        <Eye className="w-4 h-4 text-primary"/>
                       )}
                     </InputGroupText>
                   </InputGroupAddon>
@@ -333,7 +333,8 @@ export default function CreateUser({
                 <FieldError errors={[errors.role]} className="text-xs" />
               )}
               {selectedRole && (
-                <p className="text-xs text-green-600 mt-1">
+                <p className="text-xs text-primary mt-1">
+
                   {roles.find((r: any) => r.uuid === selectedRole)?.description}
                 </p>
               )}
@@ -347,10 +348,10 @@ export default function CreateUser({
             <Button
               disabled={isExistLoading || isLoading}
               type="submit"
-              className="bg-gradient-to-r from-orange-500 to-amber-500 text-white"
+              className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground"
             >
               {isExistLoading || isLoading ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin text-primary-foreground" />
               ) : isEdited ? (
                 "Edit User"
               ) : (

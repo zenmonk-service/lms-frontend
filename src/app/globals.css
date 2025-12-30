@@ -31,150 +31,132 @@
   min-height: 40px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: var(--primary);
-  background-clip: padding-box;
-}
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
+  --font-sans: 'Poppins', sans-serif;
   --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 24 100% 50%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 24 100% 50%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 24 100% 50%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.75rem;
-  }
 }
 
 body {
   font-family: "Poppins", sans-serif !important;
 }
 
+/* Default Theme: The Executive Suite (Corporate & Trust) */
 :root {
+  --background: #F8F9FA;
+  --foreground: #1B263B;
+  --card: #FFFFFF;
+  --card-foreground: #1B263B;
+  --popover: #FFFFFF;
+  --popover-foreground: #1B263B;
+  --primary: #1B263B;
+  --primary-foreground: #E0E1DD;
+  --secondary: #415A77;
+  --secondary-foreground: #E0E1DD;
+  --muted: #E0E1DD;
+  --muted-foreground: #778DA9;
+  --accent: #778DA9;
+  --accent-foreground: #1B263B;
+  --destructive: #AE2012;
+  --border: #D1D5DB;
+  --input: #E5E7EB;
+  --ring: #415A77;
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: hsl(0 0% 98%);
-  --sidebar-foreground: hsl(240 5.3% 26.1%);
-  --sidebar-primary: hsl(240 5.9% 10%);
-  --sidebar-primary-foreground: hsl(0 0% 98%);
-  --sidebar-accent: hsl(240 4.8% 95.9%);
-  --sidebar-accent-foreground: hsl(240 5.9% 10%);
-  --sidebar-border: hsl(220 13% 91%);
-  --sidebar-ring: hsl(217.2 91.2% 59.8%);
 }
 
-.dark {
-  --background: oklch(0.129 0.042 264.695);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
-  --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.208 0.042 265.755);
-  --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
-  --primary-foreground: oklch(0.208 0.042 265.755);
-  --secondary: oklch(0.279 0.041 260.031);
-  --secondary-foreground: oklch(0.984 0.003 247.858);
-  --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: hsl(240 5.9% 10%);
-  --sidebar-foreground: hsl(240 4.8% 95.9%);
-  --sidebar-primary: hsl(224.3 76.3% 48%);
-  --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(240 3.7% 15.9%);
-  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
-  --sidebar-border: hsl(240 3.7% 15.9%);
-  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+/* 2. Tech Modern (Sleek & Agile) */
+.theme-tech {
+  --background: #0F172A;
+  --foreground: #F8FAFC;
+  --card: #1E293B;
+  --card-foreground: #F8FAFC;
+  --primary: #38BDF8;
+  --primary-foreground: #0F172A;
+  --secondary: #1E293B;
+  --secondary-foreground: #94A3B8;
+  --accent: #334155;
+  --muted: #334155;
+  --muted-foreground: #94A3B8;
+  --border: #334155;
+}
+
+/* 3. The Wellness Leaf (Organic & Calm) */
+.theme-wellness {
+  --background: #F8FDF9;
+  --foreground: #000000;
+  --card: #FFFFFF;
+  --card-foreground: #1B4332;
+  --primary: #2D6A4F;
+  --primary-foreground: #F8FDF9;
+  --secondary: #74C69D;
+  --secondary-foreground: #1B4332;
+  --accent: #B7E4C7;
+  --muted: #D8F3DC;
+  --muted-foreground: #000000;
+  --border: #D8F3DC;
+}
+
+/* 4. Academic Heritage (Tradition & Knowledge) */
+.theme-academic {
+  --background: #F5F3F0;
+  --foreground: #0B090A;
+  --card: #FFFFFF;
+  --card-foreground: #0B090A;
+  --primary: #660708;
+  --primary-foreground: #F5F3F0;
+  --secondary: #A4161A;
+  --secondary-foreground: #F5F3F0;
+  --accent: #BA181B;
+  --muted: #E5E5E5;
+  --muted-foreground: #660708;
+  --border: #D3D3D3;
+}
+
+/* 5. Industrial Precision (Efficiency & Focus) */
+.theme-industrial {
+  --background: #FFFFFF;
+  --foreground: #212529;
+  --card: #F8F9FA;
+  --card-foreground: #212529;
+  --primary: #212529;
+  --primary-foreground: #FFD166;
+  --secondary: #FFD166;
+  --secondary-foreground: #212529;
+  --accent: #ADB5BD;
+  --muted: #E9ECEF;
+  --muted-foreground: #495057;
+  --border: #DEE2E6;
+}
+
+/* 6. The Creative Studio (Playful & Collaborative) */
+.theme-creative {
+  --background: #FAF5FF;
+  --foreground: #2E1065;
+  --card: #FFFFFF;
+  --card-foreground: #2E1065;
+  --primary: #4C1D95;
+  --primary-foreground: #FAF5FF;
+  --secondary: #DDD6FE;
+  --secondary-foreground: #4C1D95;
+  --accent: #F472B6;
+  --muted: #F3E8FF;
+  --muted-foreground: #7C3AED;
+  --border: #EDE9FE;
 }
 
 @layer base {
@@ -189,9 +171,4 @@ body {
 input[type="password"]::-webkit-credentials-auto-fill-button {
   visibility: hidden;
   display: none !important;
-}
-
-input[type="password"]::-ms-reveal,
-input[type="password"]::-ms-clear {
-  display: none;
 }

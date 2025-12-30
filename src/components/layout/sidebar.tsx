@@ -51,6 +51,7 @@ import { resetStore } from "@/store/reset-store-action";
 import { getOrganizationById } from "@/features/organizations/organizations.action";
 import { setUserCurrentOrganization } from "@/features/user/user.slice";
 import { listUserAction } from "@/features/user/user.action";
+import { ThemeSelector } from "../themes/theme-selector";
 
 export function AppSidebar({ uuid }: { uuid: string }) {
   const { isMobile } = useSidebar();
@@ -195,7 +196,7 @@ export function AppSidebar({ uuid }: { uuid: string }) {
                       href={child.url}
                       className={
                         pathname === child.url
-                          ? "bg-orange-100 text-orange-600 font-semibold rounded-md hover:!text-orange-600 hover:!bg-orange-100"
+                          ? "bg-primary/10 text-primary font-semibold rounded-md hover:bg-primary/15"
                           : ""
                       }
                     >
@@ -218,7 +219,7 @@ export function AppSidebar({ uuid }: { uuid: string }) {
             href={item.url}
             className={
               pathname === item.url
-                ? "bg-orange-100 text-orange-600 font-semibold rounded-md"
+                ? "bg-primary/10 text-primary font-semibold rounded-md"
                 : ""
             }
           >
@@ -286,7 +287,7 @@ export function AppSidebar({ uuid }: { uuid: string }) {
       {isLoadingOrg && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
           <div className="bg-white rounded-sm p-8 flex flex-col items-center gap-4 shadow-xl">
-            <LoaderCircle className="w-12 h-12 text-orange-500 animate-spin" />
+            <LoaderCircle className="w-12 h-12 text-primary animate-spin" />
             <div className="text-center">
               <p className="text-lg font-semibold text-gray-900">
                 Switching workspace...
@@ -308,8 +309,8 @@ export function AppSidebar({ uuid }: { uuid: string }) {
                 disabled={organizations.length <= 1}
               >
                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
-                    <Building2 className="w-5 h-5 text-white" />
+                  <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
+                    <Building2 className="w-5 h-5 text-primary-foreground" />
                   </div>
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
@@ -320,7 +321,9 @@ export function AppSidebar({ uuid }: { uuid: string }) {
                     {userCurrentOrganization?.domain}
                   </span>
                 </div>
-                {organizations.length > 1 && <ChevronsUpDown className="ml-auto size-4" />}
+                {organizations.length > 1 && (
+                  <ChevronsUpDown className="ml-auto size-4" />
+                )}
               </SidebarMenuButton>
             </DropdownMenuTrigger>
             <DropdownMenuContent
@@ -339,21 +342,23 @@ export function AppSidebar({ uuid }: { uuid: string }) {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuGroup className="max-h-[300px] overflow-y-auto">
-                {organizations.filter((org) => org.uuid !== userCurrentOrganization?.uuid).map((org) => (
-                  <DropdownMenuItem
-                    key={org.uuid}
-                    onClick={() => handleSwitchOrganization(org)}
-                    disabled={isLoadingOrg || !org.is_active}
-                  >
-                    <Building2 className="h-4 w-4 mr-2 text-orange-500" />
-                    <div>
-                      <p className="text-sm">{org.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {org.domain}
-                      </p>
-                    </div>
-                  </DropdownMenuItem>
-                ))}
+                {organizations
+                  .filter((org) => org.uuid !== userCurrentOrganization?.uuid)
+                  .map((org) => (
+                    <DropdownMenuItem
+                      key={org.uuid}
+                      onClick={() => handleSwitchOrganization(org)}
+                      disabled={isLoadingOrg || !org.is_active}
+                    >
+                      <Building2 className="h-4 w-4 mr-2 text-primary" />
+                      <div>
+                        <p className="text-sm">{org.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {org.domain}
+                        </p>
+                      </div>
+                    </DropdownMenuItem>
+                  ))}
               </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -369,6 +374,7 @@ export function AppSidebar({ uuid }: { uuid: string }) {
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
+        <ThemeSelector />
         <SidebarFooter>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -378,7 +384,9 @@ export function AppSidebar({ uuid }: { uuid: string }) {
               >
                 <Avatar className="h-8 w-8 rounded-lg">
                   {/* <AvatarImage src={user?.avatar} alt={user?.name} /> */}
-                  <AvatarFallback className="rounded-lg">LG</AvatarFallback>
+                  <AvatarFallback className="rounded-lg bg-primary text-primary-foreground">
+                    LG
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{user?.name}</span>
@@ -427,7 +435,7 @@ export function AppSidebar({ uuid }: { uuid: string }) {
                 }}
               >
                 {isPending ? (
-                  <LoaderCircle className="w-4 h-4 mr-2 animate-spin" />
+                  <LoaderCircle className="w-4 h-4 mr-2 animate-spin text-primary" />
                 ) : (
                   <LogOut className="w-4 h-4 mr-2" />
                 )}

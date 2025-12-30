@@ -63,6 +63,7 @@ export default function DataTable({
   });
 
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
+
   const handleSearchDebounced = (value: string) => {
     if (searchTimeout.current) clearTimeout(searchTimeout.current);
 
@@ -70,6 +71,7 @@ export default function DataTable({
       handleSearchChange(value);
     }, 500);
   };
+
   const handleSearchChange = (value: string) => {
     if (value?.trim() === pagination.search) return;
     onPaginationChange({ search: value, page: 1 });
@@ -85,42 +87,43 @@ export default function DataTable({
 
   return (
     <>
-      <div className="flex items-center justify-between mb-4 ">
-        <div>
-          {searchable && (
-            <Input
-              placeholder={searchPlaceholder}
-              onChange={(event) => handleSearchDebounced(event.target.value)}
-              className="max-w-sm mt-4"
-            />
-          )}
-        </div>
+      {/* Search */}
+      <div className="flex items-center justify-between mb-4">
+        {searchable && (
+          <Input
+            placeholder={searchPlaceholder}
+            onChange={(event) => handleSearchDebounced(event.target.value)}
+            className="max-w-sm mt-4"
+          />
+        )}
       </div>
 
-      <div className="bg-white border rounded-lg p-4 max-h-[calc(100vh-220px)] overflow-auto flex flex-col justify-between">
-        <div className="relative overflow-auto rounded-md border">
+      {/* Table Container */}
+      <div className="bg-background border border-border rounded-lg p-4 max-h-[calc(100vh-220px)] overflow-auto flex flex-col justify-between">
+        <div className="relative overflow-auto rounded-md border border-border">
           <Table>
-            <TableHeader className="bg-[#eaeef1] sticky top-0 z-10">
+            {/* Header */}
+            <TableHeader className="bg-muted sticky top-0 z-10">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead
-                        className="text-[#707483] font-medium"
-                        key={header.id}
-                      >
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </TableHead>
-                    );
-                  })}
+                  {headerGroup.headers.map((header) => (
+                    <TableHead
+                      key={header.id}
+                      className="text-muted-foreground font-medium"
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  ))}
                 </TableRow>
               ))}
             </TableHeader>
+
+            {/* Body */}
             <TableBody>
               {isLoading ? (
                 <TableRow>
@@ -129,11 +132,7 @@ export default function DataTable({
                     className="text-center p-8"
                   >
                     <div className="flex justify-center items-center">
-                      <LoaderCircle
-                        className="animate-spin"
-                        width={20}
-                        height={20}
-                      />
+                      <LoaderCircle className="animate-spin text-muted-foreground" />
                     </div>
                   </TableCell>
                 </TableRow>
@@ -141,7 +140,7 @@ export default function DataTable({
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="text-center p-8"
+                    className="text-center p-8 text-muted-foreground"
                   >
                     {noDataMessage}
                   </TableCell>
@@ -150,6 +149,7 @@ export default function DataTable({
                 table.getRowModel().rows.map((row) => (
                   <TableRow
                     key={row.id}
+                    className="hover:bg-muted/50"
                     data-state={row.getIsSelected() && "selected"}
                   >
                     {row.getVisibleCells().map((cell) => (
@@ -166,9 +166,13 @@ export default function DataTable({
             </TableBody>
           </Table>
         </div>
-        <div className="flex items-center justify-end space-x-2 py-4">
+
+        {/* Pagination */}
+        <div className="flex items-center justify-end space-x-4 py-4">
           <div className="flex items-center space-x-2">
-            <span className="text-sm">Select Page Size:</span>
+            <span className="text-sm text-muted-foreground">
+              Select Page Size:
+            </span>
             <Select
               onValueChange={(val) => handlePageSizeChange(Number(val))}
               value={pagination.limit.toString()}
@@ -178,7 +182,9 @@ export default function DataTable({
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <SelectLabel className="text-xs">Page Size</SelectLabel>
+                  <SelectLabel className="text-xs">
+                    Page Size
+                  </SelectLabel>
                   {[5, 10, 20, 50].map((size) => (
                     <SelectItem key={size} value={size.toString()}>
                       {size}
@@ -188,6 +194,7 @@ export default function DataTable({
               </SelectContent>
             </Select>
           </div>
+
           <div className="space-x-2">
             <Button
               variant="outline"
